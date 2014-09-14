@@ -1,0 +1,48 @@
+import os
+
+Import('lib_env', 'lib')
+
+target = 'unittests'
+
+app_env = lib_env.Clone()
+
+sources_unittests = [
+    'trace/TraceSet_Unittest.cpp',
+    'trace/TraceSetIterator_Unittest.cpp',
+    'value/Utils_Unittest.cpp',
+    'value/Value_Unittest.cpp',
+]
+
+sources_contrib = [
+    'gmock/gtest/src/gtest-all.cc',
+    'gmock/src/gmock-all.cc',
+    'gmock/src/gmock_main.cc',
+]
+
+subs = [
+    ('..', sources_unittests),
+    ('../../contrib', sources_contrib),
+]
+
+sources = []
+for directory, files in subs:
+    sources += [os.path.join(directory, f) for f in files]
+
+app_env.ParseConfig('pkg-config --cflags glib-2.0')
+
+libs = [
+    lib,
+    'pthread',
+]
+
+app_env.Prepend(LIBS=libs)
+app_env.Append(LIBS=['pthread'])
+app_env.Append(CPPFLAGS=['-pthread'])
+app_env.Append(CPPPATH=['#/contrib/gmock/include',
+                        '#/contrib/gmock',
+                        '#/contrib/gmock/gtest/include',
+                        '#/contrib/gmock/gtest'])
+
+app = app_env.Program(target=target, source=sources)
+
+Return(['app'])

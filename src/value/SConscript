@@ -1,0 +1,12 @@
+import os
+
+Import('lib_env')
+
+target = 'value'
+
+sources = [
+    'Utils.cpp',
+    'Value.cpp',
+]
+
+Return(['sources'])

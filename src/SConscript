@@ -7,17 +7,31 @@ env = root_env.Clone()
 
 env.Append(CPPPATH=['#/src'])
 
-common = SConscript(os.path.join('common', 'SConscript'),
-                    exports=['env'])
-tibeecore = SConscript(os.path.join('tibeecore', 'SConscript'),
-                       exports=['env', 'common'])
-tibeebuild = SConscript(os.path.join('tibeebuild', 'SConscript'),
-                        exports=['env', 'common'])
-providers = SConscript(os.path.join('providers', 'SConscript'),
-                       exports=['env', 'common'])
+lib_env = env.Clone();
 
-Depends('tibeecore', 'common')
-Depends('tibeebuild', 'common')
-Depends('providers', 'common')
+base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
+mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
+rpc = SConscript(os.path.join('rpc', 'SConscript'), exports=['lib_env'])
+value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
+trace = SConscript(os.path.join('trace', 'SConscript'), exports=['lib_env'])
 
-Return(['tibeecore', 'tibeebuild',])
+subs = [
+    ('base', base),
+    ('mq', mq),
+    ('rpc', rpc),
+    ('value', value),
+    ('trace', trace),    
+]
+
+sources = []
+for directory, files in subs:
+    sources += [os.path.join(directory, f) for f in files]
+
+lib = lib_env.SharedLibrary(target='tigerbeetle', source=sources)
+
+test = SConscript(os.path.join('test', 'SConscript'),
+                  exports=['lib_env', 'lib'])
+
+Depends('test', 'lib')
+
+Return(['test', 'lib'])

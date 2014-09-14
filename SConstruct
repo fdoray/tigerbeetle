@@ -64,5 +64,3 @@ if 'LD_LIBRARY_PATH' in os.environ:
 Export('root_env')
 
 apps = SConscript(os.path.join('src', 'SConscript'))
-tests = SConscript(os.path.join('tests', 'SConscript'))
-Depends(tests, apps)

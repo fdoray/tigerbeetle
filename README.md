@@ -3,7 +3,7 @@ tigerbeetle
 
 ![A tiger beetle](http://0x3b.org/ss/parosteosis555.png)
 
-[![Build Status](https://travis-ci.org/eepp/tigerbeetle.svg?branch=master)](https://travis-ci.org/eepp/tigerbeetle)
+[![Build Status](https://travis-ci.org/fdoray/tigerbeetle.svg?branch=master)](https://travis-ci.org/fdoray/tigerbeetle)
 
 ***tigerbeetle*** is an ongoing project aiming at the creation of a
 fast, flexible trace analysis core. The project name has absolutely no

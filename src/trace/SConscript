@@ -1,0 +1,32 @@
+import os
+
+Import('lib_env')
+
+lib_env.ParseConfig('pkg-config --cflags --libs yajl')
+lib_env.ParseConfig('pkg-config --cflags uuid')
+lib_env.ParseConfig('pkg-config --cflags glib-2.0')
+
+libs = [
+    'babeltrace',
+    'babeltrace-ctf',
+    'dl',
+    'boost_regex',
+    'boost_filesystem',
+    'boost_system',
+]
+
+lib_env.Append(LIBS=libs)
+
+sources = [
+    'EventInfos.cpp',
+    'EventValueFactory.cpp',
+    'FieldInfos.cpp',
+    'TraceInfos.cpp',
+    'TraceSet.cpp',
+    'TraceSetIterator.cpp',
+    'value/ArrayEventValue.cpp',
+    'value/EventValue.cpp',
+    'value/StructEventValue.cpp',
+]
+
+Return(['sources'])

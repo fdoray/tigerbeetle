@@ -3,6 +3,9 @@
 # this script will initialize the submodules of the contrib system,
 # update them and build them.
 
+# checkout gmock and gtest
+svn checkout http://googlemock.googlecode.com/svn/trunk/ gmock
+
 # init/update Git submodules
 pushd ..
 git submodule init

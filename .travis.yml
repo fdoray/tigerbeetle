@@ -7,6 +7,9 @@ env:
   - BUILD_MODE=debug
   - BUILD_MODE=release
 
+services:
+  - mongodb
+
 before_install:
   # support C++11
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -46,4 +49,4 @@ script:
   - ./bootstrap.sh
   - source ./setenv.sh
   - scons mode=$BUILD_MODE
-  - ./tests/testall.sh
+  - ./src/test/unittests

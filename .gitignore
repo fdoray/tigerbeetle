@@ -5,7 +5,7 @@
 *.os
 .sconsign.dblite
 *.his
-/src/tibeecore/tibeecore
-/src/tibeebuild/tibeebuild
+/contrib/gmock
 __pycache__
-/src/qtibeeprogress/qtibeeprogress.egg-info
+*~
+src/test/unittests

@@ -1,0 +1,13 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'AbstractMqSocket.cpp',
+    'MqContext.cpp',
+    'MqMessage.cpp',
+]
+
+lib_env.ParseConfig('pkg-config --cflags --libs libzmq')
+
+Return(['sources'])

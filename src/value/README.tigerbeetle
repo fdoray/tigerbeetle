@@ -1,0 +1,20 @@
+Name: Value from libtrace
+Short Name: value
+URL: https://github.com/TracingTools/libtrace/
+Version: 0
+Revision: 1cc60ba0dd06c28dbb2de6af9aec0f7ede5953f1
+License: Modified BSD License
+License File: LICENSE
+
+Description:
+Library of accessibility-related testing and utility code.
+
+This version has been built from the revision linked in the comment at the top
+of the axs_testing.js file (the revision information is added automatically by
+the build process). See README.md in original project for build instructions.
+
+Local Modifications:
+- Renamed files from value.cpp and value.h to Value.cpp and Value.hpp.
+- Added tibee::value namespace.
+- Removed dependencies to other libtrace source files.
+- Added SConscript build file.
