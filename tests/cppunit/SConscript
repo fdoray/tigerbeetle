@@ -16,6 +16,7 @@ libs = [
 common_sources = [
     'pipeline/MakeBackInserterSinkTest.cpp',
     'pipeline/MultiSinkTest.cpp',
+    'quark/QuarkDatabaseTest.cpp',
     'state/Uint32StateValueTest.cpp',
 ]
 

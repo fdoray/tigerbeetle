@@ -21,9 +21,9 @@
 #include <memory>
 #include <cstdint>
 
+#include <common/quark/Quark.hpp>
 #include <common/state/AbstractStateValue.hpp>
 #include <common/state/StateValueType.hpp>
-#include <common/state/Quark.hpp>
 
 namespace tibee
 {

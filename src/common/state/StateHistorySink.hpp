@@ -32,12 +32,12 @@
 #include <delorean/interval/AbstractInterval.hpp>
 
 #include <common/BasicTypes.hpp>
+#include <common/quark/Quark.hpp>
 #include <common/state/AbstractStateValue.hpp>
 #include <common/state/NullStateValue.hpp>
 #include <common/state/CurrentState.hpp>
 #include <common/state/StateNode.hpp>
 #include <common/state/AbstractStateValue.hpp>
-#include <common/state/Quark.hpp>
 
 namespace tibee
 {

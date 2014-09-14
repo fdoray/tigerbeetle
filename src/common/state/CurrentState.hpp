@@ -22,8 +22,8 @@
 #include <cstddef>
 #include <boost/utility.hpp>
 
+#include <common/quark/Quark.hpp>
 #include <common/state/AbstractStateValue.hpp>
-#include <common/state/Quark.hpp>
 #include <common/BasicTypes.hpp>
 
 
