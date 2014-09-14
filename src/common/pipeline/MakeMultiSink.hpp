@@ -16,38 +16,35 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TIBEE_COMMON_ISINK_HPP
-#define _TIBEE_COMMON_ISINK_HPP
+#ifndef _TIBEE_COMMON_MAKEMULTISINK_HPP
+#define _TIBEE_COMMON_MAKEMULTISINK_HPP
+
+#include <type_traits>
+
+#include <common/pipeline/MultiSink.hpp>
 
 namespace tibee
 {
 namespace common
 {
 
-/**
- * Interface for a sink that receives elements of a parameterized type.
+/*
+ * Constructs a MultiSink object from a container of sinks.
  *
- * @author Francois Doray
+ * @param sinks A container of pointers to sinks to include in the MultiSink.
+ * @returns The constructed MultiSink.
  */
-template <typename T>
-class ISink
+template <typename T, typename C>
+MultiSink<T> MakeMultiSink(C sinks)
 {
-public:
-    typedef T SinkElementType;
-
-    virtual ~ISink() {}
-
-
-    SinkElementType toto() { return SinkElementType(); }
-    /*
-     * Receives an element.
-     *
-     * @param element The received element.
-     */
-    virtual void Receive(const T& element) = 0;
-};
+    MultiSink<T> multi_sink;
+    for (auto sink : sinks) {
+        multi_sink.AddSink(sink);
+    }
+    return multi_sink;
+}
 
 }  // namespace common
 }  // namespace tibee
 
-#endif  // _TIBEE_COMMON_ISINK_HPP
+#endif  // _TIBEE_COMMON_MAKEMULTISINK_HPP
