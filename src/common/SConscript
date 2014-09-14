@@ -24,6 +24,12 @@ trace_sources = [
     'UintEventValue.cpp',
 ]
 
+traceplayback_sources = [
+    'AbstractTracePlaybackListener.cpp',
+    'EventHandlerSelector.cpp',
+    'TracePlayer.cpp',
+]
+
 state_sources = [
     'AbstractStateNodeVisitor.cpp',
     'AbstractStateValue.cpp',
@@ -62,6 +68,7 @@ utils_sources = [
 
 subs = [
     ('trace', trace_sources),
+    ('traceplayback', traceplayback_sources),
     ('state', state_sources),
     ('stateprov', stateprov_sources),
     ('mq', mq_sources),
