@@ -30,7 +30,7 @@ class AbstractStateValue;
 
 struct StateChangeNotification {
     StateChangeNotification(
-        const CurrentState& currentState,
+        CurrentState& currentState,
         const StateNode& stateNode,
         const AbstractStateValue& newValue) :
         currentState(currentState),
@@ -39,7 +39,7 @@ struct StateChangeNotification {
     {
     }
 
-    const CurrentState& currentState;
+    CurrentState& currentState;
     const StateNode& stateNode;
     const AbstractStateValue& newValue;
 };

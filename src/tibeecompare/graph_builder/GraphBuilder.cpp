@@ -17,7 +17,10 @@
  */
 
 #include <iostream>
+#include <stdlib.h>
 
+#include <common/state/CurrentState.hpp>
+#include <common/state/StateNode.hpp>
 #include <common/utils/print.hpp>
 #include <tibeecompare/ex/InvalidTrace.hpp>
 #include "GraphBuilder.hpp"
@@ -34,9 +37,16 @@ using timeline_graph::TimelineGraph;
 namespace {
 const char kTimestampPropertyName[] = "timestamp";
 const char kDurationPropertyName[] = "duration";
+
+const char kRunSyscall[] = "syscall";
+const char kRunUserMode[] = "usermode";
+const char kInterrupted[] = "interrupted";
+const char kWaitBlocked[] = "wait-blocked";
+const char kWaitForCpu[] = "wait-for-cpu";
+
 }
 
-GraphBuilder::GraphBuilder() {
+GraphBuilder::GraphBuilder() : _currentState(nullptr) {
 }
 
 GraphBuilder::~GraphBuilder() {
@@ -51,7 +61,38 @@ std::unique_ptr<NodeProperties> GraphBuilder::TakeProperties() {
 }
 
 void GraphBuilder::Receive(const common::StateChangeNotification& notification) {
-  std::cout << "state change" << std::endl;
+  // Keep a pointer to the current state.
+  _currentState = &notification.currentState;
+
+  std::vector<common::Quark> path;
+  notification.stateNode.getPath(&path);
+
+  if (path.size() == 4 &&
+      path[0] == notification.currentState.getQuark("linux") &&
+      path[1] == notification.currentState.getQuark("threads") &&
+      path[3] == notification.currentState.getQuark("status")) {
+    // Thread status change.
+    uint64_t tid = atoll(notification.currentState.getString(path[2]).c_str());
+    UpdateTimeThread(tid);
+  }
+}
+
+void GraphBuilder::UpdateTimeThread(uint64_t tid) {
+  if (_last_node_for_tid.find(tid) == _last_node_for_tid.end())
+    return;
+
+  timeline_graph::TimelineNodeId nodeid = _last_node_for_tid[tid];
+
+  auto& stateNode = _currentState->getRoot()["linux"]["threads"][tid]["status"];
+  auto startTs = stateNode.getBeginTs();
+  auto currentTs = _currentState->getCurrentTimestamp();
+  auto duration = currentTs - startTs;
+
+  std::string state = _currentState->getString(stateNode.getValue().asQuark());
+  uint64_t stateTime = _properties->GetProperty(nodeid, state).asUint64();
+  stateTime += duration;
+
+  _properties->SetProperty(nodeid, state, stateTime);
 }
 
 bool GraphBuilder::onStartImpl(const common::TraceSet* traceSet) {
@@ -160,6 +201,9 @@ bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
   // Create the exit node.
   auto& exit_node = _graph->CreateNode();
   _graph->GetNode(last_node_it->second).set_horizontal_child(exit_node.id());
+
+  // Update time.
+  UpdateTimeThread(last_node_it->second);
 
   return true;
 }

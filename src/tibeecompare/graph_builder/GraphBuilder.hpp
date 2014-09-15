@@ -49,6 +49,8 @@ public:
 private:
     virtual void Receive(const common::StateChangeNotification& notification) override;
 
+    void UpdateTimeThread(uint64_t tid);
+
     bool onStartImpl(const common::TraceSet* traceSet);
     void onEventImpl(const common::Event& event);
     bool onStopImpl();
@@ -70,6 +72,8 @@ private:
 
     // The properties of the nodes of the graph.
     std::unique_ptr<NodeProperties> _properties;
+
+    common::CurrentState* _currentState;
 };
 
 }
