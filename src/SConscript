@@ -13,6 +13,8 @@ tibeecore = SConscript(os.path.join('tibeecore', 'SConscript'),
                        exports=['env', 'common'])
 tibeebuild = SConscript(os.path.join('tibeebuild', 'SConscript'),
                         exports=['env', 'common'])
+tibeecompare = SConscript(os.path.join('tibeecompare', 'SConscript'),
+                          exports=['env', 'common'])
 providers = SConscript(os.path.join('providers', 'SConscript'),
                        exports=['env', 'common'])
 

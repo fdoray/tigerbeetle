@@ -6,7 +6,10 @@
 .sconsign.dblite
 *.his
 /src/tibeecore/tibeecore
+/src/tibeecompare/tibeecompare
 /src/tibeebuild/tibeebuild
 /tests/cppunit/testall
 __pycache__
 /src/qtibeeprogress/qtibeeprogress.egg-info
+*~
+comparison.html

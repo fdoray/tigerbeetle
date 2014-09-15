@@ -1,0 +1,47 @@
+
+import os.path
+
+
+Import(['env', 'common'])
+
+target = 'tibeecompare'
+
+libs = [
+    'boost_program_options',
+    'boost_filesystem',
+    'boost_system',
+    'timeline_graph',
+    common,
+]
+
+main_sources = [
+    'main.cpp',
+    'TibeeCompare.cpp',
+]
+
+graphbuilder_sources = [
+    'GraphBuilder.cpp',
+    'NodeProperties.cpp',
+]
+
+htmlwriter_sources = [
+    'HtmlWriter.cpp',
+]
+
+subs = [
+    ('.', main_sources),
+    ('graph_builder', graphbuilder_sources),
+    ('html_writer', htmlwriter_sources),
+]
+
+sources = []
+for base, files in subs:
+    sources += [os.path.join(base, f) for f in files]
+
+app_env = env.Clone()
+
+app_env.Append(LIBS=libs)
+
+app = app_env.Program(target=target, source=sources)
+
+Return('app')

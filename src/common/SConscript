@@ -8,6 +8,7 @@ target = 'tibeecommon'
 trace_sources = [
     'AbstractEventValue.cpp',
     'ArrayEventValue.cpp',
+    'CreateTraceSet.cpp',
     'DictEventValue.cpp',
     'EnumEventValue.cpp',
     'Event.cpp',
