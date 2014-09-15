@@ -89,7 +89,12 @@ void GraphBuilder::UpdateTimeThread(uint64_t tid) {
   auto duration = currentTs - startTs;
 
   std::string state = _currentState->getString(stateNode.getValue().asQuark());
-  uint64_t stateTime = _properties->GetProperty(nodeid, state).asUint64();
+  auto& stateTimeValue = _properties->GetProperty(nodeid, state);
+  uint64_t stateTime = 0;
+  if (stateTimeValue) {
+    stateTime = stateTimeValue.asUint64();
+  }
+
   stateTime += duration;
 
   _properties->SetProperty(nodeid, state, stateTime);
@@ -140,9 +145,6 @@ bool GraphBuilder::onSchedProcessFork(const common::Event& event) {
   uint64_t parent_tid = event["parent_tid"].asUint();
   uint64_t child_tid = event["child_tid"].asUint();
 
-  tbmsg(THIS_MODULE) << "fork " << parent_tid << " -> " << child_tid
-                     << tbendl();
-
   auto parent_last_node_it = _last_node_for_tid.find(parent_tid);
   if (parent_last_node_it == _last_node_for_tid.end())
     return true;
@@ -176,17 +178,18 @@ bool GraphBuilder::onSchedProcessFork(const common::Event& event) {
   _last_node_for_tid[parent_tid] = branch_node.id();
   _last_node_for_tid[child_tid] = child_node.id();
 
+  tbmsg(THIS_MODULE) << "create child node " << child_node.id() << " branching from " << branch_node.id() << tbendl();
+
   return true;
 }
 
 bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
   uint64_t tid = event["tid"].asUint();
 
-  tbmsg(THIS_MODULE) << "exit " << tid << tbendl();
-
   auto last_node_it = _last_node_for_tid.find(tid);
   if (last_node_it == _last_node_for_tid.end())
     return true;
+  auto last_node_id = last_node_it->second;
 
   // Update duration of the last node.
   uint64_t last_node_ts = _properties->GetProperty(
@@ -198,12 +201,15 @@ bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
       kDurationPropertyName,
       last_node_duration);
 
+  // Update time.
+  UpdateTimeThread(tid);
+
   // Create the exit node.
   auto& exit_node = _graph->CreateNode();
-  _graph->GetNode(last_node_it->second).set_horizontal_child(exit_node.id());
+  _graph->GetNode(last_node_id).set_horizontal_child(exit_node.id());
+  _last_node_for_tid[tid] = exit_node.id();
 
-  // Update time.
-  UpdateTimeThread(last_node_it->second);
+  tbmsg(THIS_MODULE) << "close node " << last_node_id << tbendl();
 
   return true;
 }

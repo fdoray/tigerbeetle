@@ -74,6 +74,7 @@ private:
     std::unique_ptr<NodeProperties> _properties;
 
     common::CurrentState* _currentState;
+
 };
 
 }

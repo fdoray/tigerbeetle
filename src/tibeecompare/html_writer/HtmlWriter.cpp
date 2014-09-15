@@ -45,11 +45,31 @@ const char kHtmlHeader[] =
     "      <th>Node</th>\n"
     "      <th>Time A</th>\n"
     "      <th>Time B</th>\n"
+    "      <th>User A</th>\n"
+    "      <th>User B</th>\n"
+    "      <th>Syscall A</th>\n"
+    "      <th>Syscall B</th>\n"
+    "      <th>Interrupted A</th>\n"
+    "      <th>Interrupted B</th>\n"
+    "      <th>Blocked A</th>\n"
+    "      <th>Blocked B</th>\n"
+    "      <th>Wait CPU A</th>\n"
+    "      <th>Wait CPU B</th>\n"
     "    </tr>\n";
 
 const char kHtmlNode[] =
     "    <tr>\n"
     "      <td>%s %d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
+    "      <td>%d</td>\n"
     "      <td>%d</td>\n"
     "      <td>%d</td>\n"
     "    </tr>\n";
@@ -58,6 +78,14 @@ const char kHtmlFooter[] =
     "  </table>\n"
     "</body>\n"
     "</html>\n";
+
+// TODO: Temporary hack.
+uint64_t TempClean(uint64_t val) {
+  if (val == 32)
+    return 0;
+  return val;
+}
+
 }
 
 HtmlWriter::HtmlWriter() {
@@ -89,6 +117,31 @@ void HtmlWriter::WriteHtml(const boost::filesystem::path& out_file,
     uint64_t graph_b_duration = graph_b_properties.GetProperty(
         matcher.GetGraphBForGraphA(it->id()), "duration").asUint64();
 
+    uint64_t graph_a_user = graph_a_properties.GetProperty(
+        it->id(), "usermode").asUint64();
+    uint64_t graph_b_user = graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "usermode").asUint64();
+
+    uint64_t graph_a_syscall = graph_a_properties.GetProperty(
+        it->id(), "syscall").asUint64();
+    uint64_t graph_b_syscall = graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "syscall").asUint64();
+
+    uint64_t graph_a_interrupted = graph_a_properties.GetProperty(
+        it->id(), "interrupted").asUint64();
+    uint64_t graph_b_interrupted = graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "interrupted").asUint64();
+
+    uint64_t graph_a_blocked = graph_a_properties.GetProperty(
+        it->id(), "wait-blocked").asUint64();
+    uint64_t graph_b_blocked = graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "wait-blocked").asUint64();
+
+    uint64_t graph_a_wait_cpu = graph_a_properties.GetProperty(
+        it->id(), "wait-for-cpu").asUint64();
+    uint64_t graph_b_wait_cpu = graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "wait-for-cpu").asUint64();
+
     // Generate indentation string.
     std::string indentation;
     for (size_t i = 0; i < it.Depth(); ++i)
@@ -98,8 +151,18 @@ void HtmlWriter::WriteHtml(const boost::filesystem::path& out_file,
     out << format(kHtmlNode) %
         (indentation + "Node") %
         it->id() %
-        graph_a_duration %
-        graph_b_duration;
+        TempClean(graph_a_duration) %
+        TempClean(graph_b_duration) %
+        TempClean(graph_a_user) %
+        TempClean(graph_b_user) %
+        TempClean(graph_a_syscall) %
+        TempClean(graph_b_syscall) %
+        TempClean(graph_a_interrupted) %
+        TempClean(graph_b_interrupted) %
+        TempClean(graph_a_blocked) %
+        TempClean(graph_b_blocked) %
+        TempClean(graph_a_wait_cpu) %
+        TempClean(graph_b_wait_cpu);
   }
 
   // Write the file footer.
