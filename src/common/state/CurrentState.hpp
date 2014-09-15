@@ -25,7 +25,9 @@
 #include <common/quark/Quark.hpp>
 #include <common/quark/QuarkDatabase.hpp>
 #include <common/state/NullStateValue.hpp>
+#include <common/state/StateChangeNotification.hpp>
 #include <common/BasicTypes.hpp>
+#include <common/pipeline/ISink.hpp>
 
 
 namespace tibee
@@ -116,6 +118,16 @@ public:
      */
     std::unique_ptr<StateNode> buildStateNode();
 
+    /**
+     * Sets the sink that is notified of state changes.
+     *
+     * @param sink The sink that is notified of state changes.
+     */
+    void SetStateChangeSink(ISink<StateChangeNotification>* sink)
+    {
+        _stateChangeSink = sink;
+    }
+
 private:
     void onStateChange(const StateNode& stateNode,
                        const AbstractStateValue& newValue);
@@ -134,6 +146,9 @@ private:
 
     // next state node unique ID to assign
     state_node_id_t _nextNodeId;
+
+    // sink that is notified of state changes
+    ISink<StateChangeNotification>* _stateChangeSink;
 };
 
 }

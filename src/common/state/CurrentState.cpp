@@ -16,6 +16,7 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <common/state/CurrentState.hpp>
+#include <common/state/StateChangeNotification.hpp>
 #include <common/state/StateNode.hpp>
 
 namespace tibee
@@ -25,7 +26,8 @@ namespace common
 
 CurrentState::CurrentState() :
     _ts {0},
-    _nextNodeId {0}
+    _nextNodeId {0},
+    _stateChangeSink {nullptr}
 {
   _null = NullStateValue::UP {new NullStateValue};
 
@@ -70,7 +72,10 @@ StateNode::UP CurrentState::buildStateNode()
 
 void CurrentState::onStateChange(const StateNode& stateNode,
                                  const AbstractStateValue& newValue) {
-    // TODO
+    if (_stateChangeSink == nullptr)
+        return; 
+    StateChangeNotification notification(*this, stateNode, newValue);
+    _stateChangeSink->Receive(notification);
 }
 
 }
