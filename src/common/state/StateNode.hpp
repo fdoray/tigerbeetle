@@ -22,8 +22,10 @@
 #include <memory>
 #include <cstdint>
 #include <unordered_map>
+#include <vector>
 
 #include <common/BasicTypes.hpp>
+#include <common/quark/Quark.hpp>
 #include <common/state/AbstractStateNodeVisitor.hpp>
 #include <common/state/AbstractStateValue.hpp>
 #include <common/state/Sint32StateValue.hpp>
@@ -75,7 +77,6 @@ class CurrentState;
  *
  * @author Philippe Proulx
  */
-#include <memory>
 
 class StateNode :
     boost::noncopyable
@@ -114,6 +115,11 @@ public:
     {
         return _beginTs;
     }
+
+    /**
+     * Returns the path of quarks to reach this node.
+     */
+    void getPath(std::vector<Quark>* path) const;
 
     /**
      * Returns a const reference to the current state value of this
@@ -926,9 +932,12 @@ private:
      * @param id               Node unique ID within the state tree
      * @param currentState     Owning CurrentState
      * @param beginTs          Initial begin timestamp of this node
+     * @param parent           Parent node, or nullptr if root
+     * @param quark            The quark to reach this node from the parent node
      */
     StateNode(state_node_id_t id, CurrentState* currentState,
-              timestamp_t beginTs);
+              timestamp_t beginTs, StateNode* parent,
+              Quark quark);
 
     /**
      * Checks if a child node exists at all (be it null or not).
@@ -986,6 +995,12 @@ private:
 
     // current state
     CurrentState* _currentState;
+
+    // parent node
+    StateNode* _parent;
+
+    // quark to reach this node from the parent
+    Quark _quark;
 };
 
 template<typename T>

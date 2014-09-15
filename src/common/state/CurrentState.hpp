@@ -116,7 +116,7 @@ public:
      *
      * @returns Fresh state node
      */
-    std::unique_ptr<StateNode> buildStateNode();
+    std::unique_ptr<StateNode> buildStateNode(StateNode* parent, Quark quark);
 
     /**
      * Sets the sink that is notified of state changes.

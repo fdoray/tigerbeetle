@@ -31,10 +31,13 @@ namespace common
 {
 
 StateNode::StateNode(state_node_id_t id, CurrentState* currentState,
-                     timestamp_t beginTs) :
+                     timestamp_t beginTs, StateNode* parent,
+                     Quark quark) :
     _id {id},
     _beginTs {beginTs},
-    _currentState {currentState}
+    _currentState {currentState},
+    _parent {parent},
+    _quark {quark}
 {
     // initial state value (null)
     _stateValue = AbstractStateValue::UP {new NullStateValue};
@@ -42,6 +45,17 @@ StateNode::StateNode(state_node_id_t id, CurrentState* currentState,
 
 StateNode::~StateNode()
 {
+}
+
+void StateNode::getPath(std::vector<Quark>* path) const
+{
+    if (_parent == nullptr)
+    {
+        path->clear();
+        return;
+    }
+    _parent->getPath(path);
+    path->push_back(_quark);
 }
 
 const AbstractStateValue& StateNode::getValue() const
@@ -60,7 +74,7 @@ StateNode& StateNode::operator[](Quark quark)
         return *_children[quark.get()];
     }
 
-    auto newNode = _currentState->buildStateNode();
+    auto newNode = _currentState->buildStateNode(this, quark);
 
     _children[quark.get()] = std::move(newNode);
 

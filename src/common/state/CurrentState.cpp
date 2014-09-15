@@ -32,7 +32,7 @@ CurrentState::CurrentState() :
   _null = NullStateValue::UP {new NullStateValue};
 
   // create root node
-  _root = this->buildStateNode();
+  _root = this->buildStateNode(nullptr, Quark(0));
 }
 
 CurrentState::~CurrentState()
@@ -59,10 +59,10 @@ const NullStateValue& CurrentState::getNull() const
     return *_null;
 }
 
-StateNode::UP CurrentState::buildStateNode()
+StateNode::UP CurrentState::buildStateNode(StateNode* parent, Quark quark)
 {
     // build node
-    StateNode::UP node {new StateNode {_nextNodeId, this, 0}};
+    StateNode::UP node {new StateNode {_nextNodeId, this, 0, parent, quark}};
 
     // update next node ID
     _nextNodeId++;
