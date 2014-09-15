@@ -45,7 +45,7 @@ namespace tibee
 namespace common
 {
 
-class StateHistorySink;
+class CurrentState;
 
 /**
  * A state node.
@@ -80,8 +80,7 @@ class StateHistorySink;
 class StateNode :
     boost::noncopyable
 {
-    // mutual friendship FTW
-    friend StateHistorySink;
+    friend CurrentState;
 
     // friendship with iterator
     friend StateNodeIterator;
@@ -925,10 +924,10 @@ private:
      * The node is assigned node ID \p id.
      *
      * @param id               Node unique ID within the state tree
-     * @param stateHistorySink Owning state history sink
+     * @param currentState     Owning CurrentState
      * @param beginTs          Initial begin timestamp of this node
      */
-    StateNode(state_node_id_t id, StateHistorySink* stateHistorySink,
+    StateNode(state_node_id_t id, CurrentState* currentState,
               timestamp_t beginTs);
 
     /**
@@ -967,10 +966,12 @@ private:
     static void acceptImpl(T& stateNode, AbstractStateNodeVisitor& visitor,
                            quark_t quark);
 
-    void writeInterval();
     timestamp_t getCurrentSinkTimestamp();
 
 private:
+    // notifies the owning CurrentState of a state change
+    void onStateChange(const AbstractStateValue& newValue) const;
+
     // node ID
     state_node_id_t _id;
 
@@ -983,21 +984,24 @@ private:
     // children (quark -> state node) map
     std::unordered_map<quark_t, StateNode::UP> _children;
 
-    // owning state history sink
-    StateHistorySink* _stateHistorySink;
+    // current state
+    CurrentState* _currentState;
 };
 
 template<typename T>
 StateNode& StateNode::operator=(const T& value)
 {
-    // write current state as an interval
-    this->writeInterval();
+    // encapsulate the new value in an AbstractStateValue
+    auto newValue = AbstractStateValue::UP {new T{value}};
+
+    // notify CurrentState
+    onStateChange(*newValue);
 
     // update current begin timestamp
     this->_beginTs = this->getCurrentSinkTimestamp();
 
     // assign new value
-    this->_stateValue = AbstractStateValue::UP {new T{value}};
+    this->_stateValue = std::move(newValue);
 
     return *this;
 }

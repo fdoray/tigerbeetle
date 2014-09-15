@@ -16,7 +16,6 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <common/state/CurrentState.hpp>
-#include <common/state/StateHistorySink.hpp>
 #include <common/state/StateNode.hpp>
 
 namespace tibee
@@ -24,34 +23,54 @@ namespace tibee
 namespace common
 {
 
-CurrentState::CurrentState(StateHistorySink* sink) :
-    _sink {sink}
+CurrentState::CurrentState() :
+    _ts {0},
+    _nextNodeId {0}
+{
+  _null = NullStateValue::UP {new NullStateValue};
+
+  // create root node
+  _root = this->buildStateNode();
+}
+
+CurrentState::~CurrentState()
 {
 }
 
 Quark CurrentState::getQuark(const std::string& subpath) const
 {
-    return _sink->getQuark(subpath);
+    return _stringDb->Insert(subpath);
 }
 
 const std::string& CurrentState::getString(Quark quark) const
 {
-    return _sink->getString(quark);
-}
-
-std::size_t CurrentState::getStateChangesCount() const
-{
-    return _sink->getStateChangesCount();
-}
-
-std::size_t CurrentState::getNodesCount() const
-{
-    return _sink->getNodesCount();
+    return _stringDb->ValueOf(quark);
 }
 
 StateNode& CurrentState::getRoot()
 {
-    return _sink->getRoot();
+    return *_root;
+}
+
+const NullStateValue& CurrentState::getNull() const
+{
+    return *_null;
+}
+
+StateNode::UP CurrentState::buildStateNode()
+{
+    // build node
+    StateNode::UP node {new StateNode {_nextNodeId, this, 0}};
+
+    // update next node ID
+    _nextNodeId++;
+
+    return node;
+}
+
+void CurrentState::onStateChange(const StateNode& stateNode,
+                                 const AbstractStateValue& newValue) {
+    // TODO
 }
 
 }

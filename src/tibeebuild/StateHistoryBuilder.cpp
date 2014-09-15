@@ -84,19 +84,14 @@ StateHistoryBuilder::~StateHistoryBuilder()
 
 bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
 {
-    // create new state history sink (destroying the previous one)
-    _stateHistorySink = std::unique_ptr<common::StateHistorySink> {
-        new common::StateHistorySink {
-            this->getCacheDir() / "state-strings.db",
-            this->getCacheDir() / "state-nodes.json",
-            this->getCacheDir() / "state-history.delo",
-            traceSet->getBegin()
-        }
+    // create new current state (destroying the previous one)
+    _currentState = std::unique_ptr<common::CurrentState> {
+        new common::CurrentState {}
     };
 
     // also notify each state provider
     for (auto& provider : _providers) {
-        provider->onInit(_stateHistorySink->getCurrentState(), traceSet);
+        provider->onInit(*_currentState, traceSet);
     }
 
     return true;
@@ -104,12 +99,12 @@ bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
 
 void StateHistoryBuilder::onEventImpl(const common::Event& event)
 {
-    // update state history sink's current timestamp
-    _stateHistorySink->setCurrentTimestamp(event.getTimestamp());
+    // update current timestamp
+    _currentState->setCurrentTimestamp(event.getTimestamp());
 
     // also notify each state provider
     for (auto& provider : _providers) {
-        provider->onEvent(_stateHistorySink->getCurrentState(), event);
+        provider->onEvent(*_currentState, event);
     }
 }
 
@@ -117,21 +112,15 @@ bool StateHistoryBuilder::onStopImpl()
 {
     // also notify each state provider
     for (auto& provider : _providers) {
-        provider->onFini(_stateHistorySink->getCurrentState());
+        provider->onFini(*_currentState);
     }
-
-    // close history file sink
-    _stateHistorySink->close();
 
     return true;
 }
 
 std::size_t StateHistoryBuilder::getStateChanges() const
 {
-    if (_stateHistorySink) {
-        return _stateHistorySink->getStateChangesCount();
-    }
-
+    // TODO
     return 0;
 }
 

@@ -23,18 +23,18 @@
 #include <common/state/Uint64StateValue.hpp>
 #include <common/state/Float32StateValue.hpp>
 #include <common/state/QuarkStateValue.hpp>
-#include <common/state/StateHistorySink.hpp>
+#include <common/state/CurrentState.hpp>
 
 namespace tibee
 {
 namespace common
 {
 
-StateNode::StateNode(state_node_id_t id, StateHistorySink* stateHistorySink,
+StateNode::StateNode(state_node_id_t id, CurrentState* currentState,
                      timestamp_t beginTs) :
     _id {id},
     _beginTs {beginTs},
-    _stateHistorySink {stateHistorySink}
+    _currentState {currentState}
 {
     // initial state value (null)
     _stateValue = AbstractStateValue::UP {new NullStateValue};
@@ -49,7 +49,7 @@ const AbstractStateValue& StateNode::getValue() const
     if (_stateValue) {
         return *_stateValue;
     } else {
-        return _stateHistorySink->getNull();
+        return _currentState->getNull();
     }
 }
 
@@ -60,7 +60,7 @@ StateNode& StateNode::operator[](Quark quark)
         return *_children[quark.get()];
     }
 
-    auto newNode = _stateHistorySink->buildStateNode();
+    auto newNode = _currentState->buildStateNode();
 
     _children[quark.get()] = std::move(newNode);
 
@@ -70,7 +70,7 @@ StateNode& StateNode::operator[](Quark quark)
 StateNode& StateNode::operator[](const std::string& key)
 {
     // get quark for this subpath
-    auto quark = _stateHistorySink->getQuark(key);
+    auto quark = _currentState->getQuark(key);
 
     // delegate
     return this->operator[](quark);
@@ -162,10 +162,10 @@ StateNode& StateNode::operator[](const Float32StateValue& value)
 StateNode& StateNode::operator[](const QuarkStateValue& value)
 {
     // get string value for this string value quark
-    const auto& str = _stateHistorySink->getString(value.getValue());
+    const auto& str = _currentState->getString(value.getValue());
 
     // get subpath quark for this string
-    auto subpathQuark = _stateHistorySink->getQuark(str);
+    auto subpathQuark = _currentState->getQuark(str);
 
     // delegate
     return this->operator[](subpathQuark);
@@ -201,7 +201,7 @@ bool StateNode::hasChild(Quark quark) const
 bool StateNode::hasChild(const std::string& key) const
 {
     // get quark for this subpath
-    auto quark = _stateHistorySink->getQuark(key);
+    auto quark = _currentState->getQuark(key);
 
     // delegate
     return this->hasChild(quark);
@@ -286,7 +286,7 @@ StateNode& StateNode::operator=(const AbstractStateValue& value)
         return (*this = value.asQuarkValue());
     }
 
-    return (*this = _stateHistorySink->getNull());
+    return (*this = _currentState->getNull());
 }
 
 StateNode& StateNode::operator=(const StateNode& node)
@@ -302,7 +302,7 @@ StateNode& StateNode::operator=(Quark quark)
 StateNode& StateNode::operator=(const std::string& value)
 {
     // get quark for this string value
-    auto quark = _stateHistorySink->getQuark(value);
+    auto quark = _currentState->getQuark(value);
 
     // delegate
     return (*this = quark);
@@ -377,7 +377,7 @@ StateNode& StateNode::operator=(const AbstractEventValue& value)
 
 StateNode& StateNode::setNull()
 {
-    return (*this = _stateHistorySink->getNull());
+    return (*this = _currentState->getNull());
 }
 
 StateNode& StateNode::setNullRecursive()
@@ -487,14 +487,13 @@ void StateNode::acceptRead(AbstractStateNodeVisitor& visitor,
     visitor.visitReadLeave(quark, *this);
 }
 
-void StateNode::writeInterval()
-{
-    _stateHistorySink->writeInterval(*this);
-}
-
 timestamp_t StateNode::getCurrentSinkTimestamp()
 {
-    return _stateHistorySink->getCurrentTimestamp();
+    return _currentState->getCurrentTimestamp();
+}
+
+void StateNode::onStateChange(const AbstractStateValue& newValue) const {
+    _currentState->onStateChange(*this, newValue);
 }
 
 }

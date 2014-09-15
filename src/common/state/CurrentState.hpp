@@ -23,7 +23,8 @@
 #include <boost/utility.hpp>
 
 #include <common/quark/Quark.hpp>
-#include <common/state/AbstractStateValue.hpp>
+#include <common/quark/QuarkDatabase.hpp>
+#include <common/state/NullStateValue.hpp>
 #include <common/BasicTypes.hpp>
 
 
@@ -32,12 +33,10 @@ namespace tibee
 namespace common
 {
 
-class StateHistorySink;
 class StateNode;
 
 /**
- * Current state (during a state history construction); façade of a
- * StateHistorySink for state providers.
+ * Current state (during a state history construction).
  *
  * An object of this class is the main one any state provider have
  * access to. They cannot open or close a state history, but are able
@@ -49,40 +48,92 @@ class StateNode;
 class CurrentState final :
     boost::noncopyable
 {
-    friend class StateHistorySink;
-
 public:
+    friend StateNode;
+
+    CurrentState();
+    ~CurrentState();
+
     /**
-     * @see StateHistorySink::getQuark()
+     * Returns a quark for a given string, created if needed.
+     *
+     * The quark will always be the same for the same string.
+     *
+     * @param string String for which to get the quark
+     * @returns      Quark for given string
      */
     Quark getQuark(const std::string& subpath) const;
 
     /**
-     * @see StateHistorySink::getString()
+     * Returns the string associated with quark \p quark or
+     * throws ex::WrongQuark if no such string exists.
+     *
+     * @returns String associated with quark \p quark
      */
     const std::string& getString(Quark quark) const;
 
     /**
-     * @see StateHistorySink::getStateChangesCount()
+     * Sets the history current timestamp. Timestamps should be set
+     * in ascending order.
+     *
+     * @param ts Current timestamp
      */
-    std::size_t getStateChangesCount() const;
+    void setCurrentTimestamp(timestamp_t ts)
+    {
+        assert(ts >= _ts);
+
+        _ts = ts;
+    }
 
     /**
-     * @see StateHistorySink::getNodesCount()
+     * Returns the current history timestamp.
+     *
+     * @returns Current history timestamp
      */
-    std::size_t getNodesCount() const;
+    timestamp_t getCurrentTimestamp() const
+    {
+        return _ts;
+    }
 
     /**
-     * @see StateHistorySink::getRoot()
+     * Returns the root of the state tree.
+     *
+     * @returns State tree root node
      */
     StateNode& getRoot();
 
-private:
-    // only StateHistorySink may build a CurrentState object
-    CurrentState(StateHistorySink* sink);
+    /**
+     * Returns a null state value.
+     *
+     * @returns Null state value
+     */
+     const NullStateValue& getNull() const;
+
+    /**
+     * Builds a new state node, with a fresh, unused unique node ID.
+     *
+     * @returns Fresh state node
+     */
+    std::unique_ptr<StateNode> buildStateNode();
 
 private:
-    StateHistorySink* _sink;
+    void onStateChange(const StateNode& stateNode,
+                       const AbstractStateValue& newValue);
+
+    // string database for state paths
+    std::unique_ptr<QuarkDatabase<std::string>> _stringDb;
+
+    // current timestamp
+    timestamp_t _ts;
+
+    // root state node
+    std::unique_ptr<StateNode> _root;
+
+    // Null state value
+    NullStateValue::UP _null;
+
+    // next state node unique ID to assign
+    state_node_id_t _nextNodeId;
 };
 
 }
