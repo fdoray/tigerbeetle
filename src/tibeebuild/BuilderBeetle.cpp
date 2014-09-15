@@ -24,12 +24,12 @@
 #include <boost/regex.hpp>
 
 #include <common/trace/TraceSet.hpp>
+#include <common/traceplayback/TracePlayer.hpp>
 #include <common/stateprov/StateProviderConfig.hpp>
 #include <common/utils/print.hpp>
 #include <common/ex/WrongStateProvider.hpp>
 #include "StateHistoryBuilder.hpp"
 #include "ProgressPublisher.hpp"
-#include "TraceDeck.hpp"
 #include "Arguments.hpp"
 #include "BuilderBeetle.hpp"
 #include "ex/MqBindError.hpp"
@@ -288,7 +288,7 @@ bool BuilderBeetle::run()
     }
 
     // create a list of trace listeners
-    std::vector<AbstractTracePlaybackListener::UP> listeners;
+    std::vector<tibee::common::AbstractTracePlaybackListener::UP> listeners;
 
     // create a state history builder (if we have at least one provider)
     std::unique_ptr<StateHistoryBuilder> stateHistoryBuilder;
@@ -366,12 +366,12 @@ bool BuilderBeetle::run()
         tbmsg(THIS_MODULE) << "starting trace playback" << tbendl();
     }
 
-    return _traceDeck.play(traceSet.get(), listeners);
+    return _tracePlayer.play(traceSet.get(), listeners);
 }
 
 void BuilderBeetle::stop()
 {
-    _traceDeck.stop();
+    _tracePlayer.stop();
 }
 
 }

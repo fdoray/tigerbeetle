@@ -26,9 +26,9 @@
 #include <common/BasicTypes.hpp>
 #include <common/trace/TraceSet.hpp>
 #include <common/trace/Event.hpp>
+#include <common/traceplayback/AbstractTracePlaybackListener.hpp>
 #include <common/stateprov/StateProviderConfig.hpp>
 #include <common/mq/MqContext.hpp>
-#include "AbstractTracePlaybackListener.hpp"
 #include "StateHistoryBuilder.hpp"
 #include "rpc/ProgressUpdateRpcNotification.hpp"
 #include "rpc/BuilderJsonRpcMessageEncoder.hpp"
@@ -42,7 +42,7 @@ namespace tibee
  * @author Philippe Proulx
  */
 class ProgressPublisher :
-    public AbstractTracePlaybackListener
+    public tibee::common::AbstractTracePlaybackListener
 {
 public:
     /**

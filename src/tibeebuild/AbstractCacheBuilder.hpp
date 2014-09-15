@@ -23,7 +23,7 @@
 
 #include <common/trace/TraceSet.hpp>
 #include <common/trace/Event.hpp>
-#include "AbstractTracePlaybackListener.hpp"
+#include <common/traceplayback/AbstractTracePlaybackListener.hpp>
 
 namespace tibee
 {
@@ -34,7 +34,7 @@ namespace tibee
  * @author Philippe Proulx
  */
 class AbstractCacheBuilder :
-    public AbstractTracePlaybackListener
+    public tibee::common::AbstractTracePlaybackListener
 {
 public:
     /**

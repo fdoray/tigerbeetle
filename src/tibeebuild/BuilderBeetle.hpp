@@ -21,8 +21,8 @@
 #include <boost/filesystem/path.hpp>
 
 #include <common/stateprov/StateProviderConfig.hpp>
+#include <common/traceplayback/TracePlayer.hpp>
 #include "StateHistoryBuilder.hpp"
-#include "TraceDeck.hpp"
 #include "Arguments.hpp"
 
 namespace tibee
@@ -60,7 +60,7 @@ private:
     void createTracesSymlinks() const;
 
 private:
-    TraceDeck _traceDeck;
+    tibee::common::TracePlayer _tracePlayer;
     std::vector<boost::filesystem::path> _tracesPaths;
     std::vector<common::StateProviderConfig> _stateProviders;
     std::string _bindProgress;

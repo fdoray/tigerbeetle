@@ -15,12 +15,10 @@ libs = [
 
 main_sources = [
     'main.cpp',
-    'AbstractTracePlaybackListener.cpp',
     'AbstractCacheBuilder.cpp',
     'BuilderBeetle.cpp',
     'ProgressPublisher.cpp',
     'StateHistoryBuilder.cpp',
-    'TraceDeck.cpp',
 ]
 
 rpc_sources = [
