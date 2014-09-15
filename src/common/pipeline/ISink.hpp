@@ -37,8 +37,6 @@ public:
 
     virtual ~ISink() {}
 
-
-    SinkElementType toto() { return SinkElementType(); }
     /*
      * Receives an element.
      *

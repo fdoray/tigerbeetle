@@ -91,13 +91,9 @@ bool TibeeCompare::run()
     // create a list of trace listeners
     std::vector<common::AbstractTracePlaybackListener::UP> listeners;
 
-    std::unique_ptr<GraphBuilder> graphBuilder(new GraphBuilder());
-    GraphBuilder* graphBuilderPtr = graphBuilder.get();
-    listeners.push_back(std::move(graphBuilder));
-
     // create a state history builder (if we have at least one provider)
     std::unique_ptr<StateHistoryBuilder> stateHistoryBuilder;
-    const StateHistoryBuilder* shbPtr = nullptr;
+    StateHistoryBuilder* shbPtr = nullptr;
 
     std::vector<common::StateProviderConfig> stateProviders;
     stateProviders.push_back(common::StateProviderConfig{"src/providers/linux/linux.so", "linux"});
@@ -138,6 +134,12 @@ bool TibeeCompare::run()
 
         listeners.push_back(std::move(stateHistoryBuilder));
     }
+
+    // create a graph builder
+    std::unique_ptr<GraphBuilder> graphBuilder(new GraphBuilder());
+    GraphBuilder* graphBuilderPtr = graphBuilder.get();
+    listeners.push_back(std::move(graphBuilder));
+    shbPtr->SetStateChangeSink(graphBuilderPtr);
 
     // build graphs for the 2 traces
     common::TracePlayer player;

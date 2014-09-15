@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <iostream>
 #include <common/state/CurrentState.hpp>
 #include <common/state/StateChangeNotification.hpp>
 #include <common/state/StateNode.hpp>
@@ -25,10 +27,10 @@ namespace common
 {
 
 CurrentState::CurrentState() :
+    _stringDb {new QuarkDatabase<std::string>()},
     _ts {0},
     _nextNodeId {0},
-    _stateChangeSink {nullptr},
-    _stringDb {new QuarkDatabase<std::string>()}
+    _stateChangeSink {nullptr}
 {
   _null = NullStateValue::UP {new NullStateValue};
 

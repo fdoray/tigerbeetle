@@ -26,6 +26,8 @@
 #include <common/trace/TraceSet.hpp>
 #include <common/trace/Event.hpp>
 #include "AbstractCacheBuilder.hpp"
+#include <common/pipeline/ISink.hpp>
+#include <common/state/StateChangeNotification.hpp>
 #include <common/stateprov/AbstractStateProvider.hpp>
 #include <common/stateprov/StateProviderConfig.hpp>
 
@@ -62,12 +64,17 @@ public:
      */
     std::size_t getStateChanges() const;
 
+    void SetStateChangeSink(common::ISink<common::StateChangeNotification>* sink) {
+        _sink = sink;
+    }
+
 private:
     bool onStartImpl(const common::TraceSet* traceSet);
     void onEventImpl(const common::Event& event);
     bool onStopImpl();
 
 private:
+    common::ISink<common::StateChangeNotification>* _sink;
     std::vector<common::StateProviderConfig> _providersConfigs;
     std::vector<common::AbstractStateProvider::UP> _providers;
     std::unique_ptr<common::CurrentState> _currentState;

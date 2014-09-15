@@ -16,6 +16,8 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
+
 #include <common/utils/print.hpp>
 #include <tibeecompare/ex/InvalidTrace.hpp>
 #include "GraphBuilder.hpp"
@@ -46,6 +48,10 @@ std::unique_ptr<TimelineGraph> GraphBuilder::TakeGraph() {
 
 std::unique_ptr<NodeProperties> GraphBuilder::TakeProperties() {
   return std::move(_properties);
+}
+
+void GraphBuilder::Receive(const common::StateChangeNotification& notification) {
+  std::cout << "state change" << std::endl;
 }
 
 bool GraphBuilder::onStartImpl(const common::TraceSet* traceSet) {

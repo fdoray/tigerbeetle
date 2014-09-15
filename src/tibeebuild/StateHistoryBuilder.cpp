@@ -88,6 +88,7 @@ bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
     _currentState = std::unique_ptr<common::CurrentState> {
         new common::CurrentState {}
     };
+    _currentState->SetStateChangeSink(_sink);
 
     // also notify each state provider
     for (auto& provider : _providers) {

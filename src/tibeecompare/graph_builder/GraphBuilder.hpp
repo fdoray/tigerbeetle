@@ -20,6 +20,8 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <common/pipeline/ISink.hpp>
+#include <common/state/StateChangeNotification.hpp>
 #include <common/traceplayback/AbstractTracePlaybackListener.hpp>
 #include <common/traceplayback/EventHandlerSelector.hpp>
 #include <tibeecompare/graph_builder/NodeProperties.hpp>
@@ -34,7 +36,8 @@ namespace tibee
  * @author Francois Doray
  */
 class GraphBuilder
-    : public common::AbstractTracePlaybackListener
+    : public common::AbstractTracePlaybackListener,
+      public common::ISink<common::StateChangeNotification>
 {
 public:
     GraphBuilder();
@@ -44,6 +47,8 @@ public:
     std::unique_ptr<NodeProperties> TakeProperties();
 
 private:
+    virtual void Receive(const common::StateChangeNotification& notification) override;
+
     bool onStartImpl(const common::TraceSet* traceSet);
     void onEventImpl(const common::Event& event);
     bool onStopImpl();
