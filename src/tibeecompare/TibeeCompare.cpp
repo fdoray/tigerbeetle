@@ -17,11 +17,16 @@
  */
 #include <sstream>
 
+#include <common/ex/WrongStateProvider.hpp>
 #include <common/trace/CreateTraceSet.hpp>
 #include <common/trace/TraceSet.hpp>
 #include <common/traceplayback/AbstractTracePlaybackListener.hpp>
 #include <common/traceplayback/TracePlayer.hpp>
 #include <common/utils/print.hpp>
+#include <tibeebuild/StateHistoryBuilder.hpp>
+#include <tibeebuild/ex/BuilderBeetleError.hpp>
+#include <tibeebuild/ex/StateProviderNotFound.hpp>
+#include <tibeebuild/ex/UnknownStateProviderType.hpp>
 #include <timeline_graph/timeline_graph.h>
 #include "TibeeCompare.hpp"
 #include "ex/InvalidArgument.hpp"
@@ -89,6 +94,50 @@ bool TibeeCompare::run()
     std::unique_ptr<GraphBuilder> graphBuilder(new GraphBuilder());
     GraphBuilder* graphBuilderPtr = graphBuilder.get();
     listeners.push_back(std::move(graphBuilder));
+
+    // create a state history builder (if we have at least one provider)
+    std::unique_ptr<StateHistoryBuilder> stateHistoryBuilder;
+    const StateHistoryBuilder* shbPtr = nullptr;
+
+    std::vector<common::StateProviderConfig> stateProviders;
+    stateProviders.push_back(common::StateProviderConfig{"src/providers/linux/linux.so", "linux"});
+
+    if (!stateProviders.empty()) {
+        try {
+            stateHistoryBuilder = std::unique_ptr<StateHistoryBuilder> {
+                new StateHistoryBuilder {
+                    "",
+                    stateProviders
+                }
+            };
+        } catch (const common::ex::WrongStateProvider& ex) {
+            std::stringstream ss;
+
+            ss << "wrong state provider: \"" << ex.getName() << "\"" << std::endl <<
+                  "  " << ex.what();
+
+            throw ex::BuilderBeetleError {ss.str()};
+        } catch (const ex::UnknownStateProviderType& ex) {
+            std::stringstream ss;
+
+            ss << "unknown state provider type: \"" << ex.getName() << "\"";
+
+            throw ex::BuilderBeetleError {ss.str()};
+        } catch (const ex::StateProviderNotFound& ex) {
+            std::stringstream ss;
+
+            ss << "cannot find state provider \"" << ex.getName() << "\"";
+
+            throw ex::BuilderBeetleError {ss.str()};
+        } catch (...) {
+            throw ex::BuilderBeetleError {"unknown error"};
+        }
+
+        // reference for progress publisher before moving it
+        shbPtr = stateHistoryBuilder.get();
+
+        listeners.push_back(std::move(stateHistoryBuilder));
+    }
 
     // build graphs for the 2 traces
     common::TracePlayer player;

@@ -14,6 +14,11 @@ libs = [
     common,
 ]
 
+builder_sources = [
+    'StateHistoryBuilder.cpp',
+    'AbstractCacheBuilder.cpp',
+]
+
 main_sources = [
     'main.cpp',
     'TibeeCompare.cpp',
@@ -29,6 +34,7 @@ htmlwriter_sources = [
 ]
 
 subs = [
+    ('../tibeebuild', builder_sources),
     ('.', main_sources),
     ('graph_builder', graphbuilder_sources),
     ('html_writer', htmlwriter_sources),

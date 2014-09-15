@@ -27,7 +27,8 @@ namespace common
 CurrentState::CurrentState() :
     _ts {0},
     _nextNodeId {0},
-    _stateChangeSink {nullptr}
+    _stateChangeSink {nullptr},
+    _stringDb {new QuarkDatabase<std::string>()}
 {
   _null = NullStateValue::UP {new NullStateValue};
 
