@@ -89,6 +89,7 @@ void GraphBuilder::UpdateTimeThread(uint64_t tid) {
   auto duration = currentTs - startTs;
 
   std::string state = _currentState->getString(stateNode.getValue().asQuark());
+
   auto& stateTimeValue = _properties->GetProperty(nodeid, state);
   uint64_t stateTime = 0;
   if (stateTimeValue) {
@@ -98,6 +99,35 @@ void GraphBuilder::UpdateTimeThread(uint64_t tid) {
   stateTime += duration;
 
   _properties->SetProperty(nodeid, state, stateTime);
+
+
+  uint64_t total = 0;
+  auto& usermode = _properties->GetProperty(nodeid, "usermode");
+  if (usermode)
+    total += usermode.asUint64();
+  auto& syscall = _properties->GetProperty(nodeid, "syscall");
+  if (syscall)
+    total += syscall.asUint64();
+  auto& interrupted = _properties->GetProperty(nodeid, "interrupted");
+  if (interrupted)
+    total += interrupted.asUint64();
+  auto& blocked = _properties->GetProperty(nodeid, "wait-blocked");
+  if (blocked)
+    total += blocked.asUint64();
+  auto& waitcpu = _properties->GetProperty(nodeid, "wait-for-cpu");
+  if (waitcpu)
+    total += waitcpu.asUint64();
+
+  uint64_t expected_total = 
+    _currentState->getCurrentTimestamp() -
+    _properties->GetProperty(nodeid, "timestamp").asUint64();
+
+  if (expected_total != total && nodeid != 0) {
+    std::cout << "Time mismatch: node " << nodeid
+              << ": expected=" << expected_total << " real=" << total
+              << " on state " << state << std::endl;
+  } 
+
 }
 
 bool GraphBuilder::onStartImpl(const common::TraceSet* traceSet) {
