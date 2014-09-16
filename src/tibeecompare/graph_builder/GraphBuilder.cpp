@@ -118,11 +118,6 @@ bool GraphBuilder::onStartImpl(const common::TraceSet* traceSet) {
       "lttng-kernel", "sched_process_exit",
       std::bind(&GraphBuilder::onSchedProcessExit, this, _1));
 
-  // TODO: This is a temporary hack.
-  _graph->CreateNode();
-  _last_node_for_tid[20550] = 0;
-  _last_node_for_tid[20596] = 0;
-
   return true;
 }
 
@@ -136,8 +131,21 @@ bool GraphBuilder::onStopImpl() {
 
 bool GraphBuilder::onSysExecve(const common::Event& event) {
   std::string filename = event["filename"].asString();
+  uint64_t cpu = event.getStreamPacketContext()["cpu_id"].asUint();
 
-  tbmsg(THIS_MODULE) << "execve " << filename << tbendl();
+  //std::cout << filename << " on cpu " << cpu << std::endl;
+
+  if (filename == "/usr/local/bin/wk-tasks") {
+    auto& node = _graph->CreateNode();
+    _properties->SetProperty(node.id(),
+                             kTimestampPropertyName,
+                             event.getTimestamp());
+
+    auto tid = _currentState->getRoot()["linux"]["cpus"][std::to_string(cpu)]["cur-thread"].asSint32();
+    _last_node_for_tid[tid] = node.id();
+    std::cout << "TID=" << tid << std::endl;
+  }
+
   return true;
 }
 
