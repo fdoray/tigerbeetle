@@ -45,33 +45,39 @@ const char kHtmlHeader[] =
     "      <th>Node</th>\n"
     "      <th>Time A</th>\n"
     "      <th>Time B</th>\n"
+    "      <th>Time diff</th>\n"
     "      <th>User A</th>\n"
     "      <th>User B</th>\n"
+    "      <th>User diff</th>\n"
     "      <th>Syscall A</th>\n"
     "      <th>Syscall B</th>\n"
+    "      <th>Syscall diff</th>\n"
     "      <th>Interrupted A</th>\n"
     "      <th>Interrupted B</th>\n"
+    "      <th>Interrupted diff</th>\n"
     "      <th>Blocked A</th>\n"
     "      <th>Blocked B</th>\n"
+    "      <th>Blocked diff</th>\n"
     "      <th>Wait CPU A</th>\n"
     "      <th>Wait CPU B</th>\n"
+    "      <th>Wait diff</th>\n"
     "    </tr>\n";
 
 const char kHtmlNode[] =
     "    <tr>\n"
     "      <td>%s %d</td>\n"
     "      <td>%d</td>\n"
+    "      <td>%d</td><td>%s</td>\n"
     "      <td>%d</td>\n"
+    "      <td>%d</td><td>%s</td>\n"
     "      <td>%d</td>\n"
+    "      <td>%d</td><td>%s</td>\n"
     "      <td>%d</td>\n"
+    "      <td>%d</td><td>%s</td>\n"
     "      <td>%d</td>\n"
+    "      <td>%d</td><td>%s</td>\n"
     "      <td>%d</td>\n"
-    "      <td>%d</td>\n"
-    "      <td>%d</td>\n"
-    "      <td>%d</td>\n"
-    "      <td>%d</td>\n"
-    "      <td>%d</td>\n"
-    "      <td>%d</td>\n"
+    "      <td>%d</td><td>%s</td>\n"
     "    </tr>\n";
 
 const char kHtmlFooter[] =
@@ -84,6 +90,15 @@ uint64_t GetUint64(const common::AbstractStateValue& val) {
   if (val)
     return val.asUint64();
   return 0;
+}
+
+std::string GetComparison(uint64_t a, uint64_t b) {
+    if (a < b) {
+        return (format("<span style='color:red; font-size:0.8em;'>+%d</span>") % (b-a)).str();
+    } else if (a > b) {
+        return (format("<span style='color:green; font-size:0.8em;'>-%d</span>") % (a-b)).str();
+    }
+    return "<span style='color:grey; font-size:0.8em;'>=</span>";
 }
 
 }
@@ -153,16 +168,22 @@ void HtmlWriter::WriteHtml(const boost::filesystem::path& out_file,
         it->id() %
         graph_a_duration %
         graph_b_duration %
+        GetComparison(graph_a_duration, graph_b_duration) %
         graph_a_user %
         graph_b_user %
+        GetComparison(graph_a_user, graph_b_user) %
         graph_a_syscall %
         graph_b_syscall %
+        GetComparison(graph_a_syscall, graph_b_syscall) %
         graph_a_interrupted %
         graph_b_interrupted %
+        GetComparison(graph_a_interrupted, graph_b_interrupted) %
         graph_a_blocked %
         graph_b_blocked %
+        GetComparison(graph_a_blocked, graph_b_blocked) %
         graph_a_wait_cpu %
-        graph_b_wait_cpu;
+        graph_b_wait_cpu %
+        GetComparison(graph_a_wait_cpu, graph_b_wait_cpu);
   }
 
   // Write the file footer.

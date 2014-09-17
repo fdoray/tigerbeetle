@@ -203,7 +203,6 @@ bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
   auto last_node_it = _last_node_for_tid.find(tid);
   if (last_node_it == _last_node_for_tid.end())
     return true;
-  auto last_node_id = last_node_it->second;
 
   // Update duration of the last node.
   uint64_t last_node_ts = _properties->GetProperty(
@@ -217,10 +216,6 @@ bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
 
   // Update time.
   UpdateTimeThread(tid);
-
-  // Create the exit node.
-  auto& exit_node = _graph->CreateNode();
-  _graph->GetNode(last_node_id).set_horizontal_child(exit_node.id());
 
   // No more data will be logged for this thread.
   _last_node_for_tid.erase(tid);
