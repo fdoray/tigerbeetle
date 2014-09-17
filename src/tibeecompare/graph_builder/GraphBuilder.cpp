@@ -35,7 +35,8 @@ using common::tbendl;
 using timeline_graph::TimelineGraph;
 
 namespace {
-const char kTimestampPropertyName[] = "timestamp";
+const char kStartTimestampPropertyName[] = "start-ts";
+const char kLastStateChangeTimestamp[] = "last-state-change-ts";
 const char kDurationPropertyName[] = "duration";
 
 const char kRunSyscall[] = "syscall";
@@ -84,7 +85,7 @@ void GraphBuilder::UpdateTimeThread(uint64_t tid) {
   timeline_graph::TimelineNodeId nodeid = _last_node_for_tid[tid];
 
   auto& stateNode = _currentState->getRoot()["linux"]["threads"][tid]["status"];
-  auto startTs = stateNode.getBeginTs();
+  auto startTs = _properties->GetProperty(nodeid, kLastStateChangeTimestamp).asUint64();
   auto currentTs = _currentState->getCurrentTimestamp();
   auto duration = currentTs - startTs;
 
@@ -95,39 +96,10 @@ void GraphBuilder::UpdateTimeThread(uint64_t tid) {
   if (stateTimeValue) {
     stateTime = stateTimeValue.asUint64();
   }
-
   stateTime += duration;
 
   _properties->SetProperty(nodeid, state, stateTime);
-
-
-  uint64_t total = 0;
-  auto& usermode = _properties->GetProperty(nodeid, "usermode");
-  if (usermode)
-    total += usermode.asUint64();
-  auto& syscall = _properties->GetProperty(nodeid, "syscall");
-  if (syscall)
-    total += syscall.asUint64();
-  auto& interrupted = _properties->GetProperty(nodeid, "interrupted");
-  if (interrupted)
-    total += interrupted.asUint64();
-  auto& blocked = _properties->GetProperty(nodeid, "wait-blocked");
-  if (blocked)
-    total += blocked.asUint64();
-  auto& waitcpu = _properties->GetProperty(nodeid, "wait-for-cpu");
-  if (waitcpu)
-    total += waitcpu.asUint64();
-
-  uint64_t expected_total = 
-    _currentState->getCurrentTimestamp() -
-    _properties->GetProperty(nodeid, "timestamp").asUint64();
-
-  if (expected_total != total && nodeid != 0) {
-    std::cout << "Time mismatch: node " << nodeid
-              << ": expected=" << expected_total << " real=" << total
-              << " on state " << state << std::endl;
-  } 
-
+  _properties->SetProperty(nodeid, kLastStateChangeTimestamp, currentTs);
 }
 
 bool GraphBuilder::onStartImpl(const common::TraceSet* traceSet) {
@@ -163,17 +135,16 @@ bool GraphBuilder::onSysExecve(const common::Event& event) {
   std::string filename = event["filename"].asString();
   uint64_t cpu = event.getStreamPacketContext()["cpu_id"].asUint();
 
-  //std::cout << filename << " on cpu " << cpu << std::endl;
-
   if (filename == "/usr/local/bin/wk-tasks") {
     auto& node = _graph->CreateNode();
     _properties->SetProperty(node.id(),
-                             kTimestampPropertyName,
+                             kStartTimestampPropertyName,
                              event.getTimestamp());
 
     auto tid = _currentState->getRoot()["linux"]["cpus"][std::to_string(cpu)]["cur-thread"].asSint32();
     _last_node_for_tid[tid] = node.id();
-    std::cout << "TID=" << tid << std::endl;
+    
+    _properties->SetProperty(node.id(), kLastStateChangeTimestamp, event.getTimestamp());
   }
 
   return true;
@@ -190,17 +161,21 @@ bool GraphBuilder::onSchedProcessFork(const common::Event& event) {
   // Update duration of the last node.
   uint64_t last_node_ts = _properties->GetProperty(
       parent_last_node_it->second,
-      kTimestampPropertyName).asUint64();
+      kStartTimestampPropertyName).asUint64();
   uint64_t last_node_duration = event.getTimestamp() - last_node_ts;
   _properties->SetProperty(
       parent_last_node_it->second,
       kDurationPropertyName,
       last_node_duration);
 
-  // Create the branch node to the parent thread.
+  // Create the branch node of the parent thread.
+  UpdateTimeThread(parent_tid);
   auto& branch_node = _graph->CreateNode();
   _properties->SetProperty(branch_node.id(),
-                           kTimestampPropertyName,
+                           kStartTimestampPropertyName,
+                           event.getTimestamp());
+  _properties->SetProperty(branch_node.id(),
+                           kLastStateChangeTimestamp,
                            event.getTimestamp());
   _graph->GetNode(parent_last_node_it->second).set_horizontal_child(
       branch_node.id());
@@ -208,15 +183,16 @@ bool GraphBuilder::onSchedProcessFork(const common::Event& event) {
   // Create the first node of the child thread.
   auto& child_node = _graph->CreateNode();
   _properties->SetProperty(child_node.id(),
-                           kTimestampPropertyName,
+                           kStartTimestampPropertyName,
+                           event.getTimestamp());
+  _properties->SetProperty(child_node.id(),
+                           kLastStateChangeTimestamp,
                            event.getTimestamp());
   branch_node.set_vertical_child(child_node.id());
 
   // Keep track of the last node for each thread.
   _last_node_for_tid[parent_tid] = branch_node.id();
   _last_node_for_tid[child_tid] = child_node.id();
-
-  tbmsg(THIS_MODULE) << "create child node " << child_node.id() << " branching from " << branch_node.id() << tbendl();
 
   return true;
 }
@@ -232,7 +208,7 @@ bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
   // Update duration of the last node.
   uint64_t last_node_ts = _properties->GetProperty(
       last_node_it->second,
-      kTimestampPropertyName).asUint64();
+      kStartTimestampPropertyName).asUint64();
   uint64_t last_node_duration = event.getTimestamp() - last_node_ts;
   _properties->SetProperty(
       last_node_it->second,
@@ -245,9 +221,9 @@ bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
   // Create the exit node.
   auto& exit_node = _graph->CreateNode();
   _graph->GetNode(last_node_id).set_horizontal_child(exit_node.id());
-  _last_node_for_tid[tid] = exit_node.id();
 
-  tbmsg(THIS_MODULE) << "close node " << last_node_id << tbendl();
+  // No more data will be logged for this thread.
+  _last_node_for_tid.erase(tid);
 
   return true;
 }

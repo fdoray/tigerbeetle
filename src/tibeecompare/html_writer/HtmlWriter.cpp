@@ -80,10 +80,10 @@ const char kHtmlFooter[] =
     "</html>\n";
 
 // TODO: Temporary hack.
-uint64_t TempClean(uint64_t val) {
-  if (val == 32)
-    return 0;
-  return val;
+uint64_t GetUint64(const common::AbstractStateValue& val) {
+  if (val)
+    return val.asUint64();
+  return 0;
 }
 
 }
@@ -112,35 +112,35 @@ void HtmlWriter::WriteHtml(const boost::filesystem::path& out_file,
        it != graph_a.depth_first_search_end();
        ++it) {
     // Get duration of nodes in both graphs.
-    uint64_t graph_a_duration = graph_a_properties.GetProperty(
-        it->id(), "duration").asUint64();
-    uint64_t graph_b_duration = graph_b_properties.GetProperty(
-        matcher.GetGraphBForGraphA(it->id()), "duration").asUint64();
+    uint64_t graph_a_duration = GetUint64(graph_a_properties.GetProperty(
+        it->id(), "duration"));
+    uint64_t graph_b_duration = GetUint64(graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "duration"));
 
-    uint64_t graph_a_user = graph_a_properties.GetProperty(
-        it->id(), "usermode").asUint64();
-    uint64_t graph_b_user = graph_b_properties.GetProperty(
-        matcher.GetGraphBForGraphA(it->id()), "usermode").asUint64();
+    uint64_t graph_a_user = GetUint64(graph_a_properties.GetProperty(
+        it->id(), "usermode"));
+    uint64_t graph_b_user = GetUint64(graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "usermode"));
 
-    uint64_t graph_a_syscall = graph_a_properties.GetProperty(
-        it->id(), "syscall").asUint64();
-    uint64_t graph_b_syscall = graph_b_properties.GetProperty(
-        matcher.GetGraphBForGraphA(it->id()), "syscall").asUint64();
+    uint64_t graph_a_syscall = GetUint64(graph_a_properties.GetProperty(
+        it->id(), "syscall"));
+    uint64_t graph_b_syscall = GetUint64(graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "syscall"));
 
-    uint64_t graph_a_interrupted = graph_a_properties.GetProperty(
-        it->id(), "interrupted").asUint64();
-    uint64_t graph_b_interrupted = graph_b_properties.GetProperty(
-        matcher.GetGraphBForGraphA(it->id()), "interrupted").asUint64();
+    uint64_t graph_a_interrupted = GetUint64(graph_a_properties.GetProperty(
+        it->id(), "interrupted"));
+    uint64_t graph_b_interrupted = GetUint64(graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "interrupted"));
 
-    uint64_t graph_a_blocked = graph_a_properties.GetProperty(
-        it->id(), "wait-blocked").asUint64();
-    uint64_t graph_b_blocked = graph_b_properties.GetProperty(
-        matcher.GetGraphBForGraphA(it->id()), "wait-blocked").asUint64();
+    uint64_t graph_a_blocked = GetUint64(graph_a_properties.GetProperty(
+        it->id(), "wait-blocked"));
+    uint64_t graph_b_blocked = GetUint64(graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "wait-blocked"));
 
-    uint64_t graph_a_wait_cpu = graph_a_properties.GetProperty(
-        it->id(), "wait-for-cpu").asUint64();
-    uint64_t graph_b_wait_cpu = graph_b_properties.GetProperty(
-        matcher.GetGraphBForGraphA(it->id()), "wait-for-cpu").asUint64();
+    uint64_t graph_a_wait_cpu = GetUint64(graph_a_properties.GetProperty(
+        it->id(), "wait-for-cpu"));
+    uint64_t graph_b_wait_cpu = GetUint64(graph_b_properties.GetProperty(
+        matcher.GetGraphBForGraphA(it->id()), "wait-for-cpu"));
 
     // Generate indentation string.
     std::string indentation;
@@ -151,18 +151,18 @@ void HtmlWriter::WriteHtml(const boost::filesystem::path& out_file,
     out << format(kHtmlNode) %
         (indentation + "Node") %
         it->id() %
-        TempClean(graph_a_duration) %
-        TempClean(graph_b_duration) %
-        TempClean(graph_a_user) %
-        TempClean(graph_b_user) %
-        TempClean(graph_a_syscall) %
-        TempClean(graph_b_syscall) %
-        TempClean(graph_a_interrupted) %
-        TempClean(graph_b_interrupted) %
-        TempClean(graph_a_blocked) %
-        TempClean(graph_b_blocked) %
-        TempClean(graph_a_wait_cpu) %
-        TempClean(graph_b_wait_cpu);
+        graph_a_duration %
+        graph_b_duration %
+        graph_a_user %
+        graph_b_user %
+        graph_a_syscall %
+        graph_b_syscall %
+        graph_a_interrupted %
+        graph_b_interrupted %
+        graph_a_blocked %
+        graph_b_blocked %
+        graph_a_wait_cpu %
+        graph_b_wait_cpu;
   }
 
   // Write the file footer.
