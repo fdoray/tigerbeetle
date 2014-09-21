@@ -112,8 +112,8 @@ HtmlWriter::~HtmlWriter() {
 void HtmlWriter::WriteHtml(const boost::filesystem::path& out_file,
                            const timeline_graph::TimelineGraph& graph_a,
                            const timeline_graph::TimelineGraph& graph_b,
-                           const NodeProperties& graph_a_properties,
-                           const NodeProperties& graph_b_properties,
+                           const GraphProperties& graph_a_properties,
+                           const GraphProperties& graph_b_properties,
                            const timeline_graph::Matcher& matcher)
 {
   // Open the output file.

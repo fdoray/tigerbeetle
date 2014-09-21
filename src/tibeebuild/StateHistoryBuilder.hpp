@@ -68,6 +68,14 @@ public:
         _sink = sink;
     }
 
+    common::CurrentState* makeAndGetCurrentState() {
+        // create new current state (destroying the previous one)
+        _currentState = std::unique_ptr<common::CurrentState> {
+            new common::CurrentState {}
+        };
+        return _currentState.get();
+    }
+
 private:
     bool onStartImpl(const common::TraceSet* traceSet);
     void onEventImpl(const common::Event& event);

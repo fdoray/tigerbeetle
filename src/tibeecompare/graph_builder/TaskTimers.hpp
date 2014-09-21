@@ -15,31 +15,38 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _HTMLWRITER_HTMLWRITER_HPP
-#define _HTMLWRITER_HTMLWRITER_HPP
+#ifndef _GRAPHBUILDER_TASKTIMERS_HPP
+#define _GRAPHBUILDER_TASKTIMERS_HPP
 
-#include <boost/filesystem/path.hpp>
-
-#include <tibeecompare/graph_builder/GraphProperties.hpp>
-#include <timeline_graph/timeline_graph.h>
-#include <timeline_graph/matcher.h>
+#include <functional>
+#include <unordered_map>
 
 namespace tibee
 {
 
-class HtmlWriter {
+class TaskTimers
+{
 public:
-    HtmlWriter();
-    ~HtmlWriter();
+    typedef std::function<void (
+        const std::string& timer_name,
+        uint64_t elapsed_time)> ReadTimerCallback;
 
-    void WriteHtml(const boost::filesystem::path& out_file,
-                   const timeline_graph::TimelineGraph& graph_a,
-                   const timeline_graph::TimelineGraph& graph_b,
-                   const GraphProperties& graph_a_properties,
-                   const GraphProperties& graph_b_properties,
-                   const timeline_graph::Matcher& matcher);
+    TaskTimers();
+    ~TaskTimers();
+
+    void StartTimer(uint64_t ts, const std::string& timer_name);
+    bool ReadAndStopTimer(uint64_t ts,
+                          const std::string& timer_name,
+                          uint64_t* elapsed_time);
+    void ReadAndResetTimers(uint64_t ts,
+                            const ReadTimerCallback& callback);
+
+private:
+    // Active timers.
+    typedef std::unordered_map<std::string, uint64_t> Timers;
+    Timers _timers;
 };
 
-}
+}  // namespace tibee
 
-#endif // _HTMLWRITER_HTMLWRITER_HPP
+#endif // _GRAPHBUILDER_TASKTIMERS_HPP

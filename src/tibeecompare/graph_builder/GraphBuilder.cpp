@@ -15,212 +15,191 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#include <iostream>
-#include <stdlib.h>
-
-#include <common/state/CurrentState.hpp>
-#include <common/state/StateNode.hpp>
-#include <common/utils/print.hpp>
-#include <tibeecompare/ex/InvalidTrace.hpp>
 #include "GraphBuilder.hpp"
-
-#define THIS_MODULE "graphbuilder"
 
 namespace tibee
 {
 
-using common::tbmsg;
-using common::tbendl;
-using timeline_graph::TimelineGraph;
-
 namespace {
-const char kStartTimestampPropertyName[] = "start-ts";
-const char kLastStateChangeTimestamp[] = "last-state-change-ts";
-const char kDurationPropertyName[] = "duration";
 
-const char kRunSyscall[] = "syscall";
-const char kRunUserMode[] = "usermode";
-const char kInterrupted[] = "interrupted";
-const char kWaitBlocked[] = "wait-blocked";
-const char kWaitForCpu[] = "wait-for-cpu";
+const char kDurationTimerName[] = "duration";
 
-}
+}  // namespace
 
-GraphBuilder::GraphBuilder() : _currentState(nullptr) {
+GraphBuilder::GraphBuilder()
+    : _ts(0) {
+    Reset();
 }
 
 GraphBuilder::~GraphBuilder() {
 }
 
-std::unique_ptr<TimelineGraph> GraphBuilder::TakeGraph() {
-  return std::move(_graph);
+void GraphBuilder::Reset() {
+    _last_node_for_task_id.clear();
+    _graphs = GraphsUP {new Graphs};
+    _ts = 0;
+    _timers.clear();
 }
 
-std::unique_ptr<NodeProperties> GraphBuilder::TakeProperties() {
-  return std::move(_properties);
+std::unique_ptr<std::vector<GraphAndProperties::UP>>
+    GraphBuilder::TakeGraphs() {
+  return std::move(_graphs);
 }
 
-void GraphBuilder::Receive(const common::StateChangeNotification& notification) {
-  // Keep a pointer to the current state.
-  _currentState = &notification.currentState;
-
-  std::vector<common::Quark> path;
-  notification.stateNode.getPath(&path);
-
-  if (path.size() == 4 &&
-      path[0] == notification.currentState.getQuark("linux") &&
-      path[1] == notification.currentState.getQuark("threads") &&
-      path[3] == notification.currentState.getQuark("status")) {
-    // Thread status change.
-    uint64_t tid = atoll(notification.currentState.getString(path[2]).c_str());
-    UpdateTimeThread(tid);
-  }
+void GraphBuilder::SetTimestamp(common::timestamp_t ts) {
+    _ts = ts;
 }
 
-void GraphBuilder::UpdateTimeThread(uint64_t tid) {
-  if (_last_node_for_tid.find(tid) == _last_node_for_tid.end())
-    return;
+bool GraphBuilder::AddGraph(TaskId task_id) {
+    // A graph already exists for this task.
+    if (_last_node_for_task_id.find(task_id) !=
+            _last_node_for_task_id.end()) {
+        return false;
+    }
 
-  timeline_graph::TimelineNodeId nodeid = _last_node_for_tid[tid];
+    // Create the new graph with an initial node.
+    auto graph_and_properties = GraphAndProperties::UP {new GraphAndProperties};
+    auto& node = graph_and_properties->graph.CreateNode();
+    auto graph_index = _graphs->size();
+    _graphs->push_back(std::move(graph_and_properties));
 
-  auto& stateNode = _currentState->getRoot()["linux"]["threads"][tid]["status"];
-  auto startTs = _properties->GetProperty(nodeid, kLastStateChangeTimestamp).asUint64();
-  auto currentTs = _currentState->getCurrentTimestamp();
-  auto duration = currentTs - startTs;
+    // Keep track of the last node for the root task.
+    _last_node_for_task_id[task_id] = NodeKey(graph_index, node.id());
 
-  std::string state = _currentState->getString(stateNode.getValue().asQuark());
+    // Start a timer for the duration of the node.
+    StartTimer(task_id, kDurationTimerName);
 
-  auto& stateTimeValue = _properties->GetProperty(nodeid, state);
-  uint64_t stateTime = 0;
-  if (stateTimeValue) {
-    stateTime = stateTimeValue.asUint64();
-  }
-  stateTime += duration;
-
-  _properties->SetProperty(nodeid, state, stateTime);
-  _properties->SetProperty(nodeid, kLastStateChangeTimestamp, currentTs);
-}
-
-bool GraphBuilder::onStartImpl(const common::TraceSet* traceSet) {
-   using namespace std::placeholders; 
-
-   _graph = std::unique_ptr<TimelineGraph>(new TimelineGraph());
-   _properties = std::unique_ptr<NodeProperties>(new NodeProperties());
-   _last_node_for_tid.clear();
-
-  _eventHandlerSelector.setTraceSet(traceSet);
-  _eventHandlerSelector.registerEventCallback(
-      "lttng-kernel", "sys_execve",
-      std::bind(&GraphBuilder::onSysExecve, this, _1));
-  _eventHandlerSelector.registerEventCallback(
-      "lttng-kernel", "sched_process_fork",
-      std::bind(&GraphBuilder::onSchedProcessFork, this, _1));
-  _eventHandlerSelector.registerEventCallback(
-      "lttng-kernel", "sched_process_exit",
-      std::bind(&GraphBuilder::onSchedProcessExit, this, _1));
-
-  return true;
-}
-
-void GraphBuilder::onEventImpl(const common::Event& event) {
-  _eventHandlerSelector.onEvent(event);
-}
-
-bool GraphBuilder::onStopImpl() {
-  return true;
-}
-
-bool GraphBuilder::onSysExecve(const common::Event& event) {
-  std::string filename = event["filename"].asString();
-  uint64_t cpu = event.getStreamPacketContext()["cpu_id"].asUint();
-
-  if (filename == "/usr/local/bin/wk-tasks") {
-    auto& node = _graph->CreateNode();
-    _properties->SetProperty(node.id(),
-                             kStartTimestampPropertyName,
-                             event.getTimestamp());
-
-    auto tid = _currentState->getRoot()["linux"]["cpus"][std::to_string(cpu)]["cur-thread"].asSint32();
-    _last_node_for_tid[tid] = node.id();
-    
-    _properties->SetProperty(node.id(), kLastStateChangeTimestamp, event.getTimestamp());
-  }
-
-  return true;
-}
-
-bool GraphBuilder::onSchedProcessFork(const common::Event& event) {
-  uint64_t parent_tid = event["parent_tid"].asUint();
-  uint64_t child_tid = event["child_tid"].asUint();
-
-  auto parent_last_node_it = _last_node_for_tid.find(parent_tid);
-  if (parent_last_node_it == _last_node_for_tid.end())
     return true;
-
-  // Update duration of the last node.
-  uint64_t last_node_ts = _properties->GetProperty(
-      parent_last_node_it->second,
-      kStartTimestampPropertyName).asUint64();
-  uint64_t last_node_duration = event.getTimestamp() - last_node_ts;
-  _properties->SetProperty(
-      parent_last_node_it->second,
-      kDurationPropertyName,
-      last_node_duration);
-
-  // Create the branch node of the parent thread.
-  UpdateTimeThread(parent_tid);
-  auto& branch_node = _graph->CreateNode();
-  _properties->SetProperty(branch_node.id(),
-                           kStartTimestampPropertyName,
-                           event.getTimestamp());
-  _properties->SetProperty(branch_node.id(),
-                           kLastStateChangeTimestamp,
-                           event.getTimestamp());
-  _graph->GetNode(parent_last_node_it->second).set_horizontal_child(
-      branch_node.id());
-
-  // Create the first node of the child thread.
-  auto& child_node = _graph->CreateNode();
-  _properties->SetProperty(child_node.id(),
-                           kStartTimestampPropertyName,
-                           event.getTimestamp());
-  _properties->SetProperty(child_node.id(),
-                           kLastStateChangeTimestamp,
-                           event.getTimestamp());
-  branch_node.set_vertical_child(child_node.id());
-
-  // Keep track of the last node for each thread.
-  _last_node_for_tid[parent_tid] = branch_node.id();
-  _last_node_for_tid[child_tid] = child_node.id();
-
-  return true;
 }
 
-bool GraphBuilder::onSchedProcessExit(const common::Event& event) {
-  uint64_t tid = event["tid"].asUint();
+bool GraphBuilder::AddTask(TaskId parent_task_id, TaskId child_task_id) {
+    size_t graph_index = 0;
+    GraphAndProperties* graph = nullptr;
+    timeline_graph::TimelineNode* parent_node = nullptr;
+    if (!GetLastNodeForTask(parent_task_id, &graph_index, &graph, &parent_node))
+        return false;
 
-  auto last_node_it = _last_node_for_tid.find(tid);
-  if (last_node_it == _last_node_for_tid.end())
+    // Create a node for the new task.
+    auto& child_node = graph->graph.CreateNode();
+    parent_node->set_vertical_child(child_node.id());
+    _last_node_for_task_id[child_task_id] =
+        NodeKey(graph_index, child_node.id());
+
+    // Start a timer for the duration of the child node.
+    StartTimer(child_task_id, kDurationTimerName);
+
+    // Create a step in the parent task.
+    AddTaskStep(parent_task_id);
+
     return true;
-
-  // Update duration of the last node.
-  uint64_t last_node_ts = _properties->GetProperty(
-      last_node_it->second,
-      kStartTimestampPropertyName).asUint64();
-  uint64_t last_node_duration = event.getTimestamp() - last_node_ts;
-  _properties->SetProperty(
-      last_node_it->second,
-      kDurationPropertyName,
-      last_node_duration);
-
-  // Update time.
-  UpdateTimeThread(tid);
-
-  // No more data will be logged for this thread.
-  _last_node_for_tid.erase(tid);
-
-  return true;
 }
 
+bool GraphBuilder::AddTaskStep(TaskId task_id) {
+    size_t graph_index = 0;
+    GraphAndProperties* graph = nullptr;
+    timeline_graph::TimelineNode* previous_node = nullptr;
+    if (!GetLastNodeForTask(task_id, &graph_index, &graph, &previous_node))
+        return false;
+
+    // Read and reset the timers.
+    ReadAndResetTimers(task_id);
+
+    // Create the next node for the task.
+    auto& next_node = graph->graph.CreateNode();
+    previous_node->set_horizontal_child(next_node.id());
+    _last_node_for_task_id[task_id] =
+        NodeKey(graph_index, next_node.id());
+
+    return true;
 }
+
+bool GraphBuilder::EndTask(TaskId task_id) {
+    // Read and reset the timers.
+    ReadAndResetTimers(task_id);
+    _timers.erase(task_id);
+
+    _last_node_for_task_id.erase(task_id);
+
+    return true;
+}
+
+bool GraphBuilder::StartTimer(TaskId task_id, const std::string& timer_name) {
+    if (_last_node_for_task_id.find(task_id) ==
+            _last_node_for_task_id.end()) {
+        return false;
+    }
+
+    _timers[task_id].StartTimer(_ts, timer_name);
+
+    return true;
+}
+
+bool GraphBuilder::StopTimer(TaskId task_id, const std::string& timer_name) {
+    if (_last_node_for_task_id.find(task_id) ==
+            _last_node_for_task_id.end()) {
+        return false;
+    }
+
+    uint64_t elapsed_time = 0;
+    if (!_timers[task_id].ReadAndStopTimer(_ts, timer_name, &elapsed_time))
+        return false;
+
+    GraphAndProperties* graph = nullptr;
+    timeline_graph::TimelineNode* node = nullptr;
+    if (!GetLastNodeForTask(task_id, nullptr, &graph, &node))
+        return false;
+    graph->properties.IncrementProperty(node->id(), timer_name, elapsed_time);
+
+    return true;
+}
+
+bool GraphBuilder::GetLastNodeForTask(TaskId task_id,
+                                      size_t* graph_index,
+                                      GraphAndProperties** graph,
+                                      timeline_graph::TimelineNode** node) {
+    auto look = _last_node_for_task_id.find(task_id);
+    if (look == _last_node_for_task_id.end())
+        return false;
+
+    size_t graph_index_local = look->second.graph_index;
+    if (graph_index != nullptr)
+        *graph_index = graph_index_local;
+
+    assert(_graphs->size() > graph_index_local);
+    auto node_id = look->second.node_id;
+
+    auto& graph_local =  _graphs->at(graph_index_local);
+
+    if (graph != nullptr)
+        *graph = graph_local.get();
+
+    if (node != nullptr)
+        *node = &(*graph)->graph.GetNode(node_id);
+
+    return true;
+}
+
+bool GraphBuilder::ReadAndResetTimers(TaskId task_id) {
+    using namespace std::placeholders; 
+
+    GraphAndProperties* graph = nullptr;
+    timeline_graph::TimelineNode* node = nullptr;
+    if (!GetLastNodeForTask(task_id, nullptr, &graph, &node))
+        return false;
+
+    auto look = _timers.find(task_id);
+    if (look == _timers.end())
+        return true;
+
+    look->second.ReadAndResetTimers(
+        _ts,
+        std::bind(&GraphProperties::IncrementProperty,
+                  &graph->properties,
+                  node->id(),
+                  _1,
+                  _2));
+
+    return true;
+}
+
+}  // namespace tibee

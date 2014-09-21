@@ -27,10 +27,11 @@
 #include <tibeebuild/ex/BuilderBeetleError.hpp>
 #include <tibeebuild/ex/StateProviderNotFound.hpp>
 #include <tibeebuild/ex/UnknownStateProviderType.hpp>
+#include <timeline_graph/matcher.h>
 #include <timeline_graph/timeline_graph.h>
 #include "TibeeCompare.hpp"
 #include "ex/InvalidArgument.hpp"
-#include "graph_builder/GraphBuilder.hpp"
+#include "graph_builder/LinuxGraphBuilder.hpp"
 #include "html_writer/HtmlWriter.hpp"
 
 #define THIS_MODULE "compare"
@@ -40,10 +41,19 @@ namespace bfs = boost::filesystem;
 namespace tibee
 {
 
+namespace {
+
 using common::tbmsg;
 using common::tbendl;
 using timeline_graph::Matcher;
 using timeline_graph::TimelineGraph;
+
+uint64_t MatchCostFunc(timeline_graph::TimelineNodeId a,
+                       timeline_graph::TimelineNodeId b) {
+    return 0;
+}
+
+}  // namespace
 
 TibeeCompare::TibeeCompare(const Arguments& args)
 {
@@ -136,37 +146,42 @@ bool TibeeCompare::run()
     }
 
     // create a graph builder
-    std::unique_ptr<GraphBuilder> graphBuilder(new GraphBuilder());
-    GraphBuilder* graphBuilderPtr = graphBuilder.get();
-    listeners.push_back(std::move(graphBuilder));
-    shbPtr->SetStateChangeSink(graphBuilderPtr);
+    GraphBuilder graphBuilder;
+
+    std::unique_ptr<LinuxGraphBuilder> linuxGraphBuilder(
+        new LinuxGraphBuilder(&graphBuilder));
+    LinuxGraphBuilder* linuxGraphBuilderPtr = linuxGraphBuilder.get();
+    listeners.push_back(std::move(linuxGraphBuilder));
+    shbPtr->SetStateChangeSink(linuxGraphBuilderPtr);
 
     // build graphs for the 2 traces
     common::TracePlayer player;
 
+    linuxGraphBuilderPtr->SetCurrentState(shbPtr->makeAndGetCurrentState());
     tibee::common::TraceSet::UP traceSetA =
         tibee::common::CreateTraceSet(_traceAPaths);
     player.play(traceSetA.get(), listeners);
-    auto graphA = graphBuilderPtr->TakeGraph();
-    auto propertiesA = graphBuilderPtr->TakeProperties();
+    auto graphsA = graphBuilder.TakeGraphs();
+
+    graphBuilder.Reset();
 
     tibee::common::TraceSet::UP traceSetB =
         tibee::common::CreateTraceSet(_traceBPaths);
     player.play(traceSetB.get(), listeners);
-    auto graphB = graphBuilderPtr->TakeGraph();
-    auto propertiesB = graphBuilderPtr->TakeProperties();
+    auto graphsB = graphBuilder.TakeGraphs();
 
-    // match the graphs
-    Matcher matcher;
-    matcher.MatchGraphs(*graphA.get(), *graphB.get());
+    timeline_graph::Matcher matcher;
+    matcher.MatchGraphs(graphsA->at(0)->graph,
+                        graphsB->at(0)->graph,
+                        MatchCostFunc,
+                        1ull);
 
-    // write the comparison result
     HtmlWriter writer;
     writer.WriteHtml("comparison.html",
-                     *graphA,
-                     *graphB,
-                     *propertiesA,
-                     *propertiesB,
+                     graphsA->at(0)->graph,
+                     graphsB->at(0)->graph,
+                     graphsA->at(0)->properties,
+                     graphsB->at(0)->properties,
                      matcher);
 
     return true;

@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _GRAPHBUILDER_NODEPROPERTIES_HPP
-#define _GRAPHBUILDER_NODEPROPERTIES_HPP
+#ifndef _GRAPHBUILDER_GRAPHPROPERTIES_HPP
+#define _GRAPHBUILDER_GRAPHPROPERTIES_HPP
 
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_map.hpp>
@@ -36,23 +36,19 @@ namespace tibee
  *
  * @author Francois Doray
  */
-class NodeProperties
+class GraphProperties
     : public boost::noncopyable
 {
 public:
-    NodeProperties();
-    ~NodeProperties();
+    typedef boost::unordered_map<
+        std::string, tibee::common::AbstractStateValue::UP> PropertyMap;
+
+    GraphProperties();
+    ~GraphProperties();
 
     const tibee::common::AbstractStateValue& GetProperty(
         timeline_graph::TimelineNodeId node_id,
-        const std::string& property_name) const {
-      if (node_id >= _properties.size() ||
-          _properties[node_id]->find(property_name) ==
-              _properties[node_id]->end()) {
-        return *_null.get();
-      }
-      return *(*_properties[node_id])[property_name].get();
-    }
+        const std::string& property_name) const;
 
     template <typename T>
     void SetProperty(
@@ -62,6 +58,7 @@ public:
     {
         if (_properties.size() <= node_id)
             _properties.resize(node_id + 1);
+
         if (!_properties[node_id].get())
             _properties[node_id] = std::unique_ptr<PropertyMap>(
                 new PropertyMap());
@@ -72,17 +69,18 @@ public:
     void SetProperty(
         timeline_graph::TimelineNodeId node_id,
         const std::string& property_name,
-        const uint64_t& property_value)
-    {
-        SetProperty(node_id,
-                    property_name,
-                    tibee::common::Uint64StateValue(property_value));
-    }
+        const uint64_t& property_value);
+
+    void IncrementProperty(
+        timeline_graph::TimelineNodeId node_id,
+        const std::string& property_name,
+        uint64_t increment);
+
+    const PropertyMap& GetNodeProperties(
+        timeline_graph::TimelineNodeId node_id) const;
 
 private:
     // Properties.
-    typedef boost::unordered_map<
-        std::string, tibee::common::AbstractStateValue::UP> PropertyMap;
     typedef std::vector<std::unique_ptr<PropertyMap>> NodesPropertyMap;
     NodesPropertyMap _properties;
 
@@ -92,4 +90,4 @@ private:
 
 }
 
-#endif // _GRAPHBUILDER_NODEPROPERTIES_HPP
+#endif // _GRAPHBUILDER_GRAPHPROPERTIES_HPP

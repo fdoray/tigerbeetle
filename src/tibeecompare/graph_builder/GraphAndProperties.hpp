@@ -15,17 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "NodeProperties.hpp"
 
-namespace tibee
-{
+#ifndef _GRAPHBUILDER_GRAPHANDPROPERTIES_HPP
+#define _GRAPHBUILDER_GRAPHANDPROPERTIES_HPP
 
-NodeProperties::NodeProperties()
-    : _null(tibee::common::NullStateValue::UP(
-        new tibee::common::NullStateValue())) {
-}
+#include <memory>
 
-NodeProperties::~NodeProperties() {
-}
+#include <tibeecompare/graph_builder/GraphProperties.hpp>
+#include <timeline_graph/timeline_graph.h>
 
-}
+namespace tibee {
+
+struct GraphAndProperties {
+
+    typedef std::unique_ptr<GraphAndProperties> UP;
+
+    // The nodes and edges of the graph.
+    timeline_graph::TimelineGraph graph;
+
+    // The properties of the nodes of the graph.
+    GraphProperties properties;
+
+};
+
+}  // namespace tibee
+
+#endif  // _GRAPHBUILDER_GRAPHANDPROPERTIES_HPP

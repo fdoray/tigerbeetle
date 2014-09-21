@@ -26,7 +26,9 @@ main_sources = [
 
 graphbuilder_sources = [
     'GraphBuilder.cpp',
-    'NodeProperties.cpp',
+    'GraphProperties.cpp',
+    'LinuxGraphBuilder.cpp',
+    'TaskTimers.cpp',
 ]
 
 htmlwriter_sources = [
