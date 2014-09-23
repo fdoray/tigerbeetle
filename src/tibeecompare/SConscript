@@ -35,11 +35,16 @@ htmlwriter_sources = [
     'HtmlWriter.cpp',
 ]
 
+jsonwriter_sources = [
+    'JsonWriter.cpp',
+]
+
 subs = [
     ('../tibeebuild', builder_sources),
     ('.', main_sources),
     ('graph_builder', graphbuilder_sources),
     ('html_writer', htmlwriter_sources),
+    ('json_writer', jsonwriter_sources),
 ]
 
 sources = []
@@ -49,6 +54,8 @@ for base, files in subs:
 app_env = env.Clone()
 
 app_env.Append(LIBS=libs)
+
+app_env.ParseConfig('pkg-config --cflags --libs jsoncpp')
 
 app = app_env.Program(target=target, source=sources)
 

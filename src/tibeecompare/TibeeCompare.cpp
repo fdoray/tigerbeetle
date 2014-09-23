@@ -33,6 +33,7 @@
 #include "ex/InvalidArgument.hpp"
 #include "graph_builder/LinuxGraphBuilder.hpp"
 #include "html_writer/HtmlWriter.hpp"
+#include "json_writer/JsonWriter.hpp"
 
 #define THIS_MODULE "compare"
 
@@ -183,6 +184,14 @@ bool TibeeCompare::run()
                      graphsA->at(0)->properties,
                      graphsB->at(0)->properties,
                      matcher);
+
+    JsonWriter jsonWriter;
+    jsonWriter.WriteJson("comparison.json",
+                         graphsA->at(0)->graph,
+                         graphsB->at(0)->graph,
+                         graphsA->at(0)->properties,
+                         graphsB->at(0)->properties,
+                         matcher);
 
     return true;
 }
