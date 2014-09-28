@@ -1,0 +1,10 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'NotificationCenter.cpp',
+    'NotificationSink.cpp',
+]
+
+Return(['sources'])

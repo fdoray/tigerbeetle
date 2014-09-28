@@ -11,16 +11,18 @@ lib_env = env.Clone();
 
 base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
 mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
+notification = SConscript(os.path.join('notification', 'SConscript'), exports=['lib_env'])
 rpc = SConscript(os.path.join('rpc', 'SConscript'), exports=['lib_env'])
-value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
 trace = SConscript(os.path.join('trace', 'SConscript'), exports=['lib_env'])
+value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
 
 subs = [
     ('base', base),
     ('mq', mq),
+    ('notification', notification),
     ('rpc', rpc),
-    ('value', value),
-    ('trace', trace),    
+    ('trace', trace),
+    ('value', value),    
 ]
 
 sources = []

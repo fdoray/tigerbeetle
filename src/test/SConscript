@@ -7,6 +7,7 @@ target = 'unittests'
 app_env = lib_env.Clone()
 
 sources_unittests = [
+    'notification/NotificationCenter_Unittest.cpp',
     'trace/TraceSet_Unittest.cpp',
     'trace/TraceSetIterator_Unittest.cpp',
     'value/Utils_Unittest.cpp',
