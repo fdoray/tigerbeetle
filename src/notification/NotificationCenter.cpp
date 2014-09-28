@@ -18,13 +18,54 @@
 #include "notification/NotificationCenter.hpp"
 
 #include <assert.h>
+#include <boost/regex.hpp>
 
 #include "notification/NotificationSink.hpp"
+
+#include <iostream>
 
 namespace tibee
 {
 namespace notification
 {
+
+namespace
+{
+
+bool PathsMatch(const NotificationCenter::KeyPath& path,
+                const NotificationCenter::KeyPath& match_path)
+{
+    if (path.size() != match_path.size())
+        return false;
+
+    auto path_it = path.begin();
+    auto match_path_it = match_path.begin();
+    for (; path_it != path.end(); ++path_it, ++match_path_it)
+    {
+        if (path_it->isRegex())
+        {
+            boost::regex tokenBre;
+            try {
+                tokenBre = path_it->token();
+            } catch (const std::exception& ex) {
+                return false;
+            }
+
+            if (!boost::regex_search(match_path_it->token(), tokenBre)) {
+                return false;
+            }
+        }
+        else
+        {
+            if (path_it->token() != match_path_it->token())
+                return false;
+        }
+    }
+
+    return true;
+}
+
+}  // namespace
 
 NotificationCenter::NotificationCenter()
 {
@@ -46,9 +87,38 @@ NotificationSink* NotificationCenter::GetSink(const KeyPath& path)
 void NotificationCenter::RegisterObserver(const KeyPath& path,
                                           const OnNotificationFunc& function)
 {
-    EnsureKeyPath(path);
-    NotificationKey key = _keys[path];
-    _functions[key.get()]->push_back(function);
+    assert(!path.empty());
+
+    // Find the index of the first regex token.
+    size_t first_regex_index = 0;
+    while (first_regex_index < path.size()) {
+        if (!path[first_regex_index].isRegex())
+            ++first_regex_index;
+        else
+            break;
+    }
+
+    if (first_regex_index == path.size())
+    {
+        // Register a function for a path without regex.
+        auto key = _keys.find(path);
+        if (key == _keys.end())
+            return;
+        _functions[key->second.get()]->push_back(function);
+    }
+    else
+    {
+        // Register a function for a path with regex.
+        // TODO: Improve the complexity of this algorithm.
+        // TODO: Precompile the regex.
+        for (const auto& match_path : _keys)
+        {
+            if (PathsMatch(path, match_path.first))
+            {
+                _functions[match_path.second.get()]->push_back(function);
+            }
+        }
+    }
 }
 
 void NotificationCenter::PostNotification(NotificationKey key,
@@ -65,9 +135,14 @@ void NotificationCenter::EnsureKeyPath(const KeyPath& path)
 {
     assert(!path.empty());
 
+    if (_keys.find(path) != _keys.end())
+        return;
+
     // Make sure that the sinks for all the subpaths exist.
     std::vector<NotificationKey> keys_so_far;
     for (size_t i = 0; i < path.size(); ++i) {
+        assert(!path[i].isRegex());
+
         KeyPath partial_path(path.begin(), path.begin() + i + 1);
 
         auto look = _keys.find(partial_path);

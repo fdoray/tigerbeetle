@@ -39,17 +39,23 @@ public:
 };
 }  // namespace
 
-TEST(NotificationCenter, notificationCenter)
+TEST(NotificationCenter, simpleNotifications)
 {
     namespace pl = std::placeholders;
 
     NotificationCenter notificationCenter;
 
-    KeyPath path_a {"a"};
-    KeyPath path_b {"a", "b"};
-    KeyPath path_c {"a", "b", "c"};
-    KeyPath path_z {"y", "z"};
-    KeyPath path_y {"y"};
+    KeyPath path_a {Token("a")};
+    KeyPath path_b {Token("a"), Token("b")};
+    KeyPath path_c {Token("a"), Token("b"), Token("c")};
+    KeyPath path_z {Token("y"), Token("z")};
+    KeyPath path_y {Token("y")};
+
+    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
+    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
+    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
+    NotificationSink* sink_z = notificationCenter.GetSink(path_z);
+    NotificationSink* sink_y = notificationCenter.GetSink(path_y);
 
     MockObserver observer_a;
     MockObserver observer_b;
@@ -74,7 +80,6 @@ TEST(NotificationCenter, notificationCenter)
 
     value::IntValue value(42);
 
-    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
     {
         EXPECT_CALL(observer_a, method(path_a, &value)).Times(1);
         EXPECT_CALL(observer_b, method(path_a, &value)).Times(0);
@@ -84,7 +89,6 @@ TEST(NotificationCenter, notificationCenter)
         sink_a->PostNotification(&value);
     }
 
-    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
     {
         EXPECT_CALL(observer_a, method(path_b, &value)).Times(1);
         EXPECT_CALL(observer_b, method(path_b, &value)).Times(1);
@@ -94,7 +98,6 @@ TEST(NotificationCenter, notificationCenter)
         sink_b->PostNotification(&value);
     }
 
-    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
     {
         EXPECT_CALL(observer_a, method(path_c, &value)).Times(1);
         EXPECT_CALL(observer_b, method(path_c, &value)).Times(1);
@@ -104,7 +107,6 @@ TEST(NotificationCenter, notificationCenter)
         sink_c->PostNotification(&value);
     }
 
-    NotificationSink* sink_z = notificationCenter.GetSink(path_z);
     {
         EXPECT_CALL(observer_a, method(path_z, &value)).Times(0);
         EXPECT_CALL(observer_b, method(path_z, &value)).Times(0);
@@ -114,7 +116,6 @@ TEST(NotificationCenter, notificationCenter)
         sink_z->PostNotification(&value);
     }
 
-    NotificationSink* sink_y = notificationCenter.GetSink(path_y);
     {
         EXPECT_CALL(observer_a, method(path_y, &value)).Times(0);
         EXPECT_CALL(observer_b, method(path_y, &value)).Times(0);
@@ -122,6 +123,88 @@ TEST(NotificationCenter, notificationCenter)
         EXPECT_CALL(observer_z, method(path_y, &value)).Times(0);
         EXPECT_CALL(observer_y, method(path_y, &value)).Times(1);
         sink_y->PostNotification(&value);
+    }
+}
+
+TEST(NotificationCenter, regexNotifications)
+{
+    namespace pl = std::placeholders;
+
+    NotificationCenter notificationCenter;
+
+    KeyPath path_a {Token("aa")};
+    KeyPath path_b {Token("aa"), Token("b1")};
+    KeyPath path_c {Token("aa"), Token("b2")};
+    KeyPath path_d {Token("ab"), Token("b1")};
+
+    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
+    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
+    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
+    NotificationSink* sink_d = notificationCenter.GetSink(path_d);
+
+    KeyPath path_all {RegexToken("^a")};
+    KeyPath path_aa_b {Token("aa"), RegexToken("^b")};
+    KeyPath path_all_b {RegexToken(".*"), RegexToken("^b")};
+    KeyPath path_all_b1 {RegexToken(".*"), Token("b1")};
+    KeyPath path_all_b2 {RegexToken(".*"), Token("b2")};
+
+    MockObserver observer_all;
+    MockObserver observer_aa_b;
+    MockObserver observer_all_b;
+    MockObserver observer_all_b1;
+    MockObserver observer_all_b2;
+
+    notificationCenter.RegisterObserver(
+        path_all, std::bind(&MockObserver::method, &observer_all, pl::_1, pl::_2));
+
+    notificationCenter.RegisterObserver(
+        path_aa_b, std::bind(&MockObserver::method, &observer_aa_b, pl::_1, pl::_2));
+
+    notificationCenter.RegisterObserver(
+        path_all_b, std::bind(&MockObserver::method, &observer_all_b, pl::_1, pl::_2));
+
+    notificationCenter.RegisterObserver(
+        path_all_b1, std::bind(&MockObserver::method, &observer_all_b1, pl::_1, pl::_2));
+
+    notificationCenter.RegisterObserver(
+        path_all_b2, std::bind(&MockObserver::method, &observer_all_b2, pl::_1, pl::_2));
+
+    value::IntValue value(42);
+
+    {
+        EXPECT_CALL(observer_all, method(path_a, &value)).Times(1);
+        EXPECT_CALL(observer_aa_b, method(path_a, &value)).Times(0);
+        EXPECT_CALL(observer_all_b, method(path_a, &value)).Times(0);
+        EXPECT_CALL(observer_all_b1, method(path_a, &value)).Times(0);
+        EXPECT_CALL(observer_all_b2, method(path_a, &value)).Times(0);
+        sink_a->PostNotification(&value);
+    }
+
+    {
+        EXPECT_CALL(observer_all, method(path_b, &value)).Times(1);
+        EXPECT_CALL(observer_aa_b, method(path_b, &value)).Times(1);
+        EXPECT_CALL(observer_all_b, method(path_b, &value)).Times(1);
+        EXPECT_CALL(observer_all_b1, method(path_b, &value)).Times(1);
+        EXPECT_CALL(observer_all_b2, method(path_b, &value)).Times(0);
+        sink_b->PostNotification(&value);
+    }
+
+    {
+        EXPECT_CALL(observer_all, method(path_c, &value)).Times(1);
+        EXPECT_CALL(observer_aa_b, method(path_c, &value)).Times(1);
+        EXPECT_CALL(observer_all_b, method(path_c, &value)).Times(1);
+        EXPECT_CALL(observer_all_b1, method(path_c, &value)).Times(0);
+        EXPECT_CALL(observer_all_b2, method(path_c, &value)).Times(1);
+        sink_c->PostNotification(&value);
+    }
+
+    {
+        EXPECT_CALL(observer_all, method(path_d, &value)).Times(1);
+        EXPECT_CALL(observer_aa_b, method(path_d, &value)).Times(0);
+        EXPECT_CALL(observer_all_b, method(path_d, &value)).Times(1);
+        EXPECT_CALL(observer_all_b1, method(path_d, &value)).Times(1);
+        EXPECT_CALL(observer_all_b2, method(path_d, &value)).Times(0);
+        sink_d->PostNotification(&value);
     }
 }
 
