@@ -40,9 +40,10 @@ public:
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
     virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override;
     virtual void RegisterServices(ServiceList* serviceList) override;
+    virtual void LoadServices(const ServiceList& serviceList) override;
 
-    virtual void Execute(const ServiceList& serviceList) override;
-    virtual void Stop(const ServiceList& serviceList) override;
+    virtual void Execute() override;
+    virtual void Stop() override;
 };
 
 }

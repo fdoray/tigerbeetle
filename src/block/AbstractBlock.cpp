@@ -42,11 +42,15 @@ void AbstractBlock::RegisterServices(ServiceList* serviceList)
 {
 }
 
-void AbstractBlock::Execute(const ServiceList& serviceList)
+void AbstractBlock::LoadServices(const ServiceList& serviceList)
 {
 }
 
-void AbstractBlock::Stop(const ServiceList& serviceList)
+void AbstractBlock::Execute()
+{
+}
+
+void AbstractBlock::Stop()
 {
 }
 

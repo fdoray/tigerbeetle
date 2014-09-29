@@ -86,9 +86,9 @@ public:
         callHistory.push_back("RegisterServices");
     }
 
-    virtual void Execute(const ServiceList& serviceList) override
+    virtual void LoadServices(const ServiceList& serviceList) override
     {
-        callHistory.push_back("Execute");
+        callHistory.push_back("LoadServices");
 
         SimpleService* simpleService = nullptr;
         if (serviceList.QueryService("simpleService", reinterpret_cast<void**>(&simpleService)))
@@ -96,7 +96,12 @@ public:
 
     }
 
-    virtual void Stop(const ServiceList& serviceList) override
+    virtual void Execute() override
+    {
+        callHistory.push_back("Execute");
+    }
+
+    virtual void Stop() override
     {
         callHistory.push_back("Stop");
     }
@@ -127,6 +132,7 @@ TEST(BlockRunner, run)
         "GetNotificationSinks",
         "RegisterNotificationObservers",
         "RegisterServices",
+        "LoadServices",
         "Execute",
         "Stop",
     };

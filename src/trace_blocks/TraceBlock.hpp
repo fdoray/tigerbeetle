@@ -40,7 +40,7 @@ class TraceBlock : public block::AbstractBlock
 public:
     virtual void Start(const value::Value* params) override;
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
-    virtual void Execute(const block::ServiceList& serviceList) override;
+    virtual void Execute() override;
 
 private:
     trace::TraceSet::UP _traceSet;

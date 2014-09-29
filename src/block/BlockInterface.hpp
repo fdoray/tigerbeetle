@@ -58,9 +58,10 @@ public:
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) = 0;
     virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) = 0;
     virtual void RegisterServices(ServiceList* serviceList) = 0;
+    virtual void LoadServices(const ServiceList& serviceList) = 0;
 
-    virtual void Execute(const ServiceList& serviceList) = 0;
-    virtual void Stop(const ServiceList& serviceList) = 0;
+    virtual void Execute() = 0;
+    virtual void Stop() = 0;
 };
 
 }

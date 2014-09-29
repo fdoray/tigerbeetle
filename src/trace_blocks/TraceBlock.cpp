@@ -68,7 +68,7 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
     }
 }
 
-void TraceBlock::Execute(const block::ServiceList& serviceList)
+void TraceBlock::Execute()
 {
     for (const auto& event : *_traceSet)
     {

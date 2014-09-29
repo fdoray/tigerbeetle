@@ -60,13 +60,17 @@ void BlockRunner::Run()
     for (auto& block : _blocks)
         block.first->RegisterServices(&serviceList);
 
+    // Let the blocks load services.
+    for (auto& block : _blocks)
+        block.first->LoadServices(serviceList);
+
     // Execute the blocks.
     for (auto& block : _blocks)
-        block.first->Execute(serviceList);
+        block.first->Execute();
 
     // Stop the execution of the blocks.
     for (auto& block : _blocks)
-        block.first->Stop(serviceList);
+        block.first->Stop();
 }
 
 }
