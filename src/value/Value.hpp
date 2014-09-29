@@ -150,6 +150,9 @@ class Value {
   // @returns true when both values are equal, false otherwise.
   virtual bool Equals(const Value* value) const = 0;
 
+  // Creates a copy of the current value.
+  virtual Value::UP Copy() const = 0;
+
   // Methods for dictionaries.
   // @{
 
@@ -221,6 +224,8 @@ class ScalarValue : public Value {
   virtual bool IsSigned() const override;
   virtual bool IsFloating() const override;
 
+  virtual Value::UP Copy() const override;
+
   virtual bool Equals(const Value* value) const override;
   // @}
 
@@ -290,6 +295,8 @@ class ArrayValueBase
     : public AggregateValue<VALUE_ARRAY>,
       boost::noncopyable {
  public:
+  typedef std::unique_ptr<ArrayValueBase> UP;
+
   ArrayValueBase();
   virtual ~ArrayValueBase();
   
@@ -344,6 +351,7 @@ class ArrayValueBase
   // Overridden from Value:
   // @{
   virtual bool Equals(const Value* value) const override;
+  virtual Value::UP Copy() const override;
   // @}
 
   // Determine if |value| is of type ArrayType.
@@ -468,6 +476,8 @@ class StructValueBase
     : public AggregateValue<VALUE_STRUCT>,
       boost::noncopyable {
  public:
+  typedef std::unique_ptr<StructValueBase> UP;
+
   StructValueBase();
   virtual ~StructValueBase();
 
@@ -508,6 +518,7 @@ class StructValueBase
   // Overridden from Value:
   // @{
   virtual bool Equals(const Value* value) const override;
+  virtual Value::UP Copy() const override;
   // @}
 
   // Determine if |value| is of type StructType.

@@ -733,6 +733,18 @@ TEST(ArrayValueTest, Equals) {
   EXPECT_FALSE(array_value3.Equals(&array_value4));
 }
 
+TEST(ArrayValueTest, Copy) {
+  ArrayValue source;
+
+  source.Append<IntValue>(42);
+  source.Append<StringValue>("test");
+  source.Append<DoubleValue>(3.14);
+
+  auto copy = source.Copy();
+
+  EXPECT_TRUE(source.Equals(copy.get()));
+}
+
 TEST(ArrayValueTest, Append) {
   ArrayValue array_value;
   std::unique_ptr<Value> v1(new IntValue(42));
@@ -947,6 +959,18 @@ TEST(StructValueTest, Equals) {
   left.AddField<IntValue>("field2", 44);
   right1.AddField<IntValue>("dummy", 44);
   EXPECT_FALSE(left.Equals(&right1));
+}
+
+TEST(StructValueTest, Copy) {
+  StructValue source;
+
+  source.AddField<IntValue>("field1", 42);
+  source.AddField<StringValue>("field2", "test");
+  source.AddField<DoubleValue>("field3", 3.14);
+
+  auto copy = source.Copy();
+
+  EXPECT_TRUE(source.Equals(copy.get()));
 }
 
 TEST(StructValueTest, GetFieldAs) {

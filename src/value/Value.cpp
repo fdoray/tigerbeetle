@@ -417,6 +417,12 @@ bool ScalarValue<T, TYPE>::Equals(const Value* value) const {
 }
 
 template<class T, int TYPE>
+Value::UP ScalarValue<T, TYPE>::Copy() const {
+  Value::UP copy {new ScalarValue<T, TYPE>(value_)};
+  return copy;
+}
+
+template<class T, int TYPE>
 const T& ScalarValue<T, TYPE>::GetValue() const {
   return value_;
 }
@@ -572,6 +578,18 @@ bool ArrayValueBase::Equals(const Value* value) const {
   }
 
   return true;
+}
+
+Value::UP ArrayValueBase::Copy() const {
+  ArrayValue::UP copy {new ArrayValue};
+
+  auto it = begin();
+  auto it_end = end();
+
+  for (; it != it_end; ++it)
+    copy->Append(it->Copy());
+
+  return std::move(copy);
 }
 
 bool ArrayValueBase::InstanceOf(const Value* value) {
@@ -779,6 +797,18 @@ bool StructValueBase::Equals(const Value* value) const {
     return false;
 
   return true;
+}
+
+Value::UP StructValueBase::Copy() const {
+  StructValue::UP copy {new StructValue};
+
+  auto it = fields_begin();
+  auto it_end = fields_end();
+
+  for (; it != it_end; ++it)
+    copy->AddField(it->first, it->second->Copy());
+
+  return std::move(copy);
 }
 
 bool StructValueBase::InstanceOf(const Value* value) {
