@@ -1,0 +1,12 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'AbstractBlock.cpp',
+    'BlockInterface.cpp',
+    'BlockRunner.cpp',
+    'ServiceList.cpp',
+]
+
+Return(['sources'])

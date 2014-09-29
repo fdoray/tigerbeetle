@@ -78,14 +78,14 @@ NotificationCenter::~NotificationCenter()
     }
 }
 
-NotificationSink* NotificationCenter::GetSink(const KeyPath& path)
+NotificationSink* NotificationCenter::GetNotificationSink(const KeyPath& path)
 {
     EnsureKeyPath(path);
     return _sinks[path];
 }
 
-void NotificationCenter::RegisterObserver(const KeyPath& path,
-                                          const OnNotificationFunc& function)
+void NotificationCenter::RegisterNotificationObserver(const KeyPath& path,
+                                                      const OnNotificationFunc& function)
 {
     assert(!path.empty());
 

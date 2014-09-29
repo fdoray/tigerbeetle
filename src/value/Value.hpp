@@ -97,6 +97,8 @@ enum ValueType {
 // common functionalities.
 class Value {
  public:
+  typedef std::unique_ptr<Value> UP;
+
   // Destructor.
   virtual ~Value() { }
 
