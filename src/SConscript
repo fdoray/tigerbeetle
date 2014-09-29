@@ -14,6 +14,7 @@ block = SConscript(os.path.join('block', 'SConscript'), exports=['lib_env'])
 mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
 notification = SConscript(os.path.join('notification', 'SConscript'), exports=['lib_env'])
 rpc = SConscript(os.path.join('rpc', 'SConscript'), exports=['lib_env'])
+state = SConscript(os.path.join('state', 'SConscript'), exports=['lib_env'])
 trace = SConscript(os.path.join('trace', 'SConscript'), exports=['lib_env'])
 trace_blocks = SConscript(os.path.join('trace_blocks', 'SConscript'), exports=['lib_env'])
 value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
@@ -24,6 +25,7 @@ subs = [
     ('mq', mq),
     ('notification', notification),
     ('rpc', rpc),
+    ('state', state),
     ('trace', trace),
     ('trace_blocks', trace_blocks),
     ('value', value),    

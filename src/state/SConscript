@@ -1,0 +1,9 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'CurrentState.cpp',
+]
+
+Return(['sources'])
