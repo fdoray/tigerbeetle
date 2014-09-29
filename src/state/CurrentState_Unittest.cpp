@@ -36,22 +36,29 @@ TEST(CurrentState, StateChanges)
 {
     CurrentState currentState;
 
+    StateKey abKey = currentState.GetStateKeyStr({"a", "b"});
+
     currentState.SetTimestamp(1);
-    currentState.SetState({"a", "b"}, value::Value::UP {new value::UIntValue(42)});
-    currentState.SetTimestamp(2);
+    currentState.SetState(abKey, value::Value::UP {new value::UIntValue(42)});
 
-    EXPECT_EQ(42, currentState.GetStateValue({"a", "b"})->AsUInteger());
-    EXPECT_EQ(1, currentState.GetStateLastChange({"a", "b"}));
+    EXPECT_EQ(42, currentState.GetStateValue(abKey)->AsUInteger());
+    EXPECT_EQ(1, currentState.GetStateLastChange(abKey));
 
+    StateKey aKey = currentState.GetStateKeyStr({"a"});
     currentState.SetTimestamp(3);
-    currentState.SetState({"a"}, value::Value::UP {new value::UIntValue(1337)});
-    currentState.SetTimestamp(4);
+    currentState.SetState(
+        aKey,
+        {currentState.Quark("b"), currentState.Quark("c")},
+        value::Value::UP {new value::UIntValue(1337)});
 
-    EXPECT_EQ(1337, currentState.GetStateValue({"a"})->AsUInteger());
-    EXPECT_EQ(3, currentState.GetStateLastChange(currentState.GetStateKey({"a"})));
+    StateKey abcKey = currentState.GetStateKeyStr({"a", "b", "c"});
+    EXPECT_EQ(1337, currentState.GetStateValue(abcKey)->AsUInteger());
+    EXPECT_EQ(3, currentState.GetStateLastChange(abcKey));
 
-    EXPECT_EQ(42, currentState.GetStateValue({"a", "b"})->AsUInteger());
-    EXPECT_EQ(1, currentState.GetStateLastChange({"a", "b"}));
+    EXPECT_EQ(42, currentState.GetStateValue(
+        aKey,
+        {currentState.Quark("b")})->AsUInteger());
+    EXPECT_EQ(1, currentState.GetStateLastChange(abKey));
 }
 
 }  // namespace state

@@ -15,36 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATE_STATEKEY_HPP
-#define _TIBEE_STATE_STATEKEY_HPP
+#ifndef _TIBEE_STATE_STATEPATH_HPP
+#define _TIBEE_STATE_STATEPATH_HPP
 
-#include <stddef.h>
+#include <string>
+#include <vector>
+
+#include "quark/Quark.hpp"
 
 namespace tibee
 {
 namespace state
 {
 
-/**
- * State key.
- *
- * @author Francois Doray
- */
-class StateKey
-{
-public:
-    StateKey() :
-        _key(-1) {}
-    StateKey(size_t key) :
-        _key(key) {}
-
-    size_t get() const { return _key; }
-
-private:
-    size_t _key;
-};
+typedef std::vector<quark::Quark> StatePath;
+typedef std::vector<std::string> StatePathStr;
 
 }
 }
 
-#endif // _TIBEE_STATE_STATEKEY_HPP
+#endif // _TIBEE_STATE_STATEPATH_HPP

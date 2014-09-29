@@ -4,6 +4,7 @@ Import('lib_env')
 
 sources = [
     'CurrentState.cpp',
+    'StateTree.cpp',
 ]
 
 Return(['sources'])

@@ -24,15 +24,16 @@
 #include <vector>
 
 #include "base/BasicTypes.hpp"
+#include "quark/QuarkDatabase.hpp"
 #include "state/StateKey.hpp"
+#include "state/StatePath.hpp"
+#include "state/StateTree.hpp"
 #include "value/Value.hpp"
 
 namespace tibee
 {
 namespace state
 {
-
-typedef std::vector<std::string> StatePath;
 
 /**
  * Current state.
@@ -52,16 +53,24 @@ public:
         return _ts;
     }
 
-    StateKey GetStateKey(const StatePath& statePath);
+    quark::Quark Quark(const std::string& str);
+    const std::string& String(quark::Quark quark) const;
 
-    const value::Value* GetStateValue(StateKey key) const;
-    const value::Value* GetStateValue(const StatePath& path) const;
+    StateKey GetStateKey(const StatePath& path);
+    StateKey GetStateKeyStr(const StatePathStr& pathStr);
+    StateKey GetStateKey(StateKey root, const StatePath& subPath);
 
-    timestamp_t GetStateLastChange(StateKey key) const;
-    timestamp_t GetStateLastChange(const StatePath& path) const;
-
-    void SetState(StateKey key, value::Value::UP value);
+    void SetState(StateKey state, value::Value::UP value);
+    void SetState(StateKey state, const StatePath& subPath, value::Value::UP value);
     void SetState(const StatePath& path, value::Value::UP value);
+
+    const value::Value* GetStateValue(StateKey state);
+    const value::Value* GetStateValue(StateKey state, const StatePath& subPath);
+    const value::Value* GetStateValue(const StatePath& path);
+
+    timestamp_t GetStateLastChange(StateKey state);
+    timestamp_t GetStateLastChange(StateKey state, const StatePath& subPath);
+    timestamp_t GetStateLastChange(const StatePath& path);
 
 private:
     struct StateValue {
@@ -73,11 +82,15 @@ private:
     // Current timestamp.
     timestamp_t _ts;
 
-    typedef std::vector<StateValue> StateValues;
-    StateValues _stateValues;
+    // Quark database.
+    quark::QuarkDatabase<std::string> _quarks;
 
-    typedef std::unordered_map<StatePath, StateKey, boost::hash<StatePath>> StateKeys;
-    StateKeys _stateKeys;
+    // State tree.
+    StateTree _stateTree;
+
+    // State values.
+    typedef std::unordered_map<size_t, StateValue> StateValues;
+    StateValues _stateValues;
 };
 
 }

@@ -22,7 +22,7 @@
 
 namespace tibee
 {
-namespace common
+namespace quark
 {
 
 /**

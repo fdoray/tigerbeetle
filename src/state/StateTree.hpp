@@ -15,10 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATE_STATEKEY_HPP
-#define _TIBEE_STATE_STATEKEY_HPP
+#ifndef _TIBEE_STATE_STATETREE_HPP
+#define _TIBEE_STATE_STATETREE_HPP
 
-#include <stddef.h>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
+#include "state/StateKey.hpp"
+#include "state/StatePath.hpp"
 
 namespace tibee
 {
@@ -26,25 +31,38 @@ namespace state
 {
 
 /**
- * State key.
+ * State tree.
  *
  * @author Francois Doray
  */
-class StateKey
+class StateTree
 {
 public:
-    StateKey() :
-        _key(-1) {}
-    StateKey(size_t key) :
-        _key(key) {}
+    StateTree();
+    ~StateTree();
 
-    size_t get() const { return _key; }
+    StateKey GetStateKey(const StatePath& path);
+    StateKey GetStateKey(StateKey root, const StatePath& subPath);
 
 private:
-    size_t _key;
+    struct State;
+    typedef std::unordered_map<size_t, State*> States;
+
+    State* GetState(State* root, const StatePath& subPath);
+
+    struct State
+    {
+        StateKey key;
+        States children;
+    };
+
+    State _root;
+
+    typedef std::vector<std::unique_ptr<State>> StateVector;
+    StateVector _states;
 };
 
 }
 }
 
-#endif // _TIBEE_STATE_STATEKEY_HPP
+#endif // _TIBEE_STATE_STATETREE_HPP

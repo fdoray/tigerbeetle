@@ -33,59 +33,89 @@ CurrentState::~CurrentState()
 {
 }
 
-StateKey CurrentState::GetStateKey(const StatePath& statePath)
+quark::Quark CurrentState::Quark(const std::string& str)
 {
-    auto look = _stateKeys.find(statePath);
-    if (look != _stateKeys.end())
-        return look->second;
-
-    StateKey key(_stateValues.size());
-    _stateValues.push_back(StateValue());
-    _stateKeys[statePath] = key;
-
-    return key;
+    quark::Quark quark = _quarks.Insert(str);
+    return quark;
 }
 
-const value::Value* CurrentState::GetStateValue(StateKey key) const
+const std::string& CurrentState::String(quark::Quark quark) const
 {
-    assert(key.get() < _stateValues.size());
-    return _stateValues[key.get()].value.get();
+    return _quarks.ValueOf(quark);
 }
 
-const value::Value* CurrentState::GetStateValue(const StatePath& path) const
+StateKey CurrentState::GetStateKey(const StatePath& path)
 {
-    auto look = _stateKeys.find(path);
-    if (look == _stateKeys.end())
-        return nullptr;
-    return GetStateValue(look->second);
+    return _stateTree.GetStateKey(path);
 }
 
-timestamp_t CurrentState::GetStateLastChange(StateKey key) const
+StateKey CurrentState::GetStateKeyStr(const StatePathStr& pathStr)
 {
-    assert(key.get() < _stateValues.size());
-    return _stateValues[key.get()].since;
+    StatePath path;
+    path.reserve(pathStr.size());
+    for (const auto& str : pathStr)
+        path.push_back(Quark(str));
+    return GetStateKey(path);
 }
 
-timestamp_t CurrentState::GetStateLastChange(const StatePath& path) const
+StateKey CurrentState::GetStateKey(StateKey root, const StatePath& subPath)
 {
-    auto look = _stateKeys.find(path);
-    if (look == _stateKeys.end())
-        return -1;
-    return GetStateLastChange(look->second);
+    return _stateTree.GetStateKey(root, subPath);
 }
 
-void CurrentState::SetState(StateKey key, value::Value::UP value)
+void CurrentState::SetState(StateKey state, value::Value::UP value)
 {
-    assert(key.get() < _stateValues.size());
+    StateValue& stateValue = _stateValues[state.get()];
+    stateValue.value = std::move(value);
+    stateValue.since = _ts;
+}
 
-    _stateValues[key.get()].value = std::move(value);
-    _stateValues[key.get()].since = _ts;
+void CurrentState::SetState(StateKey state, const StatePath& subPath, value::Value::UP value)
+{
+    StateKey subPathKey = GetStateKey(state, subPath);
+    SetState(subPathKey, std::move(value));
 }
 
 void CurrentState::SetState(const StatePath& path, value::Value::UP value)
 {
     StateKey key = GetStateKey(path);
     SetState(key, std::move(value));
+}
+
+const value::Value* CurrentState::GetStateValue(StateKey state)
+{
+    StateValue& stateValue = _stateValues[state.get()];
+    return stateValue.value.get();
+}
+
+const value::Value* CurrentState::GetStateValue(StateKey state, const StatePath& subPath)
+{
+    StateKey subPathKey = GetStateKey(state, subPath);
+    return GetStateValue(subPathKey);
+}
+
+const value::Value* CurrentState::GetStateValue(const StatePath& path)
+{
+    StateKey key = GetStateKey(path);
+    return GetStateValue(key);
+}
+
+timestamp_t CurrentState::GetStateLastChange(StateKey state)
+{
+    StateValue& stateValue = _stateValues[state.get()];
+    return stateValue.since;
+}
+
+timestamp_t CurrentState::GetStateLastChange(StateKey state, const StatePath& subPath)
+{
+    StateKey subPathKey = GetStateKey(state, subPath);
+    return GetStateLastChange(subPathKey);
+}
+
+timestamp_t CurrentState::GetStateLastChange(const StatePath& path)
+{
+    StateKey key = GetStateKey(path);
+    return GetStateLastChange(key);
 }
 
 CurrentState::StateValue::StateValue() :
