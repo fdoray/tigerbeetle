@@ -609,7 +609,7 @@ TEST(ScalarValueTest, InstanceOf) {
 TEST(ScalarValueTest, Cast) {
   LongValue value_long(4L);
   const Value* value = &value_long;
-  const LongValueBase* casted_value = LongValueBase::Cast(value);
+  const LongValue* casted_value = LongValue::Cast(value);
 
   EXPECT_EQ(&value_long, casted_value);
 }
@@ -618,7 +618,7 @@ TEST(ScalarValueTest, GetValue) {
   LongValue value_long(4L);
   const Value* value = &value_long;
 
-  EXPECT_EQ(4L, LongValueBase::GetValue(value));
+  EXPECT_EQ(4L, LongValue::GetValue(value));
 }
 
 TEST(ScalarValueTest, GetValueSafe) {
@@ -626,11 +626,11 @@ TEST(ScalarValueTest, GetValueSafe) {
   const Value* value = &value_long;
 
   int64_t raw_long_value = 0;
-  EXPECT_TRUE(LongValueBase::GetValue(value, &raw_long_value));
+  EXPECT_TRUE(LongValue::GetValue(value, &raw_long_value));
   EXPECT_EQ(4L, raw_long_value);
 
   int32_t raw_int_value = 0;
-  EXPECT_FALSE(IntValueBase::GetValue(value, &raw_int_value));
+  EXPECT_FALSE(IntValue::GetValue(value, &raw_int_value));
   EXPECT_EQ(0, raw_int_value);
 }
 
@@ -773,11 +773,11 @@ TEST(ArrayValueTest, GetElementAs) {
   array_value.Append<StringValue>("dummy");
   array_value.Append<WStringValue>(L"dummy");
 
-  const IntValueBase* raw_value = NULL;
-  const UIntValueBase* raw_uvalue = NULL;
-  EXPECT_FALSE(array_value.GetElementAs<IntValueBase>(1000, &raw_value));
-  EXPECT_TRUE(array_value.GetElementAs<IntValueBase>(0, &raw_value));
-  EXPECT_FALSE(array_value.GetElementAs<UIntValueBase>(0, &raw_uvalue));
+  const IntValue* raw_value = NULL;
+  const UIntValue* raw_uvalue = NULL;
+  EXPECT_FALSE(array_value.GetElementAs<IntValue>(1000, &raw_value));
+  EXPECT_TRUE(array_value.GetElementAs<IntValue>(0, &raw_value));
+  EXPECT_FALSE(array_value.GetElementAs<UIntValue>(0, &raw_uvalue));
 
   int32_t int_value = 0;
   EXPECT_FALSE(array_value.GetElementAsInteger(1000, &int_value));
@@ -955,10 +955,10 @@ TEST(StructValueTest, GetFieldAs) {
   struct_value.AddField<DoubleValue>("float", 0.5);
   struct_value.AddField<StringValue>("string", "dummy");
 
-  const LongValueBase* raw_value = NULL;
-  EXPECT_FALSE(struct_value.GetFieldAs<LongValueBase>("string", &raw_value));
-  EXPECT_FALSE(struct_value.GetFieldAs<LongValueBase>("no_field", &raw_value));
-  EXPECT_TRUE(struct_value.GetFieldAs<LongValueBase>("integer", &raw_value));
+  const LongValue* raw_value = NULL;
+  EXPECT_FALSE(struct_value.GetFieldAs<LongValue>("string", &raw_value));
+  EXPECT_FALSE(struct_value.GetFieldAs<LongValue>("no_field", &raw_value));
+  EXPECT_TRUE(struct_value.GetFieldAs<LongValue>("integer", &raw_value));
 
   int32_t int_value = 0;
   EXPECT_TRUE(struct_value.GetFieldAsInteger("integer", &int_value));

@@ -38,38 +38,38 @@ bool Value::AsInteger(int32_t* value) const {
 
   switch (GetType()) {
     case VALUE_BOOL: {
-      *value = BoolValueBase::GetValue(this);
+      *value = BoolValue::GetValue(this);
       return true;
     }
     case VALUE_CHAR: {
-      *value = CharValueBase::GetValue(this);
+      *value = CharValue::GetValue(this);
       return true;
     }
     case VALUE_UCHAR: {
-      *value = UCharValueBase::GetValue(this);
+      *value = UCharValue::GetValue(this);
       return true;
     }
     case VALUE_SHORT: {
-      *value = ShortValueBase::GetValue(this);
+      *value = ShortValue::GetValue(this);
       return true;
     }
     case VALUE_USHORT: {
-      *value = UShortValueBase::GetValue(this);
+      *value = UShortValue::GetValue(this);
       return true;
     }
     case VALUE_INT: {
-      *value = IntValueBase::GetValue(this);
+      *value = IntValue::GetValue(this);
       return true;
     }
     case VALUE_UINT: {
-      uint32_t raw_value = UIntValueBase::GetValue(this);
+      uint32_t raw_value = UIntValue::GetValue(this);
       if (raw_value > static_cast<uint32_t>(IntValue::MaxValue()))
         return false;
       *value = static_cast<int32_t>(raw_value);
       return true;
     }
     case VALUE_LONG: {
-      int64_t raw_value = LongValueBase::GetValue(this);
+      int64_t raw_value = LongValue::GetValue(this);
       if (raw_value > static_cast<int64_t>(IntValue::MaxValue()) ||
           raw_value < static_cast<int64_t>(IntValue::MinValue())) {
          return false;
@@ -78,7 +78,7 @@ bool Value::AsInteger(int32_t* value) const {
       return true;
     }
     case VALUE_ULONG: {
-      uint64_t raw_value = ULongValueBase::GetValue(this);
+      uint64_t raw_value = ULongValue::GetValue(this);
       if (raw_value > static_cast<uint64_t>(IntValue::MaxValue()))
         return false;
       *value = static_cast<int32_t>(raw_value);
@@ -94,44 +94,44 @@ bool Value::AsUInteger(uint32_t* value) const {
 
   switch (GetType()) {
     case VALUE_BOOL: {
-      *value = BoolValueBase::GetValue(this);
+      *value = BoolValue::GetValue(this);
       return true;
     }
     case VALUE_CHAR: {
-      int32_t raw_value = CharValueBase::GetValue(this);
+      int32_t raw_value = CharValue::GetValue(this);
       if (raw_value < 0)
         return false;
       *value = static_cast<uint32_t>(raw_value);
       return true;
     }
     case VALUE_UCHAR: {
-      *value = UCharValueBase::GetValue(this);
+      *value = UCharValue::GetValue(this);
       return true;
     }
     case VALUE_SHORT: {
-      int32_t raw_value = ShortValueBase::GetValue(this);
+      int32_t raw_value = ShortValue::GetValue(this);
       if (raw_value < 0)
         return false;
       *value = static_cast<uint32_t>(raw_value);
       return true;
     }
     case VALUE_USHORT: {
-      *value = UShortValueBase::GetValue(this);
+      *value = UShortValue::GetValue(this);
       return true;
     }
     case VALUE_INT: {
-       int32_t raw_value = IntValueBase::GetValue(this);
+       int32_t raw_value = IntValue::GetValue(this);
        if (raw_value < 0)
          return false;
       *value = static_cast<uint32_t>(raw_value);
       return true;
     }
     case VALUE_UINT: {
-      *value = UIntValueBase::GetValue(this);
+      *value = UIntValue::GetValue(this);
       return true;
     }
     case VALUE_LONG: {
-      int64_t raw_value = LongValueBase::GetValue(this);
+      int64_t raw_value = LongValue::GetValue(this);
       if (raw_value < 0)
         return false;
       if (raw_value > static_cast<int64_t>(UIntValue::MaxValue()))
@@ -140,7 +140,7 @@ bool Value::AsUInteger(uint32_t* value) const {
       return true;
     }
     case VALUE_ULONG: {
-      uint64_t raw_value = ULongValueBase::GetValue(this);
+      uint64_t raw_value = ULongValue::GetValue(this);
       if (raw_value > static_cast<uint64_t>(UIntValue::MaxValue()))
         return false;
       *value = static_cast<uint32_t>(raw_value);
@@ -156,39 +156,39 @@ bool Value::AsLong(int64_t* value) const {
 
   switch (GetType()) {
     case VALUE_BOOL: {
-      *value = BoolValueBase::GetValue(this);
+      *value = BoolValue::GetValue(this);
       return true;
     }
     case VALUE_CHAR: {
-      *value = CharValueBase::GetValue(this);
+      *value = CharValue::GetValue(this);
       return true;
     }
     case VALUE_UCHAR: {
-      *value = UCharValueBase::GetValue(this);
+      *value = UCharValue::GetValue(this);
       return true;
     }
     case VALUE_SHORT: {
-      *value = ShortValueBase::GetValue(this);
+      *value = ShortValue::GetValue(this);
       return true;
     }
     case VALUE_USHORT: {
-      *value = UShortValueBase::GetValue(this);
+      *value = UShortValue::GetValue(this);
       return true;
     }
     case VALUE_INT: {
-      *value = IntValueBase::GetValue(this);
+      *value = IntValue::GetValue(this);
       return true;
     }
     case VALUE_UINT: {
-      *value = UIntValueBase::GetValue(this);
+      *value = UIntValue::GetValue(this);
       return true;
     }
     case VALUE_LONG: {
-      *value = LongValueBase::GetValue(this);
+      *value = LongValue::GetValue(this);
       return true;
     }
     case VALUE_ULONG: {
-      uint64_t uvalue = ULongValueBase::GetValue(this);
+      uint64_t uvalue = ULongValue::GetValue(this);
       if (uvalue > static_cast<uint64_t>(LongValue::MaxValue()))
         return false;
       *value = static_cast<int64_t>(uvalue);
@@ -204,51 +204,51 @@ bool Value::AsULong(uint64_t* value) const {
 
   switch (GetType()) {
     case VALUE_BOOL: {
-      *value = BoolValueBase::GetValue(this);
+      *value = BoolValue::GetValue(this);
       return true;
     }
     case VALUE_CHAR: {
-      int32_t raw_value = CharValueBase::GetValue(this);
+      int32_t raw_value = CharValue::GetValue(this);
       if (raw_value < 0)
         return false;
       *value = static_cast<uint64_t>(raw_value);
       return true;
     }
     case VALUE_UCHAR: {
-      *value = UCharValueBase::GetValue(this);
+      *value = UCharValue::GetValue(this);
       return true;
     }
     case VALUE_SHORT: {
-      int32_t raw_value = ShortValueBase::GetValue(this);
+      int32_t raw_value = ShortValue::GetValue(this);
       if (raw_value < 0)
         return false;
       *value = static_cast<uint64_t>(raw_value);
       return true;
     }
     case VALUE_USHORT: {
-      *value = UShortValueBase::GetValue(this);
+      *value = UShortValue::GetValue(this);
       return true;
     }
     case VALUE_INT: {
-      int32_t raw_value = IntValueBase::GetValue(this);
+      int32_t raw_value = IntValue::GetValue(this);
       if (raw_value < 0)
         return false;
       *value = static_cast<uint64_t>(raw_value);
       return true;
     }
     case VALUE_UINT: {
-      *value = UIntValueBase::GetValue(this);
+      *value = UIntValue::GetValue(this);
       return true;
     }
     case VALUE_LONG: {
-      int64_t raw_value = LongValueBase::GetValue(this);
+      int64_t raw_value = LongValue::GetValue(this);
       if (raw_value < 0)
         return false;
       *value = static_cast<uint64_t>(raw_value);
       return true;
     }
     case VALUE_ULONG: {
-      *value = ULongValueBase::GetValue(this);
+      *value = ULongValue::GetValue(this);
       return true;
     }
     default:
@@ -261,11 +261,11 @@ bool Value::AsFloating(double* value) const {
 
   switch (GetType()) {
     case VALUE_FLOAT: {
-      *value = FloatValueBase::GetValue(this);
+      *value = FloatValue::GetValue(this);
       return true;
     }
     case VALUE_DOUBLE: {
-      *value = DoubleValueBase::GetValue(this);
+      *value = DoubleValue::GetValue(this);
       return true;
     }
     default:
@@ -278,11 +278,11 @@ bool Value::AsString(std::string* value) const {
 
   switch (GetType()) {
     case VALUE_STRING: {
-      *value = StringValueBase::GetValue(this);
+      *value = StringValue::GetValue(this);
       return true;
     }
     case VALUE_WSTRING: {
-      *value = base::WStringToString(WStringValueBase::GetValue(this));
+      *value = base::WStringToString(WStringValue::GetValue(this));
       return true;
     }
     default:
@@ -295,11 +295,11 @@ bool Value::AsWString(std::wstring* value) const {
 
   switch (GetType()) {
     case VALUE_STRING: {
-      *value = base::StringToWString(StringValueBase::GetValue(this));
+      *value = base::StringToWString(StringValue::GetValue(this));
       return true;
     }
     case VALUE_WSTRING: {
-      *value = WStringValueBase::GetValue(this);
+      *value = WStringValue::GetValue(this);
       return true;
     }
     default:
@@ -414,6 +414,11 @@ bool ScalarValue<T, TYPE>::Equals(const Value* value) const {
   if (ScalarValue<T, TYPE>::Cast(value)->GetValue() != GetValue())
     return false;
   return true;
+}
+
+template<class T, int TYPE>
+const T& ScalarValue<T, TYPE>::GetValue() const {
+  return value_;
 }
 
 template<class T, int TYPE>

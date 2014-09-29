@@ -198,6 +198,20 @@ class ScalarValue : public Value {
   typedef ScalarValue<T, TYPE> SelfType;
   typedef T ScalarType;
 
+  ScalarValue()
+      : value_() {
+  }
+
+  explicit ScalarValue(const T& value)
+      : value_(value) {
+  }
+
+  // Sets the value of this wrapper.
+  // @param value the new value.
+  void SetValue(const T& value) {
+    value_ = value;
+  }
+
   // Overridden from Value:
   // @{
   virtual ValueType GetType() const override;
@@ -211,7 +225,7 @@ class ScalarValue : public Value {
   // @}
 
   // Retrieve the value holded in this wrapper.
-  virtual const T& GetValue() const = 0;
+  virtual const T& GetValue() const;
 
   // Cast and retrieve the value holded in this wrapper.
   // @param value the value to retrieve (must be of the appropriate type).
@@ -238,52 +252,24 @@ class ScalarValue : public Value {
 
   // Returns the maximal value representable by |T|.
   static T MaxValue();
+
+ private:
+  T value_;
 };
 
-typedef ScalarValue<bool, VALUE_BOOL> BoolValueBase;
-typedef ScalarValue<int8_t, VALUE_CHAR> CharValueBase;
-typedef ScalarValue<uint8_t, VALUE_UCHAR> UCharValueBase;
-typedef ScalarValue<int16_t, VALUE_SHORT> ShortValueBase;
-typedef ScalarValue<uint16_t, VALUE_USHORT> UShortValueBase;
-typedef ScalarValue<int32_t, VALUE_INT> IntValueBase;
-typedef ScalarValue<uint32_t, VALUE_UINT> UIntValueBase;
-typedef ScalarValue<int64_t, VALUE_LONG> LongValueBase;
-typedef ScalarValue<uint64_t, VALUE_ULONG> ULongValueBase;
-typedef ScalarValue<std::string, VALUE_STRING> StringValueBase;
-typedef ScalarValue<std::wstring, VALUE_WSTRING> WStringValueBase;
-typedef ScalarValue<float, VALUE_FLOAT> FloatValueBase;
-typedef ScalarValue<double, VALUE_DOUBLE> DoubleValueBase;
-
-#define SIMPLE_VALUE_DEFINITION(TYPE) \
-class TYPE : public TYPE##Base { \
- public: \
-  TYPE () {} \
-  explicit TYPE (const TYPE##Base::ScalarType& value) \
-      : value_(value) { \
-  } \
-  virtual const TYPE##Base::ScalarType& GetValue() const override { \
-    return value_; \
-  } \
-  void SetValue(const TYPE##Base::ScalarType& value) { \
-    value_ = value; \
-  } \
- private: \
-  TYPE##Base::ScalarType value_; \
-};
-
-SIMPLE_VALUE_DEFINITION(BoolValue)
-SIMPLE_VALUE_DEFINITION(CharValue)
-SIMPLE_VALUE_DEFINITION(UCharValue)
-SIMPLE_VALUE_DEFINITION(ShortValue)
-SIMPLE_VALUE_DEFINITION(UShortValue)
-SIMPLE_VALUE_DEFINITION(IntValue)
-SIMPLE_VALUE_DEFINITION(UIntValue)
-SIMPLE_VALUE_DEFINITION(LongValue)
-SIMPLE_VALUE_DEFINITION(ULongValue)
-SIMPLE_VALUE_DEFINITION(StringValue)
-SIMPLE_VALUE_DEFINITION(WStringValue)
-SIMPLE_VALUE_DEFINITION(FloatValue)
-SIMPLE_VALUE_DEFINITION(DoubleValue)
+typedef ScalarValue<bool, VALUE_BOOL> BoolValue;
+typedef ScalarValue<int8_t, VALUE_CHAR> CharValue;
+typedef ScalarValue<uint8_t, VALUE_UCHAR> UCharValue;
+typedef ScalarValue<int16_t, VALUE_SHORT> ShortValue;
+typedef ScalarValue<uint16_t, VALUE_USHORT> UShortValue;
+typedef ScalarValue<int32_t, VALUE_INT> IntValue;
+typedef ScalarValue<uint32_t, VALUE_UINT> UIntValue;
+typedef ScalarValue<int64_t, VALUE_LONG> LongValue;
+typedef ScalarValue<uint64_t, VALUE_ULONG> ULongValue;
+typedef ScalarValue<std::string, VALUE_STRING> StringValue;
+typedef ScalarValue<std::wstring, VALUE_WSTRING> WStringValue;
+typedef ScalarValue<float, VALUE_FLOAT> FloatValue;
+typedef ScalarValue<double, VALUE_DOUBLE> DoubleValue;
 
 template<int TYPE>
 class AggregateValue : public Value {

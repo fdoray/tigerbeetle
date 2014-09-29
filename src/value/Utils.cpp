@@ -52,34 +52,34 @@ bool ToString(const Value* value, size_t indent, std::stringstream* result) {
     double double_value = 0;
     std::string string_value;
 
-    if (CharValueBase::GetValue(value, &char_value)) {
+    if (CharValue::GetValue(value, &char_value)) {
       *result << static_cast<int>(char_value);
       return true;
-    } else if (UCharValueBase::GetValue(value, &uchar_value)) {
+    } else if (UCharValue::GetValue(value, &uchar_value)) {
       *result << static_cast<unsigned int>(uchar_value);
       return true;
-    } else if (ShortValueBase::GetValue(value, &short_value)) {
+    } else if (ShortValue::GetValue(value, &short_value)) {
       *result << short_value;
       return true;
-    } else if (UShortValueBase::GetValue(value, &ushort_value)) {
+    } else if (UShortValue::GetValue(value, &ushort_value)) {
       *result << ushort_value;
       return true;
-    } else if (IntValueBase::GetValue(value, &int_value)) {
+    } else if (IntValue::GetValue(value, &int_value)) {
       *result << int_value;
       return true;
-    } else if (UIntValueBase::GetValue(value, &uint_value)) {
+    } else if (UIntValue::GetValue(value, &uint_value)) {
       *result << uint_value;
       return true;
-    } else if (LongValueBase::GetValue(value, &long_value)) {
+    } else if (LongValue::GetValue(value, &long_value)) {
       *result << long_value;
       return true;
-    } else if (ULongValueBase::GetValue(value, &ulong_value)) {
+    } else if (ULongValue::GetValue(value, &ulong_value)) {
       *result << ulong_value;
       return true;
-    } else if (FloatValueBase::GetValue(value, &float_value)) {
+    } else if (FloatValue::GetValue(value, &float_value)) {
       *result << float_value;
       return true;
-    } else if (DoubleValueBase::GetValue(value, &double_value)) {
+    } else if (DoubleValue::GetValue(value, &double_value)) {
       *result << double_value;
       return true;
     } else if (value->AsString(&string_value)) {
@@ -107,7 +107,7 @@ bool ToString(const Value* value, size_t indent, std::stringstream* result) {
     } else if (StructValueBase::InstanceOf(value)) {
       std::string indent_string = std::string(indent , ' ');
       std::string indent_field = std::string(indent + 4, ' ');
-      const StructValueBase* struct_value = StructValue::Cast(value);
+      const StructValueBase* struct_value = StructValueBase::Cast(value);
       assert(struct_value != nullptr);
 
       *result << "{\n";
