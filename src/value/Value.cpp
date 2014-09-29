@@ -306,6 +306,13 @@ bool Value::GetAsWString(std::wstring* value) const {
   }
 }
 
+bool Value::GetField(const std::string& name,
+                     const Value** value) const {
+  assert(value != nullptr);
+  *value = GetField(name);
+  return *value != nullptr;
+}
+
 template<class T, int TYPE>
 ValueType ScalarValue<T, TYPE>::GetType() const {
   return static_cast<ValueType>(TYPE);
@@ -559,11 +566,11 @@ const Value* ArrayValue::at(size_t index) const {
   return values_.at(index);
 }
 
-ArrayValueBase::Iterator ArrayValue::values_begin() const {
+ArrayValueBase::Iterator ArrayValue::begin() const {
   return ArrayValueBase::Iterator(new IteratorImpl(values_.begin()));
 }
 
-ArrayValueBase::Iterator ArrayValue::values_end() const {
+ArrayValueBase::Iterator ArrayValue::end() const {
   return ArrayValueBase::Iterator(new IteratorImpl(values_.end()));
 }
 
@@ -620,13 +627,6 @@ StructValueBase::~StructValueBase() {
 
 const Value* StructValueBase::operator[](size_t index) const {
   return at(index);
-}
-
-bool StructValueBase::GetField(const std::string& name,
-                           const Value** value) const {
-  assert(value != nullptr);
-  *value = GetField(name);
-  return *value != nullptr;
 }
 
 bool StructValueBase::GetFieldAsInteger(

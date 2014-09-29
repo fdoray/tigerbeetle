@@ -26,7 +26,7 @@
 
 namespace tibee
 {
-namespace common
+namespace base
 {
 
 /**

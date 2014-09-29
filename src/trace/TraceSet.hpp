@@ -49,6 +49,7 @@ class TraceSet :
     boost::noncopyable
 {
 public:
+    typedef std::unique_ptr<TraceSet> UP;
     typedef TraceSetIterator Iterator;
 
 public:

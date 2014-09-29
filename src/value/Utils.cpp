@@ -95,8 +95,8 @@ bool ToString(const Value* value, size_t indent, std::stringstream* result) {
       assert(array_value != nullptr);
 
       *result << "[\n";
-      auto it = array_value->values_begin();
-      for (; it != array_value->values_end(); ++it) {
+      auto it = array_value->begin();
+      for (; it != array_value->end(); ++it) {
         *result << indent_field;
         if (!ToString(&*it, indent + 4, result))
           return false;

@@ -26,6 +26,10 @@ AbstractBlock::AbstractBlock()
 {
 }
 
+void AbstractBlock::Start(const value::Value* parameters)
+{
+}
+
 void AbstractBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
 {
 }
@@ -35,10 +39,6 @@ void AbstractBlock::RegisterNotificationObservers(notification::NotificationCent
 }
 
 void AbstractBlock::RegisterServices(ServiceList* serviceList)
-{
-}
-
-void AbstractBlock::Start(const value::Value* parameters, const ServiceList& serviceList)
 {
 }
 

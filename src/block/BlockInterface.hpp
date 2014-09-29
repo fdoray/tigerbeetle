@@ -53,11 +53,12 @@ public:
 
     virtual ~BlockInterface();
 
+    virtual void Start(const value::Value* parameters) = 0;
+
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) = 0;
     virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) = 0;
     virtual void RegisterServices(ServiceList* serviceList) = 0;
 
-    virtual void Start(const value::Value* parameters, const ServiceList& serviceList) = 0;
     virtual void Execute(const ServiceList& serviceList) = 0;
     virtual void Stop(const ServiceList& serviceList) = 0;
 };

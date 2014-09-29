@@ -35,11 +35,12 @@ class AbstractBlock : public BlockInterface
 public:
     AbstractBlock();
 
+    virtual void Start(const value::Value* parameters) override;
+
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
     virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override;
     virtual void RegisterServices(ServiceList* serviceList) override;
 
-    virtual void Start(const value::Value* parameters, const ServiceList& serviceList) override;
     virtual void Execute(const ServiceList& serviceList) override;
     virtual void Stop(const ServiceList& serviceList) override;
 };

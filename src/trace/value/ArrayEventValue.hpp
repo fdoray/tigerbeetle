@@ -55,8 +55,8 @@ public:
     // Overridden from ArrayValueBase.
     virtual std::size_t Length() const override;
     virtual const value::Value* at(size_t index) const override;
-    virtual value::ArrayValueBase::Iterator values_begin() const override;
-    virtual value::ArrayValueBase::Iterator values_end() const override;
+    virtual value::ArrayValueBase::Iterator begin() const override;
+    virtual value::ArrayValueBase::Iterator end() const override;
 
 private:
     // Implementation of an array iterator.

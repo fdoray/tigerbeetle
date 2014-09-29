@@ -67,12 +67,12 @@ const value::Value* ArrayEventValue::at(size_t index) const
     return _valueFactory->buildEventValue(itemDef, _btEvent);
 }
 
-value::ArrayValueBase::Iterator ArrayEventValue::values_begin() const
+value::ArrayValueBase::Iterator ArrayEventValue::begin() const
 {
     return value::ArrayValueBase::Iterator(new IteratorImpl(this, 0));
 }
 
-value::ArrayValueBase::Iterator ArrayEventValue::values_end() const
+value::ArrayValueBase::Iterator ArrayEventValue::end() const
 {
     return value::ArrayValueBase::Iterator(new IteratorImpl(this, _size));
 }

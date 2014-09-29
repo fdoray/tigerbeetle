@@ -21,7 +21,7 @@
 
 namespace tibee
 {
-namespace common
+namespace base
 {
 
 std::ostream& tberror()

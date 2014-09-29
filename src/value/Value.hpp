@@ -134,6 +134,42 @@ class Value {
   // @param value the value to compare with.
   // @returns true when both values are equal, false otherwise.
   virtual bool Equals(const Value* value) const = 0;
+
+  // Check whether the dictionary has a value for the given field name.
+  // @param name the name to check existence.
+  // @returns true if the dictionary has a field named |name|.
+  //     Always false if the value is not a dictionary.
+  virtual bool HasField(const std::string& name) const { return false; }
+
+  // Retrieve the value for a given name.
+  // @param name the name of the field to find.
+  // @returns the value of the field if the field is found, nullptr otherwise.
+  //     Always nullptr if the value is not a dictionary.
+  virtual const Value* GetField(const std::string& name) const { return nullptr; }
+
+  // Retrieve the value for a given name.
+  // @param name the name of the field to find.
+  // @param value receives the value of the field with name |name|.
+  // @returns true if the field is found, false otherwise.
+  //     Always false if the value is not a dictionary.
+  bool GetField(const std::string& name, const Value** value) const;
+
+  // Retrieve the value of a given type for a given name.
+  // @tparam T the type to cast the field value.
+  // @param name the name of the field to find.
+  // @param value receives the value of the field with name |name|.
+  // @returns true if the field is found and of the specified type, false
+  //     otherwise.
+  //     Always false if the value is not a dictionary.
+  template<class T>
+  bool GetFieldAs(const std::string& name, const T** value) const {
+    assert(value != nullptr);
+    const Value* field = nullptr;
+    if (!GetField(name, &field) || !T::InstanceOf(field))
+      return false;
+    *value = T::Cast(field);
+    return true;
+  }
 };
 
 template<class T, int TYPE>
@@ -344,13 +380,14 @@ class ArrayValueBase
 
   // Iteration.
   // @{
-  virtual Iterator values_begin() const = 0;
-  virtual Iterator values_end() const = 0;
+  virtual Iterator begin() const = 0;
+  virtual Iterator end() const = 0;
   // @}
 };
 
 class ArrayValue : public ArrayValueBase {
  public:
+  typedef std::unique_ptr<ArrayValue> UP;
   typedef std::vector<Value*> Values;
   typedef Values::const_iterator const_iterator;
 
@@ -364,8 +401,8 @@ class ArrayValue : public ArrayValueBase {
   // @{
   virtual size_t Length() const override;
   virtual const Value* at(size_t index) const override;
-  virtual ArrayValueBase::Iterator values_begin() const override;
-  virtual ArrayValueBase::Iterator values_end() const override;
+  virtual ArrayValueBase::Iterator begin() const override;
+  virtual ArrayValueBase::Iterator end() const override;
   // }@
 
   // Returns the non-const element at position |index|.
@@ -431,43 +468,19 @@ class StructValueBase
   // Returns the number of elements in the struct.
   virtual size_t Length() const = 0;
 
-  // Check whether the dictionary has a value for the given field name.
-  // @param name the name to check existence.
-  // @returns true if the dictionary has a field named |name|.
-  virtual bool HasField(const std::string& name) const = 0;
+  using Value::GetField;
 
-  // Retrieve the value for a given name.
-  // @param name the name of the field to find.
-  // @returns the value of the field if the field is found, nullptr otherwise.
-  virtual const Value* GetField(const std::string& name) const = 0;
+  // Overridden from value::Value:
+  // @{
+  virtual bool HasField(const std::string& name) const override = 0;
+  virtual const Value* GetField(const std::string& name) const override = 0;
+  // }@
 
   // Retrieve the value for a given index.
   // @param index the index of the field to find.
   // @returns the value of the field if the field is found, nullptr otherwise.
   const Value* operator[](size_t index) const;
   virtual const Value* at(size_t index) const = 0;
-
-  // Retrieve the value for a given name.
-  // @param name the name of the field to find.
-  // @param value receives the value of the field with name |name|.
-  // @returns true if the field is found, false otherwise.
-  bool GetField(const std::string& name, const Value** value) const;
-
-  // Retrieve the value of a given type for a given name.
-  // @tparam T the type to cast the field value.
-  // @param name the name of the field to find.
-  // @param value receives the value of the field with name |name|.
-  // @returns true if the field is found and of the specified type, false
-  //     otherwise.
-  template<class T>
-  bool GetFieldAs(const std::string& name, const T** value) const {
-    assert(value != nullptr);
-    const Value* field = nullptr;
-    if (!GetField(name, &field) || !T::InstanceOf(field))
-      return false;
-    *value = T::Cast(field);
-    return true;
-  }
 
   // These methods allow the convenient retrieval of a field with a basic
   // value. If the current value can be converted into the given type,
@@ -543,6 +556,7 @@ class StructValueBase
 
 class StructValue : public StructValueBase {
  public:
+  typedef std::unique_ptr<StructValue> UP;
   typedef std::map<std::string, Value*> ValueMap;
   typedef std::vector<ValueMap::value_type*> ValueVector;
   typedef ValueVector::const_iterator const_iterator;
