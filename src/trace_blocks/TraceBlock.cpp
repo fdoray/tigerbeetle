@@ -38,13 +38,10 @@ void TraceBlock::Start(const value::Value* params)
 
     for (const auto& trace : *traceList)
     {
-        std::string traceStr;
-        if (trace.GetAsString(&traceStr))
+        std::string traceStr = trace.AsString();
+        if (!_traceSet->addTrace(traceStr))
         {
-            if (!_traceSet->addTrace(traceStr))
-            {
-                tbwarn() << "Trace " << traceStr << " could not be loaded." << tbendl();
-            }
+            tbwarn() << "Trace " << traceStr << " could not be loaded." << tbendl();
         }
     }
 }

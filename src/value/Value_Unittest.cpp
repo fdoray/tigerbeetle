@@ -162,7 +162,7 @@ TEST(ScalarValueTest, Limits) {
   EXPECT_EQ(0xFFFFFFFFFFFFFFFFULL, ULongValue::MaxValue());
 }
 
-TEST(ScalarValueTest, GetAsInteger) {
+TEST(ScalarValueTest, AsInteger) {
   BoolValue bool_value(1);
   CharValue char_value(42);
   UCharValue uchar_value(42);
@@ -178,66 +178,66 @@ TEST(ScalarValueTest, GetAsInteger) {
 
   value = &bool_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(1, resut_value);
 
   value = &char_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &uchar_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &short_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &ushort_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &int_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &uint_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &ulong_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &double_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsInteger(&resut_value));
+  EXPECT_FALSE(value->AsInteger(&resut_value));
   EXPECT_EQ(0, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsIntegerWithULong) {
+TEST(ScalarValueTest, AsIntegerWithULong) {
   ULongValue ulong_value1(0x000000007FFFFFFFULL);
   ULongValue ulong_value2(0xFFFFFFFFFFFFFFFFULL);
   int32_t resut_value = 0;
   Value* value = &ulong_value1;
-  EXPECT_TRUE(value->GetAsInteger(&resut_value));
+  EXPECT_TRUE(value->AsInteger(&resut_value));
   value = &ulong_value2;
-  EXPECT_FALSE(value->GetAsInteger(&resut_value));
+  EXPECT_FALSE(value->AsInteger(&resut_value));
 }
 
-TEST(ScalarValueTest, GetAsUInteger) {
+TEST(ScalarValueTest, AsUInteger) {
   BoolValue bool_value(1);
   CharValue char_value(42);
   UCharValue uchar_value(42);
@@ -253,56 +253,56 @@ TEST(ScalarValueTest, GetAsUInteger) {
 
   value = &bool_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(1U, resut_value);
 
   value = &char_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &uchar_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &short_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &ushort_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &int_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &uint_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &ulong_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsUInteger(&resut_value));
+  EXPECT_TRUE(value->AsUInteger(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &double_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsUIntegerWithNegativeValue) {
+TEST(ScalarValueTest, AsUIntegerWithNegativeValue) {
   CharValue char_value(-1);
   ShortValue short_value(-1);
   IntValue int_value(-1);
@@ -312,26 +312,26 @@ TEST(ScalarValueTest, GetAsUIntegerWithNegativeValue) {
 
   value = &char_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &short_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &int_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsUIntegerWithBigValue) {
+TEST(ScalarValueTest, AsUIntegerWithBigValue) {
   LongValue long_value(0x1FFFFFFFFLL);
   ULongValue ulong_value(0x1FFFFFFFFLL);
   Value* value;
@@ -339,16 +339,16 @@ TEST(ScalarValueTest, GetAsUIntegerWithBigValue) {
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &ulong_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsUInteger(&resut_value));
+  EXPECT_FALSE(value->AsUInteger(&resut_value));
   EXPECT_EQ(0U, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsLong) {
+TEST(ScalarValueTest, AsLong) {
   BoolValue bool_value(1);
   CharValue char_value(42);
   UCharValue uchar_value(42);
@@ -364,66 +364,66 @@ TEST(ScalarValueTest, GetAsLong) {
 
   value = &bool_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(1, resut_value);
 
   value = &char_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &uchar_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &short_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &ushort_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &int_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &uint_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &ulong_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   EXPECT_EQ(42, resut_value);
 
   value = &double_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsLong(&resut_value));
+  EXPECT_FALSE(value->AsLong(&resut_value));
   EXPECT_EQ(0, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsLongWithBigValue) {
+TEST(ScalarValueTest, AsLongWithBigValue) {
   ULongValue ulong_value1(0x7FFFFFFFFFFFFFFFULL);
   ULongValue ulong_value2(0xFFFFFFFFFFFFFFFFULL);
   int64_t resut_value = 0;
   Value* value = &ulong_value1;
-  EXPECT_TRUE(value->GetAsLong(&resut_value));
+  EXPECT_TRUE(value->AsLong(&resut_value));
   value = &ulong_value2;
-  EXPECT_FALSE(value->GetAsLong(&resut_value));
+  EXPECT_FALSE(value->AsLong(&resut_value));
 }
 
-TEST(ScalarValueTest, GetAsULong) {
+TEST(ScalarValueTest, AsULong) {
   BoolValue bool_value(1);
   CharValue char_value(42);
   UCharValue uchar_value(42);
@@ -439,56 +439,56 @@ TEST(ScalarValueTest, GetAsULong) {
 
   value = &bool_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(1U, resut_value);
 
   value = &char_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &uchar_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &short_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &ushort_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &int_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &uint_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &ulong_value;
   resut_value = 0;
-  EXPECT_TRUE(value->GetAsULong(&resut_value));
+  EXPECT_TRUE(value->AsULong(&resut_value));
   EXPECT_EQ(42U, resut_value);
 
   value = &double_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsULong(&resut_value));
+  EXPECT_FALSE(value->AsULong(&resut_value));
   EXPECT_EQ(0U, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsULongWithNegativeValue) {
+TEST(ScalarValueTest, AsULongWithNegativeValue) {
   CharValue char_value(-1);
   ShortValue short_value(-1);
   IntValue int_value(-1);
@@ -498,26 +498,26 @@ TEST(ScalarValueTest, GetAsULongWithNegativeValue) {
 
   value = &char_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsULong(&resut_value));
+  EXPECT_FALSE(value->AsULong(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &short_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsULong(&resut_value));
+  EXPECT_FALSE(value->AsULong(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &int_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsULong(&resut_value));
+  EXPECT_FALSE(value->AsULong(&resut_value));
   EXPECT_EQ(0U, resut_value);
 
   value = &long_value;
   resut_value = 0;
-  EXPECT_FALSE(value->GetAsULong(&resut_value));
+  EXPECT_FALSE(value->AsULong(&resut_value));
   EXPECT_EQ(0U, resut_value);
 }
 
-TEST(ScalarValueTest, GetAsFloating) {
+TEST(ScalarValueTest, AsFloating) {
   CharValue char_value(42);
   IntValue int_value(42);
   FloatValue float_value(.42f);
@@ -527,26 +527,26 @@ TEST(ScalarValueTest, GetAsFloating) {
 
   value = &char_value;
   result_value = 0;
-  EXPECT_FALSE(value->GetAsFloating(&result_value));
+  EXPECT_FALSE(value->AsFloating(&result_value));
   EXPECT_EQ(0U, result_value);
 
   value = &int_value;
   result_value = 0;
-  EXPECT_FALSE(value->GetAsFloating(&result_value));
+  EXPECT_FALSE(value->AsFloating(&result_value));
   EXPECT_EQ(0U, result_value);
 
   value = &float_value;
   result_value = 0;
-  EXPECT_TRUE(value->GetAsFloating(&result_value));
+  EXPECT_TRUE(value->AsFloating(&result_value));
   EXPECT_NEAR(.42, result_value, 0.000001);
 
   value = &double_value;
   result_value = 0;
-  EXPECT_TRUE(value->GetAsFloating(&result_value));
+  EXPECT_TRUE(value->AsFloating(&result_value));
   EXPECT_DOUBLE_EQ(.42, result_value);
 }
 
-TEST(ScalarValueTest, GetAsString) {
+TEST(ScalarValueTest, AsString) {
   StringValue string_value("42");
   WStringValue wstring_value(L"42");
   DoubleValue double_value(.42);
@@ -555,21 +555,21 @@ TEST(ScalarValueTest, GetAsString) {
 
   value = &string_value;
   result_value = "";
-  EXPECT_TRUE(value->GetAsString(&result_value));
+  EXPECT_TRUE(value->AsString(&result_value));
   EXPECT_STREQ("42", result_value.c_str());
 
   value = &wstring_value;
   result_value = "";
-  EXPECT_TRUE(value->GetAsString(&result_value));
+  EXPECT_TRUE(value->AsString(&result_value));
   EXPECT_STREQ("42", result_value.c_str());
 
   value = &double_value;
   result_value = "";
-  EXPECT_FALSE(value->GetAsString(&result_value));
+  EXPECT_FALSE(value->AsString(&result_value));
   EXPECT_STREQ("", result_value.c_str());
 }
 
-TEST(ScalarValueTest, GetAsWString) {
+TEST(ScalarValueTest, AsWString) {
   StringValue string_value("42");
   WStringValue wstring_value(L"42");
   DoubleValue double_value(.42);
@@ -578,17 +578,17 @@ TEST(ScalarValueTest, GetAsWString) {
 
   value = &string_value;
   result_value = L"";
-  EXPECT_TRUE(value->GetAsWString(&result_value));
+  EXPECT_TRUE(value->AsWString(&result_value));
   EXPECT_STREQ(L"42", result_value.c_str());
 
   value = &wstring_value;
   result_value = L"";
-  EXPECT_TRUE(value->GetAsWString(&result_value));
+  EXPECT_TRUE(value->AsWString(&result_value));
   EXPECT_STREQ(L"42", result_value.c_str());
 
   value = &double_value;
   result_value = L"";
-  EXPECT_FALSE(value->GetAsWString(&result_value));
+  EXPECT_FALSE(value->AsWString(&result_value));
   EXPECT_STREQ(L"", result_value.c_str());
 }
 

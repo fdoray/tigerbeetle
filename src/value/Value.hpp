@@ -52,7 +52,7 @@
 //   std::unique_ptr<IntValue> value(new IntValue(42));
 //
 //   uint32_t result = 0;
-//   if (value->GetAsUInteger(&result))
+//   if (value->AsUInteger(&result))
 //     // do something with result
 //
 //   int32_t result = IntValue::GetValue(result.get());
@@ -121,19 +121,37 @@ class Value {
   // @returns true when the conversion is valid, false otherwise and |value|
   // stays unchanged.
   // @{
-  bool GetAsInteger(int32_t* value) const;
-  bool GetAsUInteger(uint32_t* value) const;
-  bool GetAsLong(int64_t* value) const;
-  bool GetAsULong(uint64_t* value) const;
-  bool GetAsFloating(double* value) const;
-  bool GetAsString(std::string* value) const;
-  bool GetAsWString(std::wstring* value) const;
+  bool AsInteger(int32_t* value) const;
+  bool AsUInteger(uint32_t* value) const;
+  bool AsLong(int64_t* value) const;
+  bool AsULong(uint64_t* value) const;
+  bool AsFloating(double* value) const;
+  bool AsString(std::string* value) const;
+  bool AsWString(std::wstring* value) const;
+  // @}
+
+  // These methods allow the convenient retrieval of a basic value.
+  // If the current value can be converted into the given type,
+  // the value is returned. Otherwise, an InvalidCast exception is
+  // thrown.
+  // @returns the basic value.
+  // @{
+  int32_t AsInteger() const;
+  uint32_t AsUInteger() const;
+  int64_t AsLong() const;
+  uint64_t AsULong() const;
+  double AsFloating() const;
+  std::string AsString() const;
+  std::wstring AsWString() const;
   // @}
 
   // Compare this value with the given value |value|.
   // @param value the value to compare with.
   // @returns true when both values are equal, false otherwise.
   virtual bool Equals(const Value* value) const = 0;
+
+  // Methods for dictionaries.
+  // @{
 
   // Check whether the dictionary has a value for the given field name.
   // @param name the name to check existence.
@@ -170,6 +188,8 @@ class Value {
     *value = T::Cast(field);
     return true;
   }
+
+  // @}
 };
 
 template<class T, int TYPE>

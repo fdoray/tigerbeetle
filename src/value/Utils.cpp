@@ -82,7 +82,7 @@ bool ToString(const Value* value, size_t indent, std::stringstream* result) {
     } else if (DoubleValueBase::GetValue(value, &double_value)) {
       *result << double_value;
       return true;
-    } else if (value->GetAsString(&string_value)) {
+    } else if (value->AsString(&string_value)) {
       *result << "\"" << string_value << "\"";  // TODO(etienneb): escaping.
       return true;
     }

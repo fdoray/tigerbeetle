@@ -28,11 +28,12 @@
 #include <limits>
 
 #include "base/StringUtils.hpp"
+#include "value/ex/InvalidConversion.hpp"
 
 namespace tibee {
 namespace value {
 
-bool Value::GetAsInteger(int32_t* value) const {
+bool Value::AsInteger(int32_t* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -88,7 +89,7 @@ bool Value::GetAsInteger(int32_t* value) const {
   }
 }
 
-bool Value::GetAsUInteger(uint32_t* value) const {
+bool Value::AsUInteger(uint32_t* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -150,7 +151,7 @@ bool Value::GetAsUInteger(uint32_t* value) const {
   }
 }
 
-bool Value::GetAsLong(int64_t* value) const {
+bool Value::AsLong(int64_t* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -198,7 +199,7 @@ bool Value::GetAsLong(int64_t* value) const {
   }
 }
 
-bool Value::GetAsULong(uint64_t* value) const {
+bool Value::AsULong(uint64_t* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -255,7 +256,7 @@ bool Value::GetAsULong(uint64_t* value) const {
   }
 }
 
-bool Value::GetAsFloating(double* value) const {
+bool Value::AsFloating(double* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -272,7 +273,7 @@ bool Value::GetAsFloating(double* value) const {
   }
 }
 
-bool Value::GetAsString(std::string* value) const {
+bool Value::AsString(std::string* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -289,7 +290,7 @@ bool Value::GetAsString(std::string* value) const {
   }
 }
 
-bool Value::GetAsWString(std::wstring* value) const {
+bool Value::AsWString(std::wstring* value) const {
   assert(value != nullptr);
 
   switch (GetType()) {
@@ -304,6 +305,62 @@ bool Value::GetAsWString(std::wstring* value) const {
     default:
       return false;
   }
+}
+
+int32_t Value::AsInteger() const
+{
+  int32_t value = 0;
+  if (!AsInteger(&value))
+    throw ex::InvalidConversion("The value cannot be converted to an integer.");
+  return value;
+}
+
+uint32_t Value::AsUInteger() const
+{
+  uint32_t value = 0;
+  if (!AsUInteger(&value))
+    throw ex::InvalidConversion("The value cannot be converted to an unsigned integer.");
+  return value;
+}
+
+int64_t Value::AsLong() const
+{
+  int64_t value = 0;
+  if (!AsLong(&value))
+    throw ex::InvalidConversion("The value cannot be converted to a long.");
+  return value;
+}
+
+uint64_t Value::AsULong() const
+{
+  uint64_t value = 0;
+  if (!AsULong(&value))
+    throw ex::InvalidConversion("The value cannot be converted to an unsigned long.");
+  return value;
+}
+
+double Value::AsFloating() const
+{
+  double value = 0;
+  if (!AsFloating(&value))
+    throw ex::InvalidConversion("The value cannot be converted to a float.");
+  return value;
+}
+
+std::string Value::AsString() const
+{
+  std::string value;
+  if (!AsString(&value))
+    throw ex::InvalidConversion("The value cannot be converted to a string.");
+  return value;
+}
+
+std::wstring Value::AsWString() const
+{
+  std::wstring value;
+  if (!AsWString(&value))
+    throw ex::InvalidConversion("The value cannot be converted to a wide string.");
+  return value;
 }
 
 bool Value::GetField(const std::string& name,
@@ -446,49 +503,49 @@ bool ArrayValueBase::GetElementAsInteger(size_t index, int32_t* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsInteger(value);
+  return at(index)->AsInteger(value);
 }
 
 bool ArrayValueBase::GetElementAsUInteger(size_t index, uint32_t* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsUInteger(value);
+  return at(index)->AsUInteger(value);
 }
 
 bool ArrayValueBase::GetElementAsLong(size_t index, int64_t* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsLong(value);
+  return at(index)->AsLong(value);
 }
 
 bool ArrayValueBase::GetElementAsULong(size_t index, uint64_t* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsULong(value);
+  return at(index)->AsULong(value);
 }
 
 bool ArrayValueBase::GetElementAsFloating(size_t index, double* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsFloating(value);
+  return at(index)->AsFloating(value);
 }
 
 bool ArrayValueBase::GetElementAsString(size_t index, std::string* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsString(value);
+  return at(index)->AsString(value);
 }
 
 bool ArrayValueBase::GetElementAsWString(size_t index, std::wstring* value) const {
   assert(value != nullptr);
   if (index >= Length())
     return false;
-  return at(index)->GetAsWString(value);
+  return at(index)->AsWString(value);
 }
 
 bool ArrayValueBase::Equals(const Value* value) const {
@@ -635,7 +692,7 @@ bool StructValueBase::GetFieldAsInteger(
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsInteger(value);
+  return field->AsInteger(value);
 }
 
 bool StructValueBase::GetFieldAsUInteger(
@@ -644,7 +701,7 @@ bool StructValueBase::GetFieldAsUInteger(
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsUInteger(value);
+  return field->AsUInteger(value);
 }
 
 bool StructValueBase::GetFieldAsLong(const std::string& name,
@@ -653,7 +710,7 @@ bool StructValueBase::GetFieldAsLong(const std::string& name,
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsLong(value);
+  return field->AsLong(value);
 }
 
 bool StructValueBase::GetFieldAsULong(
@@ -662,7 +719,7 @@ bool StructValueBase::GetFieldAsULong(
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsULong(value);
+  return field->AsULong(value);
 }
 
 bool StructValueBase::GetFieldAsFloating(
@@ -671,7 +728,7 @@ bool StructValueBase::GetFieldAsFloating(
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsFloating(value);
+  return field->AsFloating(value);
 }
 
 bool StructValueBase::GetFieldAsString(
@@ -680,7 +737,7 @@ bool StructValueBase::GetFieldAsString(
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsString(value);
+  return field->AsString(value);
 }
 
 bool StructValueBase::GetFieldAsWString(
@@ -689,7 +746,7 @@ bool StructValueBase::GetFieldAsWString(
   const Value* field = nullptr;
   if (!GetField(name, &field))
     return false;
-  return field->GetAsWString(value);
+  return field->AsWString(value);
 }
 
 bool StructValueBase::Equals(const Value* value) const {
