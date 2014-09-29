@@ -14,6 +14,7 @@ sources_unittests = [
     'trace/TraceSet_Unittest.cpp',
     'trace/TraceSetIterator_Unittest.cpp',
     'trace_blocks/TraceBlock_Unittest.cpp',
+    'value/MakeValue_Unittest.cpp',
     'value/Utils_Unittest.cpp',
     'value/Value_Unittest.cpp',
 ]
