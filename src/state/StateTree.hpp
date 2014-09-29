@@ -18,10 +18,13 @@
 #ifndef _TIBEE_STATE_STATETREE_HPP
 #define _TIBEE_STATE_STATETREE_HPP
 
+#include <iterator>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
+#include "quark/Quark.hpp"
 #include "state/StateKey.hpp"
 #include "state/StatePath.hpp"
 
@@ -38,23 +41,46 @@ namespace state
 class StateTree
 {
 public:
+    struct State;
+    typedef std::unordered_map<quark::Quark, State*> States;
+    struct State
+    {
+        StateKey key;
+        States children;
+    };
+
     StateTree();
     ~StateTree();
 
     StateKey GetStateKey(const StatePath& path);
     StateKey GetStateKey(StateKey root, const StatePath& subPath);
 
-private:
-    struct State;
-    typedef std::unordered_map<size_t, State*> States;
-
-    State* GetState(State* root, const StatePath& subPath);
-
-    struct State
+    typedef std::pair<quark::Quark, StateKey> QuarkStateKeyPair;
+    class Iterator :
+        public std::iterator<std::input_iterator_tag, QuarkStateKeyPair>
     {
-        StateKey key;
-        States children;
+    public:
+        friend class StateTree;
+
+        Iterator();
+        Iterator& operator++();
+        bool operator==(const Iterator& other) const;
+        bool operator!=(const Iterator& other) const;
+        const QuarkStateKeyPair& operator*() const;
+        const QuarkStateKeyPair* operator->() const;
+
+    private:
+        Iterator(StateTree::States::const_iterator it);
+
+        mutable QuarkStateKeyPair _currentPair;
+        StateTree::States::const_iterator _it;
     };
+
+    Iterator state_children_begin(StateKey key) const;
+    Iterator state_children_end(StateKey key) const;
+
+private:
+    State* GetState(State* root, const StatePath& subPath);
 
     State _root;
 

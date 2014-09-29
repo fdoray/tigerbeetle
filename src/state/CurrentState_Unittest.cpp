@@ -61,5 +61,30 @@ TEST(CurrentState, StateChanges)
     EXPECT_EQ(1, currentState.GetStateLastChange(abKey));
 }
 
+TEST(CurrentState, NullState)
+{
+    CurrentState currentState;
+
+    StateKey aKey = currentState.GetStateKeyStr({"a"});
+    StateKey abKey = currentState.GetStateKeyStr({"a", "b"});
+    StateKey abcKey = currentState.GetStateKeyStr({"a", "b", "c"});
+    StateKey abdKey = currentState.GetStateKeyStr({"a", "b", "d"});
+    StateKey abdeKey = currentState.GetStateKeyStr({"a", "b", "d", "e"});
+
+    currentState.SetState(aKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetState(abKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetState(abcKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetState(abdKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetState(abdeKey, value::Value::UP {new value::UIntValue(42)});
+
+    currentState.NullState(abKey);
+
+    EXPECT_EQ(42, currentState.GetStateValue(aKey)->AsUInteger());
+    EXPECT_EQ(nullptr, currentState.GetStateValue(abKey));
+    EXPECT_EQ(nullptr, currentState.GetStateValue(abcKey));
+    EXPECT_EQ(nullptr, currentState.GetStateValue(abdKey));
+    EXPECT_EQ(nullptr, currentState.GetStateValue(abdeKey));
+}
+
 }  // namespace state
 }  // namespace tibee

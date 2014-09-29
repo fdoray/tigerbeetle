@@ -19,6 +19,7 @@
 #define _TIBEE_QUARK_QUARK_HPP
 
 #include <cstdint>
+#include <functional>
 
 namespace tibee
 {
@@ -71,17 +72,17 @@ public:
         return _quark;
     }
 
-    bool operator<(const Quark& q)
+    bool operator<(const Quark& q) const
     {
         return _quark < q._quark;
     }
 
-    bool operator==(const Quark& q)
+    bool operator==(const Quark& q) const
     {
         return _quark == q._quark;
     }
 
-    bool operator!=(const Quark& q)
+    bool operator!=(const Quark& q) const
     {
         return _quark != q._quark;
     }
@@ -92,5 +93,17 @@ private:
 
 }
 }
+
+namespace std {
+
+template <>
+struct hash<tibee::quark::Quark> {
+  size_t operator()(const tibee::quark::Quark& quark) const {
+    std::hash<tibee::quark::Quark::quark_t> hash_quark;
+    return hash_quark(quark.get());
+  }
+};
+
+}  // namespace std
 
 #endif // _TIBEE_QUARK_QUARK_HPP

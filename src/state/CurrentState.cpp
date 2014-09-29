@@ -82,6 +82,28 @@ void CurrentState::SetState(const StatePath& path, value::Value::UP value)
     SetState(key, std::move(value));
 }
 
+void CurrentState::NullState(StateKey state)
+{
+    SetState(state, value::Value::UP {});
+
+    auto it = _stateTree.state_children_begin(state);
+    auto it_end = _stateTree.state_children_end(state);
+    for (; it != it_end; ++it)
+        NullState(it->second);
+}
+
+void CurrentState::NullState(StateKey state, const StatePath& subPath)
+{
+    StateKey subPathKey = GetStateKey(state, subPath);
+    NullState(subPathKey);
+}
+
+void CurrentState::NullState(const StatePath& path)
+{
+    StateKey key = GetStateKey(path);
+    NullState(key);
+}
+
 const value::Value* CurrentState::GetStateValue(StateKey state)
 {
     StateValue& stateValue = _stateValues[state.get()];

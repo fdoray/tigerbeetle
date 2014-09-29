@@ -64,6 +64,10 @@ public:
     void SetState(StateKey state, const StatePath& subPath, value::Value::UP value);
     void SetState(const StatePath& path, value::Value::UP value);
 
+    void NullState(StateKey state);
+    void NullState(StateKey state, const StatePath& subPath);
+    void NullState(const StatePath& path);
+
     const value::Value* GetStateValue(StateKey state);
     const value::Value* GetStateValue(StateKey state, const StatePath& subPath);
     const value::Value* GetStateValue(const StatePath& path);

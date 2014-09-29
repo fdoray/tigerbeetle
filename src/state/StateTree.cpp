@@ -17,6 +17,8 @@
  */
 #include "state/StateTree.hpp"
 
+#include <assert.h>
+
 namespace tibee
 {
 namespace state
@@ -46,7 +48,7 @@ StateTree::State* StateTree::GetState(State* root, const StatePath& subPath)
     State* currentState = root;
     for (quark::Quark quark : subPath)
     {
-        auto look = currentState->children.find(quark.get());
+        auto look = currentState->children.find(quark);
         if (look == currentState->children.end())
         {
             std::unique_ptr<State> newState { new State };
@@ -55,7 +57,7 @@ StateTree::State* StateTree::GetState(State* root, const StatePath& subPath)
 
             _states.push_back(std::move(newState));
 
-            currentState->children[quark.get()] = newStatePtr;
+            currentState->children[quark] = newStatePtr;
             currentState = newStatePtr;
         }
         else
@@ -66,6 +68,56 @@ StateTree::State* StateTree::GetState(State* root, const StatePath& subPath)
 
     return currentState;
 }
+
+StateTree::Iterator StateTree::state_children_begin(StateKey key) const
+{
+    assert(key.get() < _states.size());
+    const State& state = *_states[key.get()];
+    return Iterator(state.children.begin());
+}
+
+StateTree::Iterator StateTree::state_children_end(StateKey key) const
+{
+    assert(key.get() < _states.size());
+    const State& state = *_states[key.get()];
+    return Iterator(state.children.end());
+}
+
+StateTree::Iterator::Iterator() {}
+
+StateTree::Iterator::Iterator(StateTree::States::const_iterator it) :
+    _it(it)
+{
+}
+
+StateTree::Iterator& StateTree::Iterator::operator++()
+{
+    ++_it;
+    return *this;
+}
+
+bool StateTree::Iterator::operator==(const Iterator& other) const
+{
+    return _it == other._it;
+}
+
+bool StateTree::Iterator::operator!=(const Iterator& other) const
+{
+    return _it != other._it;
+}
+
+const StateTree::QuarkStateKeyPair& StateTree::Iterator::operator*() const
+{
+    _currentPair.first = _it->first;
+    _currentPair.second = _it->second->key;
+    return _currentPair;
+}
+
+const StateTree::QuarkStateKeyPair* StateTree::Iterator::operator->() const
+{
+    return &(**this);
+}
+
 
 }
 }
