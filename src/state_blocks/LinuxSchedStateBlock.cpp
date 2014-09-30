@@ -17,7 +17,10 @@
  */
 #include "state_blocks/LinuxSchedStateBlock.hpp"
 
+#include "block/ServiceList.hpp"
 #include "notification/NotificationCenter.hpp"
+
+#include <iostream>
 
 namespace tibee
 {
@@ -52,56 +55,35 @@ const char* kNotifications[] = {
 
 LinuxSchedStateBlock::LinuxSchedStateBlock()
 {
-    for (size_t i = 0; i < kNumNotifications; ++i)
-        _sinks[i] = nullptr;
 }
 
 void LinuxSchedStateBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
 {
-    notification::KeyPath keyPath {Token("linux-sched-state"), Token("")};
-    for (size_t i = 0; i < sizeof(kNotifications) / sizeof(char*); ++i)
+    notification::KeyPath keyPath {Token("state"), Token("linux-sched"), Token("")};
+    for (size_t i = 0; i < kNumNotifications; ++i)
     {
         keyPath.back() = Token(kNotifications[i]);
-        _sinks[i] = notificationCenter->GetNotificationSink(keyPath);
+        _sinks.push_back(notificationCenter->GetNotificationSink(keyPath));
     }
 }
 
 void LinuxSchedStateBlock::RegisterNotificationObservers(notification::NotificationCenter* notificationCenter)
 {
-    RegisterNotificationObserver(notificationCenter, Token("exit_syscall"), &LinuxSchedStateBlock::onExitSyscall);
-    RegisterNotificationObserver(notificationCenter, Token("irq_handler_entry"), &LinuxSchedStateBlock::onIrqHandlerEntry);
-    RegisterNotificationObserver(notificationCenter, Token("irq_handler_exit"), &LinuxSchedStateBlock::onIrqHandlerExit);
-    RegisterNotificationObserver(notificationCenter, Token("softirq_entry"), &LinuxSchedStateBlock::onSoftIrqEntry);
-    RegisterNotificationObserver(notificationCenter, Token("softirq_exit"), &LinuxSchedStateBlock::onSoftIrqExit);
-    RegisterNotificationObserver(notificationCenter, Token("softirq_raise"), &LinuxSchedStateBlock::onSoftIrqRaise);
-    RegisterNotificationObserver(notificationCenter, Token("sched_switch"), &LinuxSchedStateBlock::onSchedSwitch);
-    RegisterNotificationObserver(notificationCenter, Token("sched_process_fork"), &LinuxSchedStateBlock::onSchedProcessFork);
-    RegisterNotificationObserver(notificationCenter, Token("sched_process_free"), &LinuxSchedStateBlock::onSchedProcessFree);
-    RegisterNotificationObserver(notificationCenter, Token("lttng_statedump_process_state"), &LinuxSchedStateBlock::onLttngStatedumpProcessState);
-    RegisterNotificationObserver(notificationCenter, RegexToken("^sched_wakeup"), &LinuxSchedStateBlock::onSchedWakeupEvent);
-    RegisterNotificationObserver(notificationCenter, RegexToken("^sys_"), &LinuxSchedStateBlock::onSysEvent);
-    RegisterNotificationObserver(notificationCenter, RegexToken("^compat_sys_"), &LinuxSchedStateBlock::onSysEvent);
-}
-
-void LinuxSchedStateBlock::RegisterNotificationObserver(notification::NotificationCenter* notificationCenter,
-                                                        notification::Token token,
-                                                        EventHandler eventHandler)
-{
     namespace pl = std::placeholders;
 
-    notification::KeyPath path {Token("event"), Token("lttng-kernel"), token};
-    notification::NotificationCenter::OnNotificationFunc func = std::bind(&LinuxSchedStateBlock::onEvent,
-                  this,
-                  pl::_2,
-                  eventHandler);
-    notificationCenter->RegisterNotificationObserver(path, func);
-}
-
-void LinuxSchedStateBlock::onEvent(const value::Value* event, EventHandler handler)
-{
-    if (event == nullptr)
-        return;
-    (this->*handler)(*reinterpret_cast<const trace::EventValue*>(event));
+    KernelObserver(notificationCenter, Token("exit_syscall"), std::bind(&LinuxSchedStateBlock::onExitSyscall, this, pl::_1));
+    KernelObserver(notificationCenter, Token("irq_handler_entry"), std::bind(&LinuxSchedStateBlock::onIrqHandlerEntry, this, pl::_1));
+    KernelObserver(notificationCenter, Token("irq_handler_exit"), std::bind(&LinuxSchedStateBlock::onIrqHandlerExit, this, pl::_1));
+    KernelObserver(notificationCenter, Token("softirq_entry"), std::bind(&LinuxSchedStateBlock::onSoftIrqEntry, this, pl::_1));
+    KernelObserver(notificationCenter, Token("softirq_exit"), std::bind(&LinuxSchedStateBlock::onSoftIrqExit, this, pl::_1));
+    KernelObserver(notificationCenter, Token("softirq_raise"), std::bind(&LinuxSchedStateBlock::onSoftIrqRaise, this, pl::_1));
+    KernelObserver(notificationCenter, Token("sched_switch"), std::bind(&LinuxSchedStateBlock::onSchedSwitch, this, pl::_1));
+    KernelObserver(notificationCenter, Token("sched_process_fork"), std::bind(&LinuxSchedStateBlock::onSchedProcessFork, this, pl::_1));
+    KernelObserver(notificationCenter, Token("sched_process_free"), std::bind(&LinuxSchedStateBlock::onSchedProcessFree, this, pl::_1));
+    KernelObserver(notificationCenter, Token("lttng_statedump_process_state"), std::bind(&LinuxSchedStateBlock::onLttngStatedumpProcessState, this, pl::_1));
+    KernelObserver(notificationCenter, RegexToken("^sched_wakeup"), std::bind(&LinuxSchedStateBlock::onSchedWakeupEvent, this, pl::_1));
+    KernelObserver(notificationCenter, RegexToken("^sys_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
+    KernelObserver(notificationCenter, RegexToken("^compat_sys_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
 }
 
 void LinuxSchedStateBlock::onExitSyscall(const trace::EventValue& event)
@@ -130,6 +112,8 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
+    PostNotification<value::UIntValue>(
+        kThreadStatusNotificationIdx, GetStateKeyStr({"test"}), 42);
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)

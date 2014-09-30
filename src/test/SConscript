@@ -11,6 +11,7 @@ sources_unittests = [
     'notification/NotificationCenter_Unittest.cpp',
     'state/CurrentState_Unittest.cpp',
     'state/StateTree_Unittest.cpp',
+    'state_blocks/LinuxSchedStateBlock_Unittest.cpp',
     'trace/TraceSet_Unittest.cpp',
     'trace/TraceSetIterator_Unittest.cpp',
     'trace_blocks/TraceBlock_Unittest.cpp',

@@ -18,8 +18,8 @@
 #ifndef _TIBEE_STATEBLOCKS_LINUXSCHEDSTATEBLOCK_HPP
 #define _TIBEE_STATEBLOCKS_LINUXSCHEDSTATEBLOCK_HPP
 
-#include "block/AbstractBlock.hpp"
-#include "notification/NotificationSink.hpp"
+#include "state/CurrentState.hpp"
+#include "state_blocks/AbstractStateBlock.hpp"
 #include "trace/value/EventValue.hpp"
 
 namespace tibee
@@ -32,7 +32,7 @@ namespace state_blocks
  *
  * @author Francois Doray
  */
-class LinuxSchedStateBlock : public block::AbstractBlock
+class LinuxSchedStateBlock : public AbstractStateBlock
 {
 public:
     LinuxSchedStateBlock();
@@ -49,12 +49,6 @@ public:
     static const char* kIrqCpuNotification;
 
 private:
-    typedef void (LinuxSchedStateBlock::*EventHandler)(const trace::EventValue& event);
-    void RegisterNotificationObserver(notification::NotificationCenter* notificationCenter,
-                                      notification::Token token,
-                                      EventHandler eventHandler);
-
-    void onEvent(const value::Value* event, EventHandler handler);
     void onExitSyscall(const trace::EventValue& event);
     void onIrqHandlerEntry(const trace::EventValue& event);
     void onIrqHandlerExit(const trace::EventValue& event);
@@ -79,11 +73,9 @@ private:
         kIrqCpuNotificationIdx,
         kNumNotifications,
     };
-
-    notification::NotificationSink* _sinks[kNumNotifications];
 };
 
 }
 }
 
-#endif // _TIBEE_TRACEBLOCKS_TRACEBLOCK_HPP
+#endif // _TIBEE_STATEBLOCKS_LINUXSCHEDSTATEBLOCK_HPP

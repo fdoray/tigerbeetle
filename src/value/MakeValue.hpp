@@ -30,11 +30,19 @@
 
 #include "value/Value.hpp"
 
+namespace tibee
+{
+namespace value
+{
+
 template <typename T>
 std::unique_ptr<T> MakeValue(const typename T::ScalarType& value)
 {
     std::unique_ptr<T> value_wrapper { new T(value) };
     return value_wrapper;
 }
+
+}  // namespace value
+}  // namespace tibee
 
 #endif  // _TIBEE_VALUE_MAKEVALUE_HPP
