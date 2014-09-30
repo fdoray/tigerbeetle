@@ -32,8 +32,7 @@ namespace notification
 namespace
 {
 
-bool PathsMatch(const NotificationCenter::KeyPath& path,
-                const NotificationCenter::KeyPath& match_path)
+bool PathsMatch(const KeyPath& path, const KeyPath& match_path)
 {
     if (path.size() != match_path.size())
         return false;

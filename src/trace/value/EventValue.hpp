@@ -18,6 +18,8 @@
 #ifndef _TIBEE_TRACE_VALUE_EVENTVALUE_HPP
 #define _TIBEE_TRACE_VALUE_EVENTVALUE_HPP
 
+#include <babeltrace/ctf/events.h>
+
 #include "base/BasicTypes.hpp"
 #include "trace/BasicTypes.hpp"
 #include "value/Value.hpp"

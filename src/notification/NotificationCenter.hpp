@@ -35,6 +35,8 @@ namespace notification
 // Forward declaration.
 class NotificationSink;
 
+typedef std::vector<Token> KeyPath;
+
 /**
  * Notification center.
  *
@@ -44,7 +46,6 @@ class NotificationCenter {
 public:
     friend class NotificationSink;
 
-    typedef std::vector<Token> KeyPath;
     typedef std::function<void (const KeyPath& path, const value::Value* value)>
         OnNotificationFunc;
 

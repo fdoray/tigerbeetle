@@ -29,7 +29,6 @@ namespace notification
 namespace
 {
 using testing::Ref;
-typedef NotificationCenter::KeyPath KeyPath;
 
 class MockObserver
 {

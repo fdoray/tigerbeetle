@@ -53,12 +53,12 @@ private:
     typedef std::vector<NotificationKey> NotificationKeyContainer;
 
     NotificationSink(NotificationCenter* notificationCenter,
-                     const NotificationCenter::KeyPath& path,
+                     const KeyPath& path,
                      const NotificationKeyContainer& keys);
     ~NotificationSink();
 
     NotificationCenter* _notificationCenter;
-    NotificationCenter::KeyPath _path;
+    KeyPath _path;
     NotificationKeyContainer _keys;
 };
 

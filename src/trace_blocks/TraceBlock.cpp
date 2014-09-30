@@ -54,7 +54,7 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
     {
         for (const auto& eventNameIdPair : *traceInfos->getEventMap())
         {
-            notification::NotificationCenter::KeyPath keyPath = {
+            notification::KeyPath keyPath = {
                 notification::Token("event"),
                 notification::Token(traceInfos->getTraceType()),
                 notification::Token(eventNameIdPair.first)

@@ -25,7 +25,7 @@ namespace notification
 {
 
 NotificationSink::NotificationSink(NotificationCenter* notificationCenter,
-                                   const NotificationCenter::KeyPath& path,
+                                   const KeyPath& path,
                                    const NotificationKeyContainer& keys)
     : _notificationCenter(notificationCenter),
       _path(path),
