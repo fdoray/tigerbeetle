@@ -25,9 +25,9 @@
 
 #include "base/BasicTypes.hpp"
 #include "quark/QuarkDatabase.hpp"
-#include "state/StateKey.hpp"
-#include "state/StatePath.hpp"
-#include "state/StateTree.hpp"
+#include "state/AttributeKey.hpp"
+#include "state/AttributePath.hpp"
+#include "state/AttributeTree.hpp"
 #include "value/Value.hpp"
 
 namespace tibee
@@ -36,7 +36,7 @@ namespace state
 {
 
 /**
- * Current state.
+ * Current attribute.
  *
  * @author Francois Doray
  */
@@ -57,29 +57,29 @@ public:
     quark::Quark Quark(const std::string& str);
     const std::string& String(quark::Quark quark) const;
 
-    StateKey GetStateKey(const StatePath& path);
-    StateKey GetStateKeyStr(const StatePathStr& pathStr);
-    StateKey GetStateKey(StateKey root, const StatePath& subPath);
+    AttributeKey GetAttributeKey(const AttributePath& path);
+    AttributeKey GetAttributeKeyStr(const AttributePathStr& pathStr);
+    AttributeKey GetAttributeKey(AttributeKey root, const AttributePath& subPath);
 
-    void SetState(StateKey state, value::Value::UP value);
-    void SetState(StateKey state, const StatePath& subPath, value::Value::UP value);
-    void SetState(const StatePath& path, value::Value::UP value);
+    void SetAttribute(AttributeKey attribute, value::Value::UP value);
+    void SetAttribute(AttributeKey attribute, const AttributePath& subPath, value::Value::UP value);
+    void SetAttribute(const AttributePath& path, value::Value::UP value);
 
-    void NullState(StateKey state);
-    void NullState(StateKey state, const StatePath& subPath);
-    void NullState(const StatePath& path);
+    void NullAttribute(AttributeKey attribute);
+    void NullAttribute(AttributeKey attribute, const AttributePath& subPath);
+    void NullAttribute(const AttributePath& path);
 
-    const value::Value* GetStateValue(StateKey state);
-    const value::Value* GetStateValue(StateKey state, const StatePath& subPath);
-    const value::Value* GetStateValue(const StatePath& path);
+    const value::Value* GetAttributeValue(AttributeKey attribute);
+    const value::Value* GetAttributeValue(AttributeKey attribute, const AttributePath& subPath);
+    const value::Value* GetAttributeValue(const AttributePath& path);
 
-    timestamp_t GetStateLastChange(StateKey state);
-    timestamp_t GetStateLastChange(StateKey state, const StatePath& subPath);
-    timestamp_t GetStateLastChange(const StatePath& path);
+    timestamp_t GetAttributeLastChange(AttributeKey attribute);
+    timestamp_t GetAttributeLastChange(AttributeKey attribute, const AttributePath& subPath);
+    timestamp_t GetAttributeLastChange(const AttributePath& path);
 
 private:
-    struct StateValue {
-        StateValue();
+    struct AttributeValue {
+        AttributeValue();
         value::Value::UP value;
         timestamp_t since;
     };
@@ -93,15 +93,15 @@ private:
     // Quarks for integers 0 to 65535.
     std::vector<quark::Quark> _intQuarks;
 
-    // State tree.
-    StateTree _stateTree;
+    // Attribute tree.
+    AttributeTree _attributeTree;
 
-    // State values.
-    typedef std::unordered_map<size_t, StateValue> StateValues;
-    StateValues _stateValues;
+    // Attribute values.
+    typedef std::unordered_map<size_t, AttributeValue> AttributeValues;
+    AttributeValues _attributeValues;
 };
 
 }
 }
 
-#endif // _TIBEE_STATE_STATEKEY_HPP
+#endif // _TIBEE_STATE_CURRENTSTATE_HPP

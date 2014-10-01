@@ -32,58 +32,58 @@ TEST(CurrentState, Timestamp)
     EXPECT_EQ(1, currentState.timestamp());
 }
 
-TEST(CurrentState, StateChanges)
+TEST(CurrentState, AttributeChanges)
 {
     CurrentState currentState;
 
-    StateKey abKey = currentState.GetStateKeyStr({"a", "b"});
+    AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});
 
     currentState.SetTimestamp(1);
-    currentState.SetState(abKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetAttribute(abKey, value::Value::UP {new value::UIntValue(42)});
 
-    EXPECT_EQ(42, currentState.GetStateValue(abKey)->AsUInteger());
-    EXPECT_EQ(1, currentState.GetStateLastChange(abKey));
+    EXPECT_EQ(42, currentState.GetAttributeValue(abKey)->AsUInteger());
+    EXPECT_EQ(1, currentState.GetAttributeLastChange(abKey));
 
-    StateKey aKey = currentState.GetStateKeyStr({"a"});
+    AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});
     currentState.SetTimestamp(3);
-    currentState.SetState(
+    currentState.SetAttribute(
         aKey,
         {currentState.Quark("b"), currentState.Quark("c")},
         value::Value::UP {new value::UIntValue(1337)});
 
-    StateKey abcKey = currentState.GetStateKeyStr({"a", "b", "c"});
-    EXPECT_EQ(1337, currentState.GetStateValue(abcKey)->AsUInteger());
-    EXPECT_EQ(3, currentState.GetStateLastChange(abcKey));
+    AttributeKey abcKey = currentState.GetAttributeKeyStr({"a", "b", "c"});
+    EXPECT_EQ(1337, currentState.GetAttributeValue(abcKey)->AsUInteger());
+    EXPECT_EQ(3, currentState.GetAttributeLastChange(abcKey));
 
-    EXPECT_EQ(42, currentState.GetStateValue(
+    EXPECT_EQ(42, currentState.GetAttributeValue(
         aKey,
         {currentState.Quark("b")})->AsUInteger());
-    EXPECT_EQ(1, currentState.GetStateLastChange(abKey));
+    EXPECT_EQ(1, currentState.GetAttributeLastChange(abKey));
 }
 
-TEST(CurrentState, NullState)
+TEST(CurrentState, NullAttribute)
 {
     CurrentState currentState;
 
-    StateKey aKey = currentState.GetStateKeyStr({"a"});
-    StateKey abKey = currentState.GetStateKeyStr({"a", "b"});
-    StateKey abcKey = currentState.GetStateKeyStr({"a", "b", "c"});
-    StateKey abdKey = currentState.GetStateKeyStr({"a", "b", "d"});
-    StateKey abdeKey = currentState.GetStateKeyStr({"a", "b", "d", "e"});
+    AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});
+    AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});
+    AttributeKey abcKey = currentState.GetAttributeKeyStr({"a", "b", "c"});
+    AttributeKey abdKey = currentState.GetAttributeKeyStr({"a", "b", "d"});
+    AttributeKey abdeKey = currentState.GetAttributeKeyStr({"a", "b", "d", "e"});
 
-    currentState.SetState(aKey, value::Value::UP {new value::UIntValue(42)});
-    currentState.SetState(abKey, value::Value::UP {new value::UIntValue(42)});
-    currentState.SetState(abcKey, value::Value::UP {new value::UIntValue(42)});
-    currentState.SetState(abdKey, value::Value::UP {new value::UIntValue(42)});
-    currentState.SetState(abdeKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetAttribute(aKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetAttribute(abKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetAttribute(abcKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetAttribute(abdKey, value::Value::UP {new value::UIntValue(42)});
+    currentState.SetAttribute(abdeKey, value::Value::UP {new value::UIntValue(42)});
 
-    currentState.NullState(abKey);
+    currentState.NullAttribute(abKey);
 
-    EXPECT_EQ(42, currentState.GetStateValue(aKey)->AsUInteger());
-    EXPECT_EQ(nullptr, currentState.GetStateValue(abKey));
-    EXPECT_EQ(nullptr, currentState.GetStateValue(abcKey));
-    EXPECT_EQ(nullptr, currentState.GetStateValue(abdKey));
-    EXPECT_EQ(nullptr, currentState.GetStateValue(abdeKey));
+    EXPECT_EQ(42, currentState.GetAttributeValue(aKey)->AsUInteger());
+    EXPECT_EQ(nullptr, currentState.GetAttributeValue(abKey));
+    EXPECT_EQ(nullptr, currentState.GetAttributeValue(abcKey));
+    EXPECT_EQ(nullptr, currentState.GetAttributeValue(abdKey));
+    EXPECT_EQ(nullptr, currentState.GetAttributeValue(abdeKey));
 }
 
 }  // namespace state

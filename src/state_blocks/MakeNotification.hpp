@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATEBLOCKS_MAKESTATENOTIFICATION_HPP
-#define _TIBEE_STATEBLOCKS_MAKESTATENOTIFICATION_HPP
+#ifndef _TIBEE_STATEBLOCKS_MAKENOTIFICATION_HPP
+#define _TIBEE_STATEBLOCKS_MAKENOTIFICATION_HPP
 
-#include "state/StateKey.hpp"
+#include "state/AttributeKey.hpp"
 #include "state_blocks/CurrentStateBlock.hpp"
 #include "value/MakeValue.hpp"
 #include "value/Value.hpp"
@@ -30,14 +30,14 @@ namespace state_blocks
 
 template <typename T>
 inline value::Value::UP MakeNotification(
-    state::StateKey key,
+    state::AttributeKey key,
     const typename T::ScalarType& value)
 {
     value::StructValue::UP notification {new value::StructValue};
 
-    notification->AddField(CurrentStateBlock::kStateKeyField,
+    notification->AddField(CurrentStateBlock::kAttributeKeyField,
                            value::MakeValue<value::UIntValue>(key.get()));
-    notification->AddField(CurrentStateBlock::kStateValueField,
+    notification->AddField(CurrentStateBlock::kAttributeValueField,
                            value::MakeValue<T>(value));
 
     return std::move(notification);
@@ -46,4 +46,4 @@ inline value::Value::UP MakeNotification(
 }
 }
 
-#endif // _TIBEE_TRACEBLOCKS_MAKESTATENOTIFICATION_HPP
+#endif // _TIBEE_TRACEBLOCKS_MAKENOTIFICATION_HPP

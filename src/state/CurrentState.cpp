@@ -59,103 +59,103 @@ const std::string& CurrentState::String(quark::Quark quark) const
     return _quarks.ValueOf(quark);
 }
 
-StateKey CurrentState::GetStateKey(const StatePath& path)
+AttributeKey CurrentState::GetAttributeKey(const AttributePath& path)
 {
-    return _stateTree.GetStateKey(path);
+    return _attributeTree.GetAttributeKey(path);
 }
 
-StateKey CurrentState::GetStateKeyStr(const StatePathStr& pathStr)
+AttributeKey CurrentState::GetAttributeKeyStr(const AttributePathStr& pathStr)
 {
-    StatePath path;
+    AttributePath path;
     path.reserve(pathStr.size());
     for (const auto& str : pathStr)
         path.push_back(Quark(str));
-    return GetStateKey(path);
+    return GetAttributeKey(path);
 }
 
-StateKey CurrentState::GetStateKey(StateKey root, const StatePath& subPath)
+AttributeKey CurrentState::GetAttributeKey(AttributeKey root, const AttributePath& subPath)
 {
-    return _stateTree.GetStateKey(root, subPath);
+    return _attributeTree.GetAttributeKey(root, subPath);
 }
 
-void CurrentState::SetState(StateKey state, value::Value::UP value)
+void CurrentState::SetAttribute(AttributeKey attribute, value::Value::UP value)
 {
-    StateValue& stateValue = _stateValues[state.get()];
-    stateValue.value = std::move(value);
-    stateValue.since = _ts;
+    AttributeValue& attributeValue = _attributeValues[attribute.get()];
+    attributeValue.value = std::move(value);
+    attributeValue.since = _ts;
 }
 
-void CurrentState::SetState(StateKey state, const StatePath& subPath, value::Value::UP value)
+void CurrentState::SetAttribute(AttributeKey attribute, const AttributePath& subPath, value::Value::UP value)
 {
-    StateKey subPathKey = GetStateKey(state, subPath);
-    SetState(subPathKey, std::move(value));
+    AttributeKey subPathKey = GetAttributeKey(attribute, subPath);
+    SetAttribute(subPathKey, std::move(value));
 }
 
-void CurrentState::SetState(const StatePath& path, value::Value::UP value)
+void CurrentState::SetAttribute(const AttributePath& path, value::Value::UP value)
 {
-    StateKey key = GetStateKey(path);
-    SetState(key, std::move(value));
+    AttributeKey key = GetAttributeKey(path);
+    SetAttribute(key, std::move(value));
 }
 
-void CurrentState::NullState(StateKey state)
+void CurrentState::NullAttribute(AttributeKey attribute)
 {
-    SetState(state, value::Value::UP {});
+    SetAttribute(attribute, value::Value::UP {});
 
-    auto it = _stateTree.state_children_begin(state);
-    auto it_end = _stateTree.state_children_end(state);
+    auto it = _attributeTree.attribute_children_begin(attribute);
+    auto it_end = _attributeTree.attribute_children_end(attribute);
     for (; it != it_end; ++it)
-        NullState(it->second);
+        NullAttribute(it->second);
 }
 
-void CurrentState::NullState(StateKey state, const StatePath& subPath)
+void CurrentState::NullAttribute(AttributeKey attribute, const AttributePath& subPath)
 {
-    StateKey subPathKey = GetStateKey(state, subPath);
-    NullState(subPathKey);
+    AttributeKey subPathKey = GetAttributeKey(attribute, subPath);
+    NullAttribute(subPathKey);
 }
 
-void CurrentState::NullState(const StatePath& path)
+void CurrentState::NullAttribute(const AttributePath& path)
 {
-    StateKey key = GetStateKey(path);
-    NullState(key);
+    AttributeKey key = GetAttributeKey(path);
+    NullAttribute(key);
 }
 
-const value::Value* CurrentState::GetStateValue(StateKey state)
+const value::Value* CurrentState::GetAttributeValue(AttributeKey attribute)
 {
-    StateValue& stateValue = _stateValues[state.get()];
-    return stateValue.value.get();
+    AttributeValue& attributeValue = _attributeValues[attribute.get()];
+    return attributeValue.value.get();
 }
 
-const value::Value* CurrentState::GetStateValue(StateKey state, const StatePath& subPath)
+const value::Value* CurrentState::GetAttributeValue(AttributeKey attribute, const AttributePath& subPath)
 {
-    StateKey subPathKey = GetStateKey(state, subPath);
-    return GetStateValue(subPathKey);
+    AttributeKey subPathKey = GetAttributeKey(attribute, subPath);
+    return GetAttributeValue(subPathKey);
 }
 
-const value::Value* CurrentState::GetStateValue(const StatePath& path)
+const value::Value* CurrentState::GetAttributeValue(const AttributePath& path)
 {
-    StateKey key = GetStateKey(path);
-    return GetStateValue(key);
+    AttributeKey key = GetAttributeKey(path);
+    return GetAttributeValue(key);
 }
 
-timestamp_t CurrentState::GetStateLastChange(StateKey state)
+timestamp_t CurrentState::GetAttributeLastChange(AttributeKey attribute)
 {
-    StateValue& stateValue = _stateValues[state.get()];
-    return stateValue.since;
+    AttributeValue& attributeValue = _attributeValues[attribute.get()];
+    return attributeValue.since;
 }
 
-timestamp_t CurrentState::GetStateLastChange(StateKey state, const StatePath& subPath)
+timestamp_t CurrentState::GetAttributeLastChange(AttributeKey attribute, const AttributePath& subPath)
 {
-    StateKey subPathKey = GetStateKey(state, subPath);
-    return GetStateLastChange(subPathKey);
+    AttributeKey subPathKey = GetAttributeKey(attribute, subPath);
+    return GetAttributeLastChange(subPathKey);
 }
 
-timestamp_t CurrentState::GetStateLastChange(const StatePath& path)
+timestamp_t CurrentState::GetAttributeLastChange(const AttributePath& path)
 {
-    StateKey key = GetStateKey(path);
-    return GetStateLastChange(key);
+    AttributeKey key = GetAttributeKey(path);
+    return GetAttributeLastChange(key);
 }
 
-CurrentState::StateValue::StateValue() :
+CurrentState::AttributeValue::AttributeValue() :
     since(0)
 {
 }

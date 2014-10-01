@@ -37,8 +37,8 @@ class CurrentStateBlock : public block::AbstractBlock
 {
 public:
     static const char* kCurrentStateServiceName;
-    static const char* kStateKeyField;
-    static const char* kStateValueField;
+    static const char* kAttributeKeyField;
+    static const char* kAttributeValueField;
 
     CurrentStateBlock();
 

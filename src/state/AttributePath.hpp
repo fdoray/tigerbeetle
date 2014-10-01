@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATE_STATEPATH_HPP
-#define _TIBEE_STATE_STATEPATH_HPP
+#ifndef _TIBEE_STATE_ATTRIBUTEPATH_HPP
+#define _TIBEE_STATE_ATTRIBUTEPATH_HPP
 
 #include <string>
 #include <vector>
@@ -28,10 +28,10 @@ namespace tibee
 namespace state
 {
 
-typedef std::vector<quark::Quark> StatePath;
-typedef std::vector<std::string> StatePathStr;
+typedef std::vector<quark::Quark> AttributePath;
+typedef std::vector<std::string> AttributePathStr;
 
 }
 }
 
-#endif // _TIBEE_STATE_STATEPATH_HPP
+#endif // _TIBEE_STATE_ATTRIBUTEPATH_HPP

@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATE_STATEKEY_HPP
-#define _TIBEE_STATE_STATEKEY_HPP
+#ifndef _TIBEE_STATE_ATTRIBUTEKEY_HPP
+#define _TIBEE_STATE_ATTRIBUTEKEY_HPP
 
 #include <stddef.h>
 
@@ -26,16 +26,16 @@ namespace state
 {
 
 /**
- * State key.
+ * Attribute key.
  *
  * @author Francois Doray
  */
-class StateKey
+class AttributeKey
 {
 public:
-    StateKey() :
+    AttributeKey() :
         _key(-1) {}
-    StateKey(size_t key) :
+    AttributeKey(size_t key) :
         _key(key) {}
 
     size_t get() const { return _key; }
@@ -47,4 +47,4 @@ private:
 }
 }
 
-#endif // _TIBEE_STATE_STATEKEY_HPP
+#endif // _TIBEE_STATE_ATTRIBUTEKEY_HPP

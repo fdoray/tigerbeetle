@@ -25,7 +25,7 @@
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
 #include "state/CurrentState.hpp"
-#include "state_blocks/MakeStateNotification.hpp"
+#include "state_blocks/MakeNotification.hpp"
 #include "trace/value/EventValue.hpp"
 
 namespace tibee
@@ -62,7 +62,7 @@ protected:
 
     template <typename T>
     void PostNotification(size_t sink_index,
-                          state::StateKey key,
+                          state::AttributeKey key,
                           const typename T::ScalarType& value)
     {
         auto notification = MakeNotification<T>(key, value);

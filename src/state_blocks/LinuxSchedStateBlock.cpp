@@ -125,7 +125,7 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
     PostNotification<value::UIntValue>(
-        kThreadStatusNotificationIdx, _currentState->GetStateKeyStr({"test"}), 42);
+        kThreadStatusNotificationIdx, _currentState->GetAttributeKeyStr({"test"}), 42);
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)

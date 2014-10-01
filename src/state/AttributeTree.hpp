@@ -25,8 +25,8 @@
 #include <utility>
 
 #include "quark/Quark.hpp"
-#include "state/StateKey.hpp"
-#include "state/StatePath.hpp"
+#include "state/AttributeKey.hpp"
+#include "state/AttributePath.hpp"
 
 namespace tibee
 {
@@ -34,58 +34,58 @@ namespace state
 {
 
 /**
- * State tree.
+ * Attribute tree.
  *
  * @author Francois Doray
  */
-class StateTree
+class AttributeTree
 {
 public:
-    struct State;
-    typedef std::unordered_map<quark::Quark, State*> States;
-    struct State
+    struct Attribute;
+    typedef std::unordered_map<quark::Quark, Attribute*> Attributes;
+    struct Attribute
     {
-        StateKey key;
-        States children;
+        AttributeKey key;
+        Attributes children;
     };
 
-    StateTree();
-    ~StateTree();
+    AttributeTree();
+    ~AttributeTree();
 
-    StateKey GetStateKey(const StatePath& path);
-    StateKey GetStateKey(StateKey root, const StatePath& subPath);
+    AttributeKey GetAttributeKey(const AttributePath& path);
+    AttributeKey GetAttributeKey(AttributeKey root, const AttributePath& subPath);
 
-    typedef std::pair<quark::Quark, StateKey> QuarkStateKeyPair;
+    typedef std::pair<quark::Quark, AttributeKey> QuarkAttributeKeyPair;
     class Iterator :
-        public std::iterator<std::input_iterator_tag, QuarkStateKeyPair>
+        public std::iterator<std::input_iterator_tag, QuarkAttributeKeyPair>
     {
     public:
-        friend class StateTree;
+        friend class AttributeTree;
 
         Iterator();
         Iterator& operator++();
         bool operator==(const Iterator& other) const;
         bool operator!=(const Iterator& other) const;
-        const QuarkStateKeyPair& operator*() const;
-        const QuarkStateKeyPair* operator->() const;
+        const QuarkAttributeKeyPair& operator*() const;
+        const QuarkAttributeKeyPair* operator->() const;
 
     private:
-        Iterator(StateTree::States::const_iterator it);
+        Iterator(AttributeTree::Attributes::const_iterator it);
 
-        mutable QuarkStateKeyPair _currentPair;
-        StateTree::States::const_iterator _it;
+        mutable QuarkAttributeKeyPair _currentPair;
+        AttributeTree::Attributes::const_iterator _it;
     };
 
-    Iterator state_children_begin(StateKey key) const;
-    Iterator state_children_end(StateKey key) const;
+    Iterator attribute_children_begin(AttributeKey key) const;
+    Iterator attribute_children_end(AttributeKey key) const;
 
 private:
-    State* GetState(State* root, const StatePath& subPath);
+    Attribute* GetAttribute(Attribute* root, const AttributePath& subPath);
 
-    State _root;
+    Attribute _root;
 
-    typedef std::vector<std::unique_ptr<State>> StateVector;
-    StateVector _states;
+    typedef std::vector<std::unique_ptr<Attribute>> AttributeVector;
+    AttributeVector _attributes;
 };
 
 }

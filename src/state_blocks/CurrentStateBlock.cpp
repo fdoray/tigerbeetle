@@ -29,8 +29,8 @@ namespace state_blocks
 {
 
 const char* CurrentStateBlock::kCurrentStateServiceName = "currentState";
-const char* CurrentStateBlock::kStateKeyField = "key";
-const char* CurrentStateBlock::kStateValueField = "value";
+const char* CurrentStateBlock::kAttributeKeyField = "key";
+const char* CurrentStateBlock::kAttributeValueField = "value";
 
 CurrentStateBlock::CurrentStateBlock()
 {
@@ -53,12 +53,8 @@ void CurrentStateBlock::RegisterNotificationObservers(notification::Notification
 
 void CurrentStateBlock::onStateChange(const notification::KeyPath& path, const value::Value* value)
 {
-    state::StateKey key {value->GetField(kStateKeyField)->AsUInteger()};
-    _currentState.SetState(key, value->Copy());
-
-    std::string str;
-    value::ToString(value, &str);
-    std::cout << "state change " << str << std::endl;
+    state::AttributeKey key {value->GetField(kAttributeKeyField)->AsUInteger()};
+    _currentState.SetAttribute(key, value->GetField(kAttributeValueField)->Copy());
 }
 
 }
