@@ -27,6 +27,7 @@ namespace tibee
 namespace state_blocks
 {
 
+using namespace value;
 using notification::RegexToken;
 using notification::Token;
 
@@ -99,8 +100,9 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
-    //PostNotification<value::UIntValue>(
-    //    kThreadStatusNotification, _currentState->GetAttributeKeyStr({"test"}), 42);
+    CurrentState()->SetAttribute(
+        CurrentState()->GetAttributeKeyStr({"test"}),
+        MakeValue<IntValue>(42));
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)

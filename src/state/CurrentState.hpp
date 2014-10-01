@@ -43,7 +43,10 @@ namespace state
 class CurrentState
 {
 public:
-    CurrentState();
+    typedef std::function<void (AttributeKey attribute, const value::Value* newValue)>
+        OnAttributeChangeCallback;
+
+    CurrentState(OnAttributeChangeCallback onAttributeChangeCallback);
     ~CurrentState();
 
     void SetTimestamp(timestamp_t ts) {
@@ -99,6 +102,9 @@ private:
     // Attribute values.
     typedef std::unordered_map<size_t, AttributeValue> AttributeValues;
     AttributeValues _attributeValues;
+
+    // Callback invoked when an attribute changes.
+    OnAttributeChangeCallback _onAttributeChangeCallback;
 };
 
 }

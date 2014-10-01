@@ -29,8 +29,9 @@ namespace
 const int kMaxIntQuark = 65535;
 }  // namespace
 
-CurrentState::CurrentState() :
-    _ts(0)
+CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback) :
+    _ts(0),
+    _onAttributeChangeCallback(onAttributeChangeCallback)
 {
     _intQuarks.reserve(kMaxIntQuark + 1);
     for (int i = 0; i <= kMaxIntQuark; ++i)
@@ -80,6 +81,9 @@ AttributeKey CurrentState::GetAttributeKey(AttributeKey root, const AttributePat
 
 void CurrentState::SetAttribute(AttributeKey attribute, value::Value::UP value)
 {
+    if (_onAttributeChangeCallback != nullptr)
+        _onAttributeChangeCallback(attribute, value.get());
+
     AttributeValue& attributeValue = _attributeValues[attribute.get()];
     attributeValue.value = std::move(value);
     attributeValue.since = _ts;

@@ -25,7 +25,7 @@ namespace state
 
 TEST(CurrentState, Timestamp)
 {
-    CurrentState currentState;
+    CurrentState currentState(nullptr);
     EXPECT_EQ(0, currentState.timestamp());
 
     currentState.SetTimestamp(1);
@@ -34,7 +34,7 @@ TEST(CurrentState, Timestamp)
 
 TEST(CurrentState, AttributeChanges)
 {
-    CurrentState currentState;
+    CurrentState currentState(nullptr);
 
     AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});
 
@@ -63,7 +63,7 @@ TEST(CurrentState, AttributeChanges)
 
 TEST(CurrentState, NullAttribute)
 {
-    CurrentState currentState;
+    CurrentState currentState(nullptr);
 
     AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});
     AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});

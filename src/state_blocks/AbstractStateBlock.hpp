@@ -60,22 +60,16 @@ protected:
                         notification::Token token,
                         EventHandler eventHandler);
 
-    template <typename T>
-    void PostNotification(size_t sink_index,
-                          state::AttributeKey key,
-                          const typename T::ScalarType& value)
-    {
-        auto notification = MakeNotification<T>(key, value);
-        _sinks[sink_index]->PostNotification(notification.get());
-    }
+    state::CurrentState* CurrentState() { return _currentState; }
+
+private:
+    void onEvent(const value::Value* event, EventHandler handler);
 
     state::CurrentState* _currentState;
 
     typedef std::vector<notification::NotificationSink*> Sinks;
     Sinks _sinks;
 
-private:
-    void onEvent(const value::Value* event, EventHandler handler);
 };
 
 }

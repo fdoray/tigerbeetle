@@ -28,11 +28,17 @@ namespace tibee
 namespace state_blocks
 {
 
+namespace pl = std::placeholders;
+
 const char* CurrentStateBlock::kCurrentStateServiceName = "currentState";
 const char* CurrentStateBlock::kAttributeKeyField = "key";
 const char* CurrentStateBlock::kAttributeValueField = "value";
 
 CurrentStateBlock::CurrentStateBlock()
+    : _currentState(std::bind(&CurrentStateBlock::onStateChange,
+                              this,
+                              pl::_1,
+                              pl::_2))
 {
 }
 
@@ -41,20 +47,8 @@ void CurrentStateBlock::RegisterServices(block::ServiceList* serviceList)
     serviceList->AddService(kCurrentStateServiceName, &_currentState);
 }
 
-void CurrentStateBlock::AddObservers(notification::NotificationCenter* notificationCenter)
+void CurrentStateBlock::onStateChange(state::AttributeKey attribute, const value::Value* value)
 {
-    namespace pl = std::placeholders;
-
-    notificationCenter->AddObserver(
-        notification::Path {notification::Token("state")},
-        std::bind(&CurrentStateBlock::onStateChange, this, pl::_1, pl::_2)
-    );
-}
-
-void CurrentStateBlock::onStateChange(const notification::Path& path, const value::Value* value)
-{
-    state::AttributeKey key {value->GetField(kAttributeKeyField)->AsUInteger()};
-    _currentState.SetAttribute(key, value->GetField(kAttributeValueField)->Copy());
 }
 
 }
