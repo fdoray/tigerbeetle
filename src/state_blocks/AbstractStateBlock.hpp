@@ -46,19 +46,19 @@ public:
     AbstractStateBlock();
 
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) = 0;
-    virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) = 0;
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) = 0;
 
     virtual void LoadServices(const block::ServiceList& serviceList) override;
 
 
 protected:
     typedef std::function<void (const trace::EventValue&)> EventHandler;
-    void KernelObserver(notification::NotificationCenter* notificationCenter,
+    void AddKernelObserver(notification::NotificationCenter* notificationCenter,
+                           notification::Token token,
+                           EventHandler eventHandler);
+    void AddUstObserver(notification::NotificationCenter* notificationCenter,
                         notification::Token token,
                         EventHandler eventHandler);
-    void UstObserver(notification::NotificationCenter* notificationCenter,
-                     notification::Token token,
-                     EventHandler eventHandler);
 
     template <typename T>
     void PostNotification(size_t sink_index,

@@ -52,10 +52,10 @@ public:
     NotificationCenter();
     ~NotificationCenter();
 
-    NotificationSink* GetNotificationSink(const KeyPath& path);
+    NotificationSink* GetSink(const KeyPath& path);
 
-    void RegisterNotificationObserver(const KeyPath& path,
-                                      const OnNotificationFunc& function);
+    void AddObserver(const KeyPath& path,
+                     const OnNotificationFunc& function);
 
 private:
     void PostNotification(NotificationKey key,

@@ -41,11 +41,11 @@ void CurrentStateBlock::RegisterServices(block::ServiceList* serviceList)
     serviceList->AddService(kCurrentStateServiceName, &_currentState);
 }
 
-void CurrentStateBlock::RegisterNotificationObservers(notification::NotificationCenter* notificationCenter)
+void CurrentStateBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     namespace pl = std::placeholders;
 
-    notificationCenter->RegisterNotificationObserver(
+    notificationCenter->AddObserver(
         notification::KeyPath {notification::Token("state")},
         std::bind(&CurrentStateBlock::onStateChange, this, pl::_1, pl::_2)
     );

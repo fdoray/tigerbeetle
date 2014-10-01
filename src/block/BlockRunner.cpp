@@ -54,7 +54,7 @@ void BlockRunner::Run()
 
     // Ask the blocks to declare the notifications that they receive.
     for (auto& block : _blocks)
-        block.first->RegisterNotificationObservers(&notificationCenter);
+        block.first->AddObservers(&notificationCenter);
 
     // Ask the blocks to declare the services that they offer.
     for (auto& block : _blocks)

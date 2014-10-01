@@ -39,7 +39,7 @@ void AbstractStateBlock::LoadServices(const block::ServiceList& serviceList)
 }
 
 
-void AbstractStateBlock::KernelObserver(
+void AbstractStateBlock::AddKernelObserver(
     notification::NotificationCenter* notificationCenter,
     notification::Token token,
     EventHandler eventHandler)
@@ -52,10 +52,10 @@ void AbstractStateBlock::KernelObserver(
                   this,
                   pl::_2,
                   eventHandler);
-    notificationCenter->RegisterNotificationObserver(path, func);
+    notificationCenter->AddObserver(path, func);
 }
 
-void AbstractStateBlock::UstObserver(
+void AbstractStateBlock::AddUstObserver(
     notification::NotificationCenter* notificationCenter,
     notification::Token token,
     EventHandler eventHandler)
@@ -68,7 +68,7 @@ void AbstractStateBlock::UstObserver(
                   this,
                   pl::_2,
                   eventHandler);
-    notificationCenter->RegisterNotificationObserver(path, func);
+    notificationCenter->AddObserver(path, func);
 }
 
 void AbstractStateBlock::onEvent(

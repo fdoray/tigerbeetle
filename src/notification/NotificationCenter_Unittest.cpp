@@ -50,11 +50,11 @@ TEST(NotificationCenter, simpleNotifications)
     KeyPath path_z {Token("y"), Token("z")};
     KeyPath path_y {Token("y")};
 
-    NotificationSink* sink_a = notificationCenter.GetNotificationSink(path_a);
-    NotificationSink* sink_b = notificationCenter.GetNotificationSink(path_b);
-    NotificationSink* sink_c = notificationCenter.GetNotificationSink(path_c);
-    NotificationSink* sink_z = notificationCenter.GetNotificationSink(path_z);
-    NotificationSink* sink_y = notificationCenter.GetNotificationSink(path_y);
+    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
+    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
+    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
+    NotificationSink* sink_z = notificationCenter.GetSink(path_z);
+    NotificationSink* sink_y = notificationCenter.GetSink(path_y);
 
     MockObserver observer_a;
     MockObserver observer_b;
@@ -62,19 +62,19 @@ TEST(NotificationCenter, simpleNotifications)
     MockObserver observer_z;
     MockObserver observer_y;
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_a, std::bind(&MockObserver::method, &observer_a, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_b, std::bind(&MockObserver::method, &observer_b, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_c, std::bind(&MockObserver::method, &observer_c, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_z, std::bind(&MockObserver::method, &observer_z, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_y, std::bind(&MockObserver::method, &observer_y, pl::_1, pl::_2));
 
     value::IntValue value(42);
@@ -136,10 +136,10 @@ TEST(NotificationCenter, regexNotifications)
     KeyPath path_c {Token("aa"), Token("b2")};
     KeyPath path_d {Token("ab"), Token("b1")};
 
-    NotificationSink* sink_a = notificationCenter.GetNotificationSink(path_a);
-    NotificationSink* sink_b = notificationCenter.GetNotificationSink(path_b);
-    NotificationSink* sink_c = notificationCenter.GetNotificationSink(path_c);
-    NotificationSink* sink_d = notificationCenter.GetNotificationSink(path_d);
+    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
+    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
+    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
+    NotificationSink* sink_d = notificationCenter.GetSink(path_d);
 
     KeyPath path_all {RegexToken("^a")};
     KeyPath path_aa_b {Token("aa"), RegexToken("^b")};
@@ -153,19 +153,19 @@ TEST(NotificationCenter, regexNotifications)
     MockObserver observer_all_b1;
     MockObserver observer_all_b2;
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_all, std::bind(&MockObserver::method, &observer_all, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_aa_b, std::bind(&MockObserver::method, &observer_aa_b, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_all_b, std::bind(&MockObserver::method, &observer_all_b, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_all_b1, std::bind(&MockObserver::method, &observer_all_b1, pl::_1, pl::_2));
 
-    notificationCenter.RegisterNotificationObserver(
+    notificationCenter.AddObserver(
         path_all_b2, std::bind(&MockObserver::method, &observer_all_b2, pl::_1, pl::_2));
 
     value::IntValue value(42);

@@ -40,35 +40,35 @@ public:
     {
     }
 
-    virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override
     {
         namespace pl = std::placeholders; 
 
-        notificationCenter->RegisterNotificationObserver({
+        notificationCenter->AddObserver({
             notification::Token("event"),
             notification::RegexToken("^lttng-kernel$"),
             notification::Token("sched_switch")
         }, std::bind(&CountBlock::OnSchedSwitch, this, pl::_1, pl::_2));
 
-        notificationCenter->RegisterNotificationObserver({
+        notificationCenter->AddObserver({
             notification::Token("event"),
             notification::Token("lttng-ust"),
             notification::Token("ust_tests_demo:starting")
         }, std::bind(&CountBlock::OnStarting, this, pl::_1, pl::_2));
 
-        notificationCenter->RegisterNotificationObserver({
+        notificationCenter->AddObserver({
             notification::Token("event"),
             notification::Token("lttng-ust"),
             notification::Token("ust_tests_demo2:loop")
         }, std::bind(&CountBlock::OnLoop, this, pl::_1, pl::_2));
 
-        notificationCenter->RegisterNotificationObserver({
+        notificationCenter->AddObserver({
             notification::Token("event"),
             notification::Token("lttng-ust"),
             notification::Token("ust_tests_demo:done")
         }, std::bind(&CountBlock::OnDone, this, pl::_1, pl::_2));
 
-        notificationCenter->RegisterNotificationObserver({
+        notificationCenter->AddObserver({
             notification::Token("event"),
             notification::Token("lttng-ust"),
             notification::Token("ust_tests_demo3:done")

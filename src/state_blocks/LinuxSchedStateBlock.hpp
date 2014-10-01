@@ -39,15 +39,7 @@ public:
     LinuxSchedStateBlock();
 
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
-    virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override;
-
-    static const char* kThreadStatusNotification;
-    static const char* kThreadPpidNotification;
-    static const char* kThreadExecNotification;
-    static const char* kThreadSyscallNotification;
-    static const char* kCpuStatusNotification;
-    static const char* kCpuCurrentThreadNotification;
-    static const char* kIrqCpuNotification;
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
     void onExitSyscall(const trace::EventValue& event);

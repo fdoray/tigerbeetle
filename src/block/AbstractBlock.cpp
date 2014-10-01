@@ -34,7 +34,7 @@ void AbstractBlock::GetNotificationSinks(notification::NotificationCenter* notif
 {
 }
 
-void AbstractBlock::RegisterNotificationObservers(notification::NotificationCenter* notificationCenter)
+void AbstractBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
 }
 

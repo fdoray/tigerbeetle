@@ -76,9 +76,9 @@ public:
         callHistory.push_back("GetNotificationSinks");
     }
 
-    virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override
     {
-        callHistory.push_back("RegisterNotificationObservers");
+        callHistory.push_back("AddObservers");
     }
 
     virtual void RegisterServices(ServiceList* serviceList) override
@@ -130,7 +130,7 @@ TEST(BlockRunner, run)
     std::vector<std::string> expectedHistory = {
         "Start with parameter 42",
         "GetNotificationSinks",
-        "RegisterNotificationObservers",
+        "AddObservers",
         "RegisterServices",
         "LoadServices",
         "Execute",

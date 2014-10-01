@@ -38,7 +38,7 @@ public:
     virtual void Start(const value::Value* parameters) override;
 
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
-    virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override;
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
     virtual void RegisterServices(ServiceList* serviceList) override;
     virtual void LoadServices(const ServiceList& serviceList) override;
 

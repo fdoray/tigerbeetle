@@ -43,7 +43,7 @@ public:
     CurrentStateBlock();
 
     virtual void RegisterServices(block::ServiceList* serviceList) override;
-    virtual void RegisterNotificationObservers(notification::NotificationCenter* notificationCenter) override;
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
     void onStateChange(const notification::KeyPath& path, const value::Value* value);

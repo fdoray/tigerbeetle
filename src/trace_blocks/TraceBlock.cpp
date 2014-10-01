@@ -63,7 +63,7 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
             auto traceId = traceInfos->getId();
             auto eventId = eventNameIdPair.second->getId();
 
-            _sinks[traceId][eventId] = notificationCenter->GetNotificationSink(keyPath);
+            _sinks[traceId][eventId] = notificationCenter->GetSink(keyPath);
         }
     }
 }
