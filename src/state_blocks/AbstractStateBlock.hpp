@@ -69,26 +69,6 @@ protected:
         _sinks[sink_index]->PostNotification(notification.get());
     }
 
-    state::StateKey GetStateKey(const state::StatePath& path) {
-        return _currentState->GetStateKey(path);
-    }
-    state::StateKey GetStateKeyStr(const state::StatePathStr& pathStr) {
-        return _currentState->GetStateKeyStr(pathStr);
-    }
-    state::StateKey GetStateKey(state::StateKey root, const state::StatePath& subPath) {
-        return _currentState->GetStateKey(root, subPath);
-    }
-
-    const value::Value* GetStateValue(state::StateKey state) {
-        return _currentState->GetStateValue(state);
-    }
-    const value::Value* GetStateValue(state::StateKey state, const state::StatePath& subPath) {
-        return _currentState->GetStateValue(state, subPath);
-    }
-    const value::Value* GetStateValue(const state::StatePath& path) {
-        return _currentState->GetStateValue(path);
-    }
-
     state::CurrentState* _currentState;
 
     typedef std::vector<notification::NotificationSink*> Sinks;

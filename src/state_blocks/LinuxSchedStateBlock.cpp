@@ -41,6 +41,18 @@ const char* LinuxSchedStateBlock::kIrqCpuNotification = "irq-cpu";
 namespace
 {
 
+enum NotificationTypes
+{
+    kThreadStatusNotificationIdx = 0,
+    kThreadPpidNotificationIdx,
+    kThreadExecNotificationIdx,
+    kThreadSyscallNotificationIdx,
+    kCpuStatusNotificationIdx,
+    kCpuCurrentThreadNotificationIdx,
+    kIrqCpuNotificationIdx,
+    kNumNotifications,
+};
+
 const char* kNotifications[] = {
     LinuxSchedStateBlock::kThreadStatusNotification,
     LinuxSchedStateBlock::kThreadPpidNotification,
@@ -113,7 +125,7 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
     PostNotification<value::UIntValue>(
-        kThreadStatusNotificationIdx, GetStateKeyStr({"test"}), 42);
+        kThreadStatusNotificationIdx, _currentState->GetStateKeyStr({"test"}), 42);
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)

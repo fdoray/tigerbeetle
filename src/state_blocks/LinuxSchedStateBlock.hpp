@@ -18,6 +18,7 @@
 #ifndef _TIBEE_STATEBLOCKS_LINUXSCHEDSTATEBLOCK_HPP
 #define _TIBEE_STATEBLOCKS_LINUXSCHEDSTATEBLOCK_HPP
 
+#include "quark/Quark.hpp"
 #include "state/CurrentState.hpp"
 #include "state_blocks/AbstractStateBlock.hpp"
 #include "trace/value/EventValue.hpp"
@@ -61,18 +62,6 @@ private:
     void onLttngStatedumpProcessState(const trace::EventValue& event);
     void onSchedWakeupEvent(const trace::EventValue& event);
     void onSysEvent(const trace::EventValue& event);
-
-    enum NotificationTypes
-    {
-        kThreadStatusNotificationIdx = 0,
-        kThreadPpidNotificationIdx,
-        kThreadExecNotificationIdx,
-        kThreadSyscallNotificationIdx,
-        kCpuStatusNotificationIdx,
-        kCpuCurrentThreadNotificationIdx,
-        kIrqCpuNotificationIdx,
-        kNumNotifications,
-    };
 };
 
 }

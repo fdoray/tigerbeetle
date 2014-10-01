@@ -53,6 +53,7 @@ public:
         return _ts;
     }
 
+    quark::Quark IntQuark(int val);
     quark::Quark Quark(const std::string& str);
     const std::string& String(quark::Quark quark) const;
 
@@ -88,6 +89,9 @@ private:
 
     // Quark database.
     quark::QuarkDatabase<std::string> _quarks;
+
+    // Quarks for integers 0 to 65535.
+    std::vector<quark::Quark> _intQuarks;
 
     // State tree.
     StateTree _stateTree;

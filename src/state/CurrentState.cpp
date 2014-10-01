@@ -24,13 +24,28 @@ namespace tibee
 namespace state
 {
 
+namespace
+{
+const int kMaxIntQuark = 65535;
+}  // namespace
+
 CurrentState::CurrentState() :
     _ts(0)
 {
+    _intQuarks.reserve(kMaxIntQuark + 1);
+    for (int i = 0; i <= kMaxIntQuark; ++i)
+        _intQuarks.push_back(Quark(std::to_string(i)));
 }
 
 CurrentState::~CurrentState()
 {
+}
+
+quark::Quark CurrentState::IntQuark(int val)
+{
+    if (val >= 0 && val <= kMaxIntQuark)
+        return _intQuarks[val];
+    return Quark(std::to_string(val));
 }
 
 quark::Quark CurrentState::Quark(const std::string& str)
