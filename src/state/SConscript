@@ -4,7 +4,6 @@ Import('lib_env')
 
 sources = [
     'CurrentState.cpp',
-    'AttributeTree.cpp',
 ]
 
 Return(['sources'])

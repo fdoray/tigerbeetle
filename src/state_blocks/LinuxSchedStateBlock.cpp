@@ -52,14 +52,6 @@ LinuxSchedStateBlock::LinuxSchedStateBlock()
 
 void LinuxSchedStateBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
 {
-    
-
-    notification::KeyPath keyPath {Token("state"), Token("linux-sched"), Token("")};
-    for (size_t i = 0; i < kNumNotifications; ++i)
-    {
-        keyPath.back() = Token(kNotifications[i]);
-        _sinks.push_back(notificationCenter->GetSink(keyPath));
-    }
 }
 
 void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notificationCenter)
@@ -107,8 +99,8 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
-    PostNotification<value::UIntValue>(
-        kThreadStatusNotification, _currentState->GetAttributeKeyStr({"test"}), 42);
+    //PostNotification<value::UIntValue>(
+    //    kThreadStatusNotification, _currentState->GetAttributeKeyStr({"test"}), 42);
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)

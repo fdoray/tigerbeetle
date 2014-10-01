@@ -8,8 +8,8 @@ app_env = lib_env.Clone()
 
 sources_unittests = [
     'block/BlockRunner_Unittest.cpp',
+    'keyed_tree/KeyedTree_Unittest.cpp',
     'notification/NotificationCenter_Unittest.cpp',
-    'state/AttributeTree_Unittest.cpp',
     'state/CurrentState_Unittest.cpp',
     'state_blocks/LinuxSchedStateBlock_Unittest.cpp',
     'trace/TraceSet_Unittest.cpp',

@@ -15,24 +15,36 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATE_ATTRIBUTEPATH_HPP
-#define _TIBEE_STATE_ATTRIBUTEPATH_HPP
+#ifndef _TIBEE_KEYEDTREE_NODEKEY_HPP
+#define _TIBEE_KEYEDTREE_NODEKEY_HPP
 
-#include <string>
-#include <vector>
-
-#include "keyed_tree/KeyedTree.hpp"
-#include "quark/Quark.hpp"
+#include <stddef.h>
 
 namespace tibee
 {
-namespace state
+namespace keyed_tree
 {
 
-typedef keyed_tree::KeyedTree<quark::Quark>::Path AttributePath;
-typedef std::vector<std::string> AttributePathStr;
+/**
+ * Node key.
+ *
+ * @author Francois Doray
+ */
+class NodeKey
+{
+public:
+    NodeKey() :
+        _key(-1) {}
+    NodeKey(size_t key) :
+        _key(key) {}
+
+    size_t get() const { return _key; }
+
+private:
+    size_t _key;
+};
 
 }
 }
 
-#endif // _TIBEE_STATE_ATTRIBUTEPATH_HPP
+#endif // _TIBEE_KEYEDTREE_NODEKEY_HPP

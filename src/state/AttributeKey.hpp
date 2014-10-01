@@ -18,31 +18,14 @@
 #ifndef _TIBEE_STATE_ATTRIBUTEKEY_HPP
 #define _TIBEE_STATE_ATTRIBUTEKEY_HPP
 
-#include <stddef.h>
+#include "keyed_tree/NodeKey.hpp"
 
 namespace tibee
 {
 namespace state
 {
 
-/**
- * Attribute key.
- *
- * @author Francois Doray
- */
-class AttributeKey
-{
-public:
-    AttributeKey() :
-        _key(-1) {}
-    AttributeKey(size_t key) :
-        _key(key) {}
-
-    size_t get() const { return _key; }
-
-private:
-    size_t _key;
-};
+typedef keyed_tree::NodeKey AttributeKey;
 
 }
 }
