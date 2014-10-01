@@ -46,7 +46,7 @@ private:
     trace::TraceSet::UP _traceSet;
 
     // (event ID -> event callback) map
-    typedef std::unordered_map<trace::event_id_t, notification::NotificationSink*> EventIdSinkMap;
+    typedef std::unordered_map<trace::event_id_t, const notification::NotificationSink*> EventIdSinkMap;
 
     // (trace ID -> (event ID -> event callback)) map
     typedef std::unordered_map<trace::trace_id_t, EventIdSinkMap> TraceIdEventIdSinkMap;

@@ -31,6 +31,9 @@ namespace tibee
 namespace keyed_tree
 {
 
+// Key of the root node of a keyed tree.
+static const size_t kRootNodeKey = 0;
+
 /**
  * Keyed tree.
  *
@@ -58,8 +61,11 @@ public:
     KeyedTree();
     ~KeyedTree();
 
-    NodeKey GetNodeKey(const Path& path);
-    NodeKey GetNodeKey(NodeKey root, const Path& subPath);
+    NodeKey CreateNodeKey(const Path& path);
+    NodeKey CreateNodeKey(NodeKey root, const Path& subPath);
+
+    bool GetNodeKey(const Path& path, NodeKey* key) const;
+    bool GetNodeKey(NodeKey root, const Path& path, NodeKey* key) const;
 
     typedef std::pair<T, NodeKey> LabelNodeKeyPair;
     class Iterator :
@@ -86,9 +92,7 @@ public:
     Iterator node_children_end(NodeKey key) const;
 
 private:
-    Node* GetNode(Node* root, const Path& subPath);
-
-    Node _root;
+    Node* CreateNode(Node* root, const Path& subPath);
 
     typedef std::vector<std::unique_ptr<Node>> NodeVector;
     NodeVector _nodes;
@@ -97,6 +101,10 @@ private:
 template <typename T>
 KeyedTree<T>::KeyedTree()
 {
+    // Create the root node.
+    std::unique_ptr<Node> root {new Node};
+    root->key = NodeKey(_nodes.size());
+    _nodes.push_back(std::move(root));
 }
 
 template <typename T>
@@ -105,23 +113,49 @@ KeyedTree<T>::~KeyedTree()
 }
 
 template <typename T>
-NodeKey KeyedTree<T>::GetNodeKey(const Path& path)
+NodeKey KeyedTree<T>::CreateNodeKey(const Path& path)
 {
-    return GetNode(&_root, path)->key;
+    return CreateNodeKey(NodeKey(kRootNodeKey), path);
 }
 
 template <typename T>
-NodeKey KeyedTree<T>::GetNodeKey(NodeKey root, const Path& subPath)
+NodeKey KeyedTree<T>::CreateNodeKey(NodeKey root, const Path& subPath)
 {
     Node* rootNode = _nodes[root.get()].get();
-    return GetNode(rootNode, subPath)->key;
+    return CreateNode(rootNode, subPath)->key;
 }
 
 template <typename T>
-typename KeyedTree<T>::Node* KeyedTree<T>::GetNode(Node* root, const Path& subPath)
+bool KeyedTree<T>::GetNodeKey(const Path& path, NodeKey* key) const
+{
+    return GetNodeKey(NodeKey(kRootNodeKey), path, key);
+}
+
+template <typename T>
+bool KeyedTree<T>::GetNodeKey(NodeKey root, const Path& path, NodeKey* key) const
+{
+    assert(key);
+
+    Node* currentNode = _nodes[root.get()].get();
+
+    for (const T& label : path)
+    {
+        auto look = currentNode->children.find(label);
+        if (look == currentNode->children.end())
+            return false;
+
+        currentNode = look->second;
+    }
+
+    *key = currentNode->key;
+    return true;
+}
+
+template <typename T>
+typename KeyedTree<T>::Node* KeyedTree<T>::CreateNode(Node* root, const Path& subPath)
 {
     Node* currentNode = root;
-    for (T label : subPath)
+    for (const T& label : subPath)
     {
         auto look = currentNode->children.find(label);
         if (look == currentNode->children.end())

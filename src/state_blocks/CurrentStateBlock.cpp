@@ -46,12 +46,12 @@ void CurrentStateBlock::AddObservers(notification::NotificationCenter* notificat
     namespace pl = std::placeholders;
 
     notificationCenter->AddObserver(
-        notification::KeyPath {notification::Token("state")},
+        notification::Path {notification::Token("state")},
         std::bind(&CurrentStateBlock::onStateChange, this, pl::_1, pl::_2)
     );
 }
 
-void CurrentStateBlock::onStateChange(const notification::KeyPath& path, const value::Value* value)
+void CurrentStateBlock::onStateChange(const notification::Path& path, const value::Value* value)
 {
     state::AttributeKey key {value->GetField(kAttributeKeyField)->AsUInteger()};
     _currentState.SetAttribute(key, value->GetField(kAttributeValueField)->Copy());

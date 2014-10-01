@@ -63,22 +63,13 @@ private:
 class BlockB : public AbstractBlock
 {
 public:
+
     virtual void Start(const value::Value* parameters) override
     {
         std::string parameters_str;
         if (value::ToString(parameters, &parameters_str)) {
             callHistory.push_back(std::string("Start with parameter ") + parameters_str);
         }
-    }
-
-    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override
-    {
-        callHistory.push_back("GetNotificationSinks");
-    }
-
-    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override
-    {
-        callHistory.push_back("AddObservers");
     }
 
     virtual void RegisterServices(ServiceList* serviceList) override
@@ -94,6 +85,16 @@ public:
         if (serviceList.QueryService("simpleService", reinterpret_cast<void**>(&simpleService)))
             ++simpleService->count;
 
+    }
+
+    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override
+    {
+        callHistory.push_back("GetNotificationSinks");
+    }
+
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override
+    {
+        callHistory.push_back("AddObservers");
     }
 
     virtual void Execute() override
@@ -129,10 +130,10 @@ TEST(BlockRunner, run)
 
     std::vector<std::string> expectedHistory = {
         "Start with parameter 42",
-        "GetNotificationSinks",
-        "AddObservers",
         "RegisterServices",
         "LoadServices",
+        "AddObservers",
+        "GetNotificationSinks",
         "Execute",
         "Stop",
     };

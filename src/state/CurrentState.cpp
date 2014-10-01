@@ -61,7 +61,7 @@ const std::string& CurrentState::String(quark::Quark quark) const
 
 AttributeKey CurrentState::GetAttributeKey(const AttributePath& path)
 {
-    return _attributeTree.GetNodeKey(path);
+    return _attributeTree.CreateNodeKey(path);
 }
 
 AttributeKey CurrentState::GetAttributeKeyStr(const AttributePathStr& pathStr)
@@ -75,7 +75,7 @@ AttributeKey CurrentState::GetAttributeKeyStr(const AttributePathStr& pathStr)
 
 AttributeKey CurrentState::GetAttributeKey(AttributeKey root, const AttributePath& subPath)
 {
-    return _attributeTree.GetNodeKey(root, subPath);
+    return _attributeTree.CreateNodeKey(root, subPath);
 }
 
 void CurrentState::SetAttribute(AttributeKey attribute, value::Value::UP value)

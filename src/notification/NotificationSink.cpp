@@ -24,12 +24,10 @@ namespace tibee
 namespace notification
 {
 
-NotificationSink::NotificationSink(NotificationCenter* notificationCenter,
-                                   const KeyPath& path,
-                                   const NotificationKeyContainer& keys)
-    : _notificationCenter(notificationCenter),
-      _path(path),
-      _keys(keys)
+NotificationSink::NotificationSink(const Path& path,
+                                   const CallbackContainers& callbacks)
+    : _path(path),
+      _callbacks(callbacks)
 {
 }
 
@@ -37,11 +35,11 @@ NotificationSink::~NotificationSink()
 {
 }
 
-void NotificationSink::PostNotification(const value::Value* value)
+void NotificationSink::PostNotification(const value::Value* value) const
 {
-    for (NotificationKey key : _keys) {
-        _notificationCenter->PostNotification(key, _path, value);
-    }
+  for (const auto& callbacks : _callbacks)
+    for (const auto& callback : *callbacks)
+      callback(_path, value);
 }
 
 

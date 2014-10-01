@@ -34,6 +34,11 @@ namespace notification
  */
 class Token {
 public:
+    Token()
+        : _isRegex(false)
+    {
+    }
+
     Token(const std::string& token)
         : _token(token),
           _isRegex(false)
@@ -65,18 +70,31 @@ private:
     bool _isRegex;
 };
 
-inline size_t hash_value(const Token& token)
-{
-    std::hash<std::string> str_hash;
-    return str_hash(token.token());
-}
-
 inline Token RegexToken(const std::string& token)
 {
     return Token(token, true);
 }
 
+inline size_t hash_value(const Token& token)
+{
+    std::size_t seed = 0;
+    boost::hash_combine(seed, token.token());
+    boost::hash_combine(seed, token.isRegex());
+    return seed;
+}
+
 }
 }
+
+namespace std {
+
+template <>
+struct hash<tibee::notification::Token> {
+  size_t operator()(const tibee::notification::Token& token) const {
+    return hash_value(token);
+  }
+};
+
+}  // namespace std
 
 #endif // _TIBEE_NOTIFICATION_TOKEN_HPP

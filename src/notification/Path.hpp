@@ -15,43 +15,34 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_NOTIFICATION_NOTIFICATIONKEY_HPP
-#define _TIBEE_NOTIFICATION_NOTIFICATIONKEY_HPP
+#ifndef _TIBEE_NOTIFICATION_PATH_HPP
+#define _TIBEE_NOTIFICATION_PATH_HPP
 
-#include <initializer_list>
-#include <string>
+#include <boost/functional/hash.hpp>
 #include <vector>
+
+#include "notification/Token.hpp"
 
 namespace tibee
 {
 namespace notification
 {
 
-/**
- * Notification key.
- *
- * @author Francois Doray
- */
-class NotificationKey {
-public:
-    NotificationKey()
-        : _key(-1)
-    {
-    }
-    NotificationKey(size_t key)
-        : _key(key)
-    {
-    }
+typedef std::vector<Token> Path;
 
-    size_t get() const {
-        return _key;
-    }
+}
+}
 
-private:
-    size_t _key;
+namespace std {
+
+template <>
+struct hash<tibee::notification::Path> {
+  size_t operator()(const tibee::notification::Path& path) const {
+    boost::hash<tibee::notification::Path> keyHash;
+    return keyHash(path);
+  }
 };
 
-}
-}
+}  // namespace std
 
-#endif // _TIBEE_NOTIFICATION_NOTIFICATIONKEY_HPP
+#endif // _TIBEE_NOTIFICATION_PATH_HPP

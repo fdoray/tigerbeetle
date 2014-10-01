@@ -18,10 +18,11 @@
 #ifndef _TIBEE_NOTIFICATION_NOTIFICATIONSINK_HPP
 #define _TIBEE_NOTIFICATION_NOTIFICATIONSINK_HPP
 
+#include <memory>
 #include <vector>
 
-#include "notification/NotificationCenter.hpp"
-#include "notification/NotificationKey.hpp"
+#include "notification/Callback.hpp"
+#include "notification/Path.hpp"
 
 namespace tibee
 {
@@ -35,9 +36,6 @@ class Value;
 namespace notification
 {
 
-// Forward declaration.
-class NotificationCenter;
-
 /**
  * Notification sink.
  *
@@ -45,21 +43,19 @@ class NotificationCenter;
  */
 class NotificationSink {
 public:
+    typedef std::unique_ptr<NotificationSink> UP;
     friend class NotificationCenter;
+    friend std::unique_ptr<NotificationSink>::deleter_type;
 
-    void PostNotification(const value::Value* value);
+    void PostNotification(const value::Value* value) const;
 
 private:
-    typedef std::vector<NotificationKey> NotificationKeyContainer;
-
-    NotificationSink(NotificationCenter* notificationCenter,
-                     const KeyPath& path,
-                     const NotificationKeyContainer& keys);
+    NotificationSink(const Path& path,
+                     const CallbackContainers& callbacks);
     ~NotificationSink();
 
-    NotificationCenter* _notificationCenter;
-    KeyPath _path;
-    NotificationKeyContainer _keys;
+    Path _path;
+    CallbackContainers _callbacks;
 };
 
 }

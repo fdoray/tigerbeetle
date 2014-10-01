@@ -17,6 +17,7 @@
  */
 #include "block/BlockRunner.hpp"
 #include "gtest/gtest.h"
+#include "notification/NotificationCenter.hpp"
 #include "trace_blocks/TraceBlock.hpp"
 #include "value/Value.hpp"
 
@@ -75,22 +76,22 @@ public:
         }, std::bind(&CountBlock::OnDone, this, pl::_1, pl::_2));
     }
 
-    void OnSchedSwitch(const notification::KeyPath& path, const value::Value* value)
+    void OnSchedSwitch(const notification::Path& path, const value::Value* value)
     {
         ++_sched_switch_count;
     }
 
-    void OnStarting(const notification::KeyPath& path, const value::Value* value)
+    void OnStarting(const notification::Path& path, const value::Value* value)
     {
         ++_starting_count;
     }
 
-    void OnLoop(const notification::KeyPath& path, const value::Value* value)
+    void OnLoop(const notification::Path& path, const value::Value* value)
     {
         ++_loop_count;
     }
 
-    void OnDone(const notification::KeyPath& path, const value::Value* value)
+    void OnDone(const notification::Path& path, const value::Value* value)
     {
         ++_done_count;
     }

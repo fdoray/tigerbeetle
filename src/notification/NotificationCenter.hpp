@@ -18,12 +18,14 @@
 #ifndef _TIBEE_NOTIFICATION_NOTIFICATIONCENTER_HPP
 #define _TIBEE_NOTIFICATION_NOTIFICATIONCENTER_HPP
 
-#include <boost/functional/hash.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "notification/NotificationKey.hpp"
+#include "keyed_tree/KeyedTree.hpp"
+#include "notification/Callback.hpp"
+#include "notification/Path.hpp"
+#include "notification/NotificationSink.hpp"
 #include "notification/Token.hpp"
 #include "value/Value.hpp"
 
@@ -31,11 +33,6 @@ namespace tibee
 {
 namespace notification
 {
-
-// Forward declaration.
-class NotificationSink;
-
-typedef std::vector<Token> KeyPath;
 
 /**
  * Notification center.
@@ -46,33 +43,27 @@ class NotificationCenter {
 public:
     friend class NotificationSink;
 
-    typedef std::function<void (const KeyPath& path, const value::Value* value)>
-        OnNotificationFunc;
-
     NotificationCenter();
     ~NotificationCenter();
 
-    NotificationSink* GetSink(const KeyPath& path);
+    void AddObserver(const Path& path,
+                     const Callback& function);
 
-    void AddObserver(const KeyPath& path,
-                     const OnNotificationFunc& function);
+    const NotificationSink* GetSink(const Path& path);
 
 private:
-    void PostNotification(NotificationKey key,
-                          const KeyPath& path,
-                          const value::Value* value);
+    void FindCallbacks(const Path& path,
+                       size_t pathIndex,
+                       keyed_tree::NodeKey node,
+                       CallbackContainers* containers);
+    typedef keyed_tree::KeyedTree<Token> ObserverPaths;
+    ObserverPaths _observerPaths;
 
-    void EnsureKeyPath(const KeyPath& path);
+    typedef std::vector<std::unique_ptr<CallbackContainer>> PathToCallbacks;
+    PathToCallbacks _pathToCallbacks;
 
-    typedef std::unordered_map<KeyPath, NotificationKey, boost::hash<KeyPath>> Keys;
-    Keys _keys;
-
-    typedef std::unordered_map<KeyPath, NotificationSink*, boost::hash<KeyPath>> Sinks;
-    Sinks _sinks;
-
-    typedef std::vector<OnNotificationFunc> FunctionContainer;
-    typedef std::vector<std::unique_ptr<FunctionContainer>> Functions;
-    Functions _functions;
+    typedef std::unordered_map<Path, NotificationSink::UP> PathToSinks;
+    PathToSinks _pathToSinks;
 };
 
 }

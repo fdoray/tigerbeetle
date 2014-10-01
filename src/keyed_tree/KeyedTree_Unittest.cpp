@@ -32,20 +32,20 @@ TEST(KeyedTree, KeyedTree)
     KeyedTree<quark::Quark> tree;
     quark::QuarkDatabase<std::string> quarks;
 
-    NodeKey a_b_1 = tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("b")});
-    NodeKey a = tree.GetNodeKey({quarks.Insert("a")});
-    NodeKey a_b_2 = tree.GetNodeKey(a, {quarks.Insert("b")});
+    NodeKey a_b_1 = tree.CreateNodeKey({quarks.Insert("a"), quarks.Insert("b")});
+    NodeKey a = tree.CreateNodeKey({quarks.Insert("a")});
+    NodeKey a_b_2 = tree.CreateNodeKey(a, {quarks.Insert("b")});
 
     EXPECT_EQ(a_b_1.get(), a_b_2.get());
 
     NodeKey a_b_c_d_e_1 =
-        tree.GetNodeKey(a,
+        tree.CreateNodeKey(a,
                          {quarks.Insert("b"),
                           quarks.Insert("c"),
                           quarks.Insert("d"),
                           quarks.Insert("e")});
     NodeKey a_b_c_d_e_2 =
-        tree.GetNodeKey(a_b_1,
+        tree.CreateNodeKey(a_b_1,
                          {quarks.Insert("c"),
                           quarks.Insert("d"),
                           quarks.Insert("e")});
@@ -58,10 +58,10 @@ TEST(KeyedTree, Iterator)
     KeyedTree<quark::Quark> tree;
     quark::QuarkDatabase<std::string> quarks;
 
-    NodeKey a = tree.GetNodeKey({quarks.Insert("a")});
-    NodeKey a_b = tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("b")});
-    NodeKey a_c = tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("c")});
-    NodeKey a_d = tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("d")});
+    NodeKey a = tree.CreateNodeKey({quarks.Insert("a")});
+    NodeKey a_b = tree.CreateNodeKey({quarks.Insert("a"), quarks.Insert("b")});
+    NodeKey a_c = tree.CreateNodeKey({quarks.Insert("a"), quarks.Insert("c")});
+    NodeKey a_d = tree.CreateNodeKey({quarks.Insert("a"), quarks.Insert("d")});
 
     auto it = tree.node_children_begin(a);
     auto it_end = tree.node_children_end(a);

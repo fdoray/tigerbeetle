@@ -32,36 +32,21 @@ namespace notification
 namespace
 {
 
-bool PathsMatch(const KeyPath& path, const KeyPath& match_path)
+bool TokenMatch(const Token& token, const Token& search)
 {
-    if (path.size() != match_path.size())
+    assert(!token.isRegex());
+
+    if (!search.isRegex())
+        return token.token() == search.token();
+
+    boost::regex searchBre;
+    try {
+        searchBre = search.token();
+    } catch (const std::exception& ex) {
         return false;
-
-    auto path_it = path.begin();
-    auto match_path_it = match_path.begin();
-    for (; path_it != path.end(); ++path_it, ++match_path_it)
-    {
-        if (path_it->isRegex())
-        {
-            boost::regex tokenBre;
-            try {
-                tokenBre = path_it->token();
-            } catch (const std::exception& ex) {
-                return false;
-            }
-
-            if (!boost::regex_search(match_path_it->token(), tokenBre)) {
-                return false;
-            }
-        }
-        else
-        {
-            if (path_it->token() != match_path_it->token())
-                return false;
-        }
     }
 
-    return true;
+    return boost::regex_search(token.token(), searchBre);
 }
 
 }  // namespace
@@ -72,96 +57,67 @@ NotificationCenter::NotificationCenter()
 
 NotificationCenter::~NotificationCenter()
 {
-    for (const auto& sink : _sinks) {
-        delete sink.second;
-    }
 }
 
-NotificationSink* NotificationCenter::GetSink(const KeyPath& path)
-{
-    EnsureKeyPath(path);
-    return _sinks[path];
-}
-
-void NotificationCenter::AddObserver(const KeyPath& path,
-                                     const OnNotificationFunc& function)
+void NotificationCenter::AddObserver(const Path& path,
+                                     const Callback& callback)
 {
     assert(!path.empty());
+    
+    auto pathKey = _observerPaths.CreateNodeKey(path);
+    
+    if (_pathToCallbacks.size() <= pathKey.get())
+        _pathToCallbacks.resize(pathKey.get() + 1);
+    if (_pathToCallbacks[pathKey.get()].get() == nullptr)
+        _pathToCallbacks[pathKey.get()].reset(new CallbackContainer);
 
-    // Find the index of the first regex token.
-    size_t first_regex_index = 0;
-    while (first_regex_index < path.size()) {
-        if (!path[first_regex_index].isRegex())
-            ++first_regex_index;
-        else
-            break;
-    }
-
-    if (first_regex_index == path.size())
-    {
-        // Register a function for a path without regex.
-        auto key = _keys.find(path);
-        if (key == _keys.end())
-            return;
-        _functions[key->second.get()]->push_back(function);
-    }
-    else
-    {
-        // Register a function for a path with regex.
-        // TODO: Improve the complexity of this algorithm.
-        // TODO: Precompile the regex.
-        for (const auto& match_path : _keys)
-        {
-            if (PathsMatch(path, match_path.first))
-            {
-                _functions[match_path.second.get()]->push_back(function);
-            }
-        }
-    }
+    _pathToCallbacks[pathKey.get()]->push_back(callback);
 }
 
-void NotificationCenter::PostNotification(NotificationKey key,
-                                          const KeyPath& path,
-                                          const value::Value* value)
+const NotificationSink* NotificationCenter::GetSink(const Path& path)
 {
-    const auto& functions = *_functions[key.get()];
-    for (const auto& function : functions) {
-        function(path, value);
-    }
+    auto look = _pathToSinks.find(path);
+    if (look != _pathToSinks.end())
+        return look->second.get();
+
+    // Create a new sink.
+    CallbackContainers callbacks;
+    FindCallbacks(path, 0, 0, &callbacks);
+
+    auto sink = NotificationSink::UP {
+        new NotificationSink { path, callbacks } };
+    auto sinkPtr = sink.get();
+    _pathToSinks[path] = std::move(sink);
+
+    return sinkPtr;
 }
 
-void NotificationCenter::EnsureKeyPath(const KeyPath& path)
+void NotificationCenter::FindCallbacks(const Path& path,
+                                       size_t pathIndex,
+                                       keyed_tree::NodeKey node,
+                                       CallbackContainers* callbacks)
 {
-    assert(!path.empty());
+    // Add the callbacks for |node|.
+    if (pathIndex != 0 &&
+        node.get() < _pathToCallbacks.size() &&
+        _pathToCallbacks[node.get()])
+    {
+        callbacks->push_back(_pathToCallbacks[node.get()].get());
+    }
 
-    if (_keys.find(path) != _keys.end())
+    // End of the path.
+    if (pathIndex >= path.size())
         return;
 
-    // Make sure that the sinks for all the subpaths exist.
-    std::vector<NotificationKey> keys_so_far;
-    for (size_t i = 0; i < path.size(); ++i) {
-        assert(!path[i].isRegex());
+    // Add the callbacks for the children of |node|.
+    auto it = _observerPaths.node_children_begin(node);
+    auto it_end = _observerPaths.node_children_end(node);
 
-        KeyPath partial_path(path.begin(), path.begin() + i + 1);
-
-        auto look = _keys.find(partial_path);
-        if (look == _keys.end()) {
-            // Generate a key.
-            NotificationKey key(_functions.size());
-            keys_so_far.push_back(key);
-            _keys[partial_path] = key;
-            _sinks[partial_path] = new NotificationSink {
-                this,
-                partial_path,
-                keys_so_far
-            };
-
-            // Create a container for the functions that handle this path.
-            std::unique_ptr<FunctionContainer> functions(new FunctionContainer());
-            _functions.push_back(std::move(functions));
-        } else {
-            keys_so_far.push_back(look->second);
-        }
+    for (; it != it_end; ++it)
+    {
+        const auto& label = it->first;
+        if (TokenMatch(path[pathIndex], label))
+            FindCallbacks(path, pathIndex + 1, it->second, callbacks);
     }
 }
 

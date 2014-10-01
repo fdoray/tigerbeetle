@@ -33,7 +33,7 @@ using testing::Ref;
 class MockObserver
 {
 public:
-    MOCK_METHOD2(method, void(const KeyPath& path,
+    MOCK_METHOD2(method, void(const Path& path,
                               const value::Value* value));
 };
 }  // namespace
@@ -44,17 +44,11 @@ TEST(NotificationCenter, simpleNotifications)
 
     NotificationCenter notificationCenter;
 
-    KeyPath path_a {Token("a")};
-    KeyPath path_b {Token("a"), Token("b")};
-    KeyPath path_c {Token("a"), Token("b"), Token("c")};
-    KeyPath path_z {Token("y"), Token("z")};
-    KeyPath path_y {Token("y")};
-
-    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
-    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
-    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
-    NotificationSink* sink_z = notificationCenter.GetSink(path_z);
-    NotificationSink* sink_y = notificationCenter.GetSink(path_y);
+    Path path_a {Token("a")};
+    Path path_b {Token("a"), Token("b")};
+    Path path_c {Token("a"), Token("b"), Token("c")};
+    Path path_z {Token("y"), Token("z")};
+    Path path_y {Token("y")};
 
     MockObserver observer_a;
     MockObserver observer_b;
@@ -76,6 +70,12 @@ TEST(NotificationCenter, simpleNotifications)
 
     notificationCenter.AddObserver(
         path_y, std::bind(&MockObserver::method, &observer_y, pl::_1, pl::_2));
+
+    auto sink_a = notificationCenter.GetSink(path_a);
+    auto sink_b = notificationCenter.GetSink(path_b);
+    auto sink_c = notificationCenter.GetSink(path_c);
+    auto sink_z = notificationCenter.GetSink(path_z);
+    auto sink_y = notificationCenter.GetSink(path_y);
 
     value::IntValue value(42);
 
@@ -131,21 +131,16 @@ TEST(NotificationCenter, regexNotifications)
 
     NotificationCenter notificationCenter;
 
-    KeyPath path_a {Token("aa")};
-    KeyPath path_b {Token("aa"), Token("b1")};
-    KeyPath path_c {Token("aa"), Token("b2")};
-    KeyPath path_d {Token("ab"), Token("b1")};
+    Path path_a {Token("aa")};
+    Path path_b {Token("aa"), Token("b1")};
+    Path path_c {Token("aa"), Token("b2")};
+    Path path_d {Token("ab"), Token("b1")};
 
-    NotificationSink* sink_a = notificationCenter.GetSink(path_a);
-    NotificationSink* sink_b = notificationCenter.GetSink(path_b);
-    NotificationSink* sink_c = notificationCenter.GetSink(path_c);
-    NotificationSink* sink_d = notificationCenter.GetSink(path_d);
-
-    KeyPath path_all {RegexToken("^a")};
-    KeyPath path_aa_b {Token("aa"), RegexToken("^b")};
-    KeyPath path_all_b {RegexToken(".*"), RegexToken("^b")};
-    KeyPath path_all_b1 {RegexToken(".*"), Token("b1")};
-    KeyPath path_all_b2 {RegexToken(".*"), Token("b2")};
+    Path path_all {RegexToken("^a")};
+    Path path_aa_b {Token("aa"), RegexToken("^b")};
+    Path path_all_b {RegexToken(".*"), RegexToken("^b")};
+    Path path_all_b1 {RegexToken(".*"), Token("b1")};
+    Path path_all_b2 {RegexToken(".*"), Token("b2")};
 
     MockObserver observer_all;
     MockObserver observer_aa_b;
@@ -167,6 +162,11 @@ TEST(NotificationCenter, regexNotifications)
 
     notificationCenter.AddObserver(
         path_all_b2, std::bind(&MockObserver::method, &observer_all_b2, pl::_1, pl::_2));
+
+    auto sink_a = notificationCenter.GetSink(path_a);
+    auto sink_b = notificationCenter.GetSink(path_b);
+    auto sink_c = notificationCenter.GetSink(path_c);
+    auto sink_d = notificationCenter.GetSink(path_d);
 
     value::IntValue value(42);
 

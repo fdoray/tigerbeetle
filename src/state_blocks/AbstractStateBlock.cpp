@@ -46,8 +46,8 @@ void AbstractStateBlock::AddKernelObserver(
 {
     namespace pl = std::placeholders;
 
-    notification::KeyPath path {Token("event"), Token("lttng-kernel"), token};
-    notification::NotificationCenter::OnNotificationFunc func =
+    notification::Path path {Token("event"), Token("lttng-kernel"), token};
+    notification::Callback func =
         std::bind(&AbstractStateBlock::onEvent,
                   this,
                   pl::_2,
@@ -62,8 +62,8 @@ void AbstractStateBlock::AddUstObserver(
 {
     namespace pl = std::placeholders;
 
-    notification::KeyPath path {Token("event"), Token("lttng-ust"), token};
-    notification::NotificationCenter::OnNotificationFunc func =
+    notification::Path path {Token("event"), Token("lttng-ust"), token};
+    notification::Callback func =
         std::bind(&AbstractStateBlock::onEvent,
                   this,
                   pl::_2,

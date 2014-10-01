@@ -15,36 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_KEYEDTREE_NODEKEY_HPP
-#define _TIBEE_KEYEDTREE_NODEKEY_HPP
+#ifndef _TIBEE_NOTIFICATION_CALLBACK_HPP
+#define _TIBEE_NOTIFICATION_CALLBACK_HPP
 
-#include <stddef.h>
+#include <vector>
+
+#include "notification/Path.hpp"
 
 namespace tibee
 {
-namespace keyed_tree
+
+namespace value
+{
+// Forward declaration.
+class Value;
+}
+
+namespace notification
 {
 
-/**
- * Node key.
- *
- * @author Francois Doray
- */
-class NodeKey
-{
-public:
-    NodeKey() :
-        _key(0) {}
-    NodeKey(size_t key) :
-        _key(key) {}
-
-    size_t get() const { return _key; }
-
-private:
-    size_t _key;
-};
+typedef std::function<void (const Path& path, const value::Value* value)>
+    Callback;
+typedef std::vector<Callback> CallbackContainer;
+typedef std::vector<CallbackContainer*> CallbackContainers;
 
 }
 }
 
-#endif // _TIBEE_KEYEDTREE_NODEKEY_HPP
+#endif // _TIBEE_NOTIFICATION_CALLBACK_HPP

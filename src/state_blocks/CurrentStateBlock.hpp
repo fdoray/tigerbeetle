@@ -46,7 +46,7 @@ public:
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
-    void onStateChange(const notification::KeyPath& path, const value::Value* value);
+    void onStateChange(const notification::Path& path, const value::Value* value);
 
     state::CurrentState _currentState;
 };

@@ -48,14 +48,6 @@ void BlockRunner::Run()
     for (auto& block : _blocks)
         block.first->Start(block.second);
 
-    // Ask the blocks to declare the notifications that they produce.
-    for (auto& block : _blocks)
-        block.first->GetNotificationSinks(&notificationCenter);
-
-    // Ask the blocks to declare the notifications that they receive.
-    for (auto& block : _blocks)
-        block.first->AddObservers(&notificationCenter);
-
     // Ask the blocks to declare the services that they offer.
     for (auto& block : _blocks)
         block.first->RegisterServices(&serviceList);
@@ -63,6 +55,14 @@ void BlockRunner::Run()
     // Let the blocks load services.
     for (auto& block : _blocks)
         block.first->LoadServices(serviceList);
+
+    // Ask the blocks to declare the notifications that they receive.
+    for (auto& block : _blocks)
+        block.first->AddObservers(&notificationCenter);
+
+    // Ask the blocks to declare the notifications that they produce.
+    for (auto& block : _blocks)
+        block.first->GetNotificationSinks(&notificationCenter);
 
     // Execute the blocks.
     for (auto& block : _blocks)
