@@ -27,6 +27,11 @@ namespace state
 
 typedef keyed_tree::NodeKey AttributeKey;
 
+inline AttributeKey InvalidAttributeKey()
+{
+    return AttributeKey(); 
+}
+
 }
 }
 

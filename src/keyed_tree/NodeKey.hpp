@@ -40,6 +40,16 @@ public:
 
     size_t get() const { return _key; }
 
+    bool operator==(const NodeKey& other) const
+    {
+        return _key == other._key;
+    }
+
+    bool operator!=(const NodeKey& other) const
+    {
+        return _key != other._key;
+    }
+
 private:
     size_t _key;
 };

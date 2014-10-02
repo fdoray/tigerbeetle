@@ -31,11 +31,13 @@ namespace value {
 
 TEST(MakeValue, MakeValue)
 {
-    auto int_val = MakeValue<IntValue>(42);
+    auto int_val = MakeValue(42);
+    EXPECT_EQ(VALUE_INT, int_val->GetType());
     EXPECT_EQ(42, int_val->AsInteger());
 
-    auto str_val = MakeValue<StringValue>("test");
-    EXPECT_EQ("test", str_val->AsString());
+    auto uint_val = MakeValue(42u);
+    EXPECT_EQ(VALUE_UINT, uint_val->GetType());
+    EXPECT_EQ(42u, uint_val->AsUInteger());
 }
 
 }  // namespace value

@@ -27,7 +27,9 @@
 #define _TIBEE_VALUE_MAKEVALUE_HPP
 
 #include <memory>
+#include <string>
 
+#include "quark/Quark.hpp"
 #include "value/Value.hpp"
 
 namespace tibee
@@ -35,10 +37,27 @@ namespace tibee
 namespace value
 {
 
-template <typename T>
-std::unique_ptr<T> MakeValue(const typename T::ScalarType& value)
+std::unique_ptr<Value> MakeValue(quark::Quark value)
 {
-    std::unique_ptr<T> value_wrapper { new T(value) };
+    std::unique_ptr<Value> value_wrapper { new UIntValue { value.get() } };
+    return value_wrapper;
+}
+
+std::unique_ptr<Value> MakeValue(int32_t value)
+{
+    std::unique_ptr<Value> value_wrapper { new IntValue { value } };
+    return value_wrapper;
+}
+
+std::unique_ptr<Value> MakeValue(uint32_t value)
+{
+    std::unique_ptr<Value> value_wrapper { new UIntValue { value } };
+    return value_wrapper;
+}
+
+std::unique_ptr<Value> MakeValue(const std::string& value)
+{
+    std::unique_ptr<Value> value_wrapper { new StringValue { value } };
     return value_wrapper;
 }
 

@@ -1,4 +1,13 @@
-/* Copyright (c) 2014 Francois Doray <francois.pierre-doray@polymtl.ca>
+/* This is a simple Linux kernel state provider which records the state
+ * of processes and threads. It is based on the work of Florian Wininger,
+ * reimplementing his XML state machine using tigerbeetle.
+ *
+ * His XML state machine was found at:
+ *
+ *   <http://secretaire.dorsal.polymtl.ca/~fwininger/XmlStateProvider/kernel-0.6.state-schema.xml>
+ *
+ * Copyright (c) 2014 Philippe Proulx <eepp.ca>
+ * Copyright (c) 2014 Francois Doray <francois.pierre-doray@polymtl.ca>
  *
  * This file is part of tigerbeetle.
  *
@@ -19,6 +28,7 @@
 
 #include "block/ServiceList.hpp"
 #include "notification/NotificationCenter.hpp"
+#include "value/MakeValue.hpp"
 
 #include <iostream>
 
@@ -27,9 +37,9 @@ namespace tibee
 namespace state_blocks
 {
 
-using namespace value;
 using notification::RegexToken;
 using notification::Token;
+using value::MakeValue;
 
 LinuxSchedStateBlock::LinuxSchedStateBlock()
 {
@@ -86,50 +96,305 @@ void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notifi
 
 void LinuxSchedStateBlock::onExitSyscall(const trace::EventValue& event)
 {
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+
+    // current thread status
+    if (currentThreadAttribute != state::InvalidAttributeKey())
+    {
+        State()->NullAttribute(currentThreadAttribute, {Q_SYSCALL});
+        State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+    }
+
+    // current CPU status
+    State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
 }
 
 void LinuxSchedStateBlock::onIrqHandlerEntry(const trace::EventValue& event)
 {
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+    auto currentIrqAttribute = getCurrentIrqAttribute(event);
+    auto cpu = getEventCpu(event);
+
+    // current IRQ's CPU
+    State()->SetAttribute(currentIrqAttribute, {Q_CUR_CPU}, MakeValue(cpu));
+
+    if (currentCpuAttribute != state::InvalidAttributeKey())
+    {
+        // current thread's status
+        State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_INTERRUPTED));
+    }
+
+    // current CPU's status
+    State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IRQ));
 }
 
 void LinuxSchedStateBlock::onIrqHandlerExit(const trace::EventValue& event)
 {
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+    auto cpuCurrentThreadAttribute = getCpuCurrentThreadAttribute(event);
+    auto currentIrqAttribute = getCurrentIrqAttribute(event);
+
+    // reset current IRQ's CPU
+    State()->NullAttribute(currentIrqAttribute, {Q_CUR_CPU});
+
+    if (currentThreadAttribute != state::InvalidAttributeKey())
+    {
+        if (State()->GetAttributeValue(currentThreadAttribute, {Q_SYSCALL}) == nullptr)
+        {
+            // syscall not set for current thread: running in usermode
+            State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+            State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+        }
+        else
+        {
+            // syscall set for current thread: running a syscall
+            State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+            State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+        }
+    }
+
+    if (State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr)
+    {
+        // no current thread for this CPU: CPU is idle.
+        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
+    }
+    else if (State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger() == 0)
+    {
+        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
+    }
 }
 
 void LinuxSchedStateBlock::onSoftIrqEntry(const trace::EventValue& event)
 {
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+    auto currentSoftIrqAttribute = getCurrentSoftIrqAttribute(event);
+    auto cpu = getEventCpu(event);
+
+    // current soft IRQ's CPU
+    State()->SetAttribute(currentSoftIrqAttribute, {Q_CUR_CPU}, MakeValue(cpu));
+
+    // reset current soft IRQ's CPU
+    State()->NullAttribute(currentSoftIrqAttribute, {Q_CUR_CPU});
+
+    if (currentThreadAttribute != state::InvalidAttributeKey())
+    {
+        // current thread's status
+        State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_INTERRUPTED));
+    }
+
+    // current CPU's status
+    State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_SOFT_IRQ));
 }
 
 void LinuxSchedStateBlock::onSoftIrqExit(const trace::EventValue& event)
 {
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+    auto cpuCurrentThreadAttribute = getCpuCurrentThreadAttribute(event);
+    auto currentSoftIrqAttribute = getCurrentSoftIrqAttribute(event);
+
+    // reset current soft IRQ's CPU
+    State()->NullAttribute(currentSoftIrqAttribute, {Q_CUR_CPU});
+
+    // reset current soft IRQ's status
+    State()->NullAttribute(currentSoftIrqAttribute, {Q_STATUS});
+
+    if (currentThreadAttribute != state::InvalidAttributeKey())
+    {
+        if (State()->GetAttributeValue(currentThreadAttribute, {Q_SYSCALL}) == nullptr)
+        {
+            // syscall not set for current thread: running in usermode
+            State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+            State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+        }
+        else
+        {
+            // syscall set for current thread: running a syscall
+            State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+            State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+        }
+    }
+
+    if (State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr)
+    {
+        // no current thread for this CPU: CPU is idle.
+        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
+    }
+    else if (State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger() == 0)
+    {
+        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
+    }
 }
 
 void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 {
+    auto currentSoftIrqAttribute = getCurrentSoftIrqAttribute(event);
+
+    // current soft IRQ's status: raised
+    State()->SetAttribute(currentSoftIrqAttribute, {Q_STATUS}, MakeValue(Q_RAISED));
 }
 
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
+    auto linuxAttribute = getLinuxAttribute();
+    auto prevState = event.getFields()->GetField("prev_state")->AsInteger();
+    auto prevTid = event.getFields()->GetField("prev_tid")->AsInteger();
+    auto qPrevTid = State()->IntQuark(prevTid);
+    auto nextTid =  event.getFields()->GetField("next_tid")->AsInteger();
+    auto qNextTid =  State()->IntQuark(nextTid);
+    auto nextComm = event.getFields()->GetField("next_comm")->AsString();
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+    auto threadsPrevTidStatusAttribute =
+        State()->GetAttributeKey(linuxAttribute, {Q_THREADS, qPrevTid, Q_STATUS});
+
+    if (prevState == 0) {
+        State()->SetAttribute(threadsPrevTidStatusAttribute, MakeValue(Q_WAIT_FOR_CPU));
+    } else {
+        State()->SetAttribute(threadsPrevTidStatusAttribute, MakeValue(Q_WAIT_BLOCKED));
+    }
+
+    auto newCurrentThread =
+        State()->GetAttributeKey(linuxAttribute, {Q_THREADS, qNextTid});
+
+    // new current thread's run mode
+    if (State()->GetAttributeValue(newCurrentThread, {Q_SYSCALL}) == nullptr) {
+        State()->SetAttribute(newCurrentThread, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+    } else {
+        State()->SetAttribute(newCurrentThread, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+    }
+
+    // thread's exec name
+    State()->SetAttribute(newCurrentThread, {Q_EXEC_NAME}, MakeValue(nextComm));
+
+    // current CPU's current thread
+    State()->SetAttribute(currentCpuAttribute, {Q_CUR_THREAD}, MakeValue(nextTid));
+
+    // current CPU's status
+    if (nextTid != 0L) {
+        if (State()->GetAttributeValue(newCurrentThread, {Q_SYSCALL}) != nullptr) {
+            State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+        } else {
+            State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_USERMODE));
+        }
+    } else {
+        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
+    }
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)
 {
+    auto linuxAttribute = getLinuxAttribute();
+    auto childTid = event.getFields()->GetField("child_tid")->AsInteger();
+    auto qChildTid = State()->IntQuark(childTid);
+    auto parentTid = event.getFields()->GetField("parent_tid")->AsInteger();
+    auto qParentTid = State()->IntQuark(parentTid);
+    auto childComm = event.getFields()->GetField("child_comm")->AsString();
+    auto threadsChildTidAttribute =
+        State()->GetAttributeKey(linuxAttribute, {Q_THREADS, qChildTid});
+
+    // child thread's parent TID
+    State()->SetAttribute(threadsChildTidAttribute, {Q_PPID}, MakeValue(parentTid));
+
+    // child thread's exec name
+    State()->SetAttribute(threadsChildTidAttribute, {Q_EXEC_NAME}, MakeValue(childComm));
+
+    // child thread's status
+    State()->SetAttribute(threadsChildTidAttribute, {Q_STATUS}, MakeValue(Q_WAIT_FOR_CPU));
+
+    // child thread's syscall
+    auto parentSyscall =
+        State()->GetAttributeValue(linuxAttribute, {Q_THREADS, qParentTid, Q_SYSCALL});
+    State()->SetAttribute(
+        threadsChildTidAttribute,
+        {Q_SYSCALL},
+        parentSyscall->Copy());
+
+    if (State()->GetAttributeValue(threadsChildTidAttribute, {Q_SYSCALL}) == nullptr) {
+        State()->SetAttribute(threadsChildTidAttribute, {Q_SYSCALL}, MakeValue(Q_SYS_CLONE));
+    }
 }
 
 void LinuxSchedStateBlock::onSchedProcessFree(const trace::EventValue& event)
 {
+    auto linuxAttribute = getLinuxAttribute();
+    auto qTid = State()->IntQuark(event.getFields()->GetField("tid")->AsInteger());
+
+    // nullify thread subtree
+    State()->NullAttribute(linuxAttribute, {Q_THREADS, qTid});
 }
 
 void LinuxSchedStateBlock::onLttngStatedumpProcessState(const trace::EventValue& event)
 {
+    auto linuxAttribute = getLinuxAttribute();
+    auto qTid = State()->IntQuark(event.getFields()->GetField("tid")->AsInteger());
+    auto ppid = event.getFields()->GetField("tid")->AsInteger();
+    auto status = event.getFields()->GetField("status")->AsInteger();
+    auto name = event.getFields()->GetField("name")->AsString();
+    auto threadsTidAttribute = State()->GetAttributeKey(linuxAttribute, {Q_THREADS, qTid});
+    auto threadsTidExecNameAttribute = State()->GetAttributeKey(threadsTidAttribute, {Q_EXEC_NAME});
+    auto threadsTidPpidAttribute = State()->GetAttributeKey(threadsTidAttribute, {Q_PPID});
+    auto threadsTidStatusAttribute = State()->GetAttributeKey(threadsTidAttribute, {Q_STATUS});
+
+    // initialize thread's exec name
+    if (State()->GetAttributeValue(threadsTidExecNameAttribute) == nullptr) {
+        State()->SetAttribute(threadsTidExecNameAttribute, MakeValue(name));
+    }
+
+    // initialize thread's parent TID
+    if (State()->GetAttributeValue(threadsTidPpidAttribute) == nullptr) {
+        State()->SetAttribute(threadsTidPpidAttribute, MakeValue(ppid));
+    }
+
+    // initialize thread's status
+    if (State()->GetAttributeValue(threadsTidStatusAttribute) == nullptr) {
+        if (status == 2L) {
+            State()->SetAttribute(threadsTidStatusAttribute, MakeValue(Q_WAIT_FOR_CPU));
+        } else if (status == 5L) {
+            State()->SetAttribute(threadsTidStatusAttribute, MakeValue(Q_WAIT_BLOCKED));
+        } else {
+            State()->SetAttribute(threadsTidStatusAttribute, MakeValue(Q_UNKNOWN));
+        }   
+    }
 }
 
 void LinuxSchedStateBlock::onSchedWakeupEvent(const trace::EventValue& event)
 {
+    auto linuxAttribute = getLinuxAttribute();
+    auto qTid = State()->IntQuark(event.getFields()->GetField("tid")->AsInteger());
+    auto threadsTidStatusAttribute = State()->GetAttributeKey(
+        linuxAttribute, {Q_THREADS, qTid, Q_STATUS});
+
+    if (State()->GetAttributeValue(threadsTidStatusAttribute) != nullptr)
+    {
+        auto qThreadTidStatusAttribute =
+            State()->GetAttributeValue(threadsTidStatusAttribute)->AsUInteger();
+        if (qThreadTidStatusAttribute != Q_RUN_USERMODE.get() &&
+            qThreadTidStatusAttribute != Q_RUN_SYSCALL.get()) {
+            State()->SetAttribute(threadsTidStatusAttribute, MakeValue(Q_WAIT_FOR_CPU));
+        }
+    }
+    else
+    {
+        // TODO: is this right?
+        State()->SetAttribute(threadsTidStatusAttribute, MakeValue(Q_WAIT_FOR_CPU));
+    }
 }
 
 void LinuxSchedStateBlock::onSysEvent(const trace::EventValue& event)
 {
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto currentCpuAttribute = getCurrentCpuAttribute(event);
+
+    if (currentThreadAttribute != state::InvalidAttributeKey()) {
+        State()->SetAttribute(currentThreadAttribute, {Q_SYSCALL}, MakeValue(event.getName()));
+        State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
+    }
+
+    State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
 }
 
 uint32_t LinuxSchedStateBlock::getEventCpu(const trace::EventValue& event) const
@@ -163,7 +428,7 @@ state::AttributeKey LinuxSchedStateBlock::getCurrentThreadAttribute(const trace:
 {
     auto cpuCurrentThreadAttribute = getCpuCurrentThreadAttribute(event);
     if (State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr)
-        return state::AttributeKey(-1);
+        return state::InvalidAttributeKey();
 
     auto qCurrentThread = State()->IntQuark(State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger());
 

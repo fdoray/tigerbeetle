@@ -25,7 +25,6 @@
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
 #include "state/CurrentState.hpp"
-#include "state_blocks/MakeNotification.hpp"
 #include "trace/value/EventValue.hpp"
 
 namespace tibee
