@@ -33,7 +33,7 @@ TEST(LinuxSchedStateBlock, LinuxSchedStateBlock)
 {
     value::StructValue traceParams;
     value::ArrayValue::UP traceList {new value::ArrayValue};
-    traceList->Append<value::StringValue>("test_data/kernel_sched_switch/kernel");
+    traceList->Append<value::StringValue>("test_data/kernel_a/kernel");
     traceParams.AddField("traces", std::move(traceList));
 
     trace_blocks::TraceBlock traceBlock;

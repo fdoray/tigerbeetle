@@ -187,9 +187,13 @@ void KeyedTree<T>::GetNodePath(NodeKey node, Path* path) const
 template <typename T>
 typename KeyedTree<T>::Node* KeyedTree<T>::CreateNode(Node* root, const Path& subPath)
 {
+    assert(root != nullptr);
+
     Node* currentNode = root;
     for (const T& label : subPath)
     {
+        assert(currentNode != nullptr);
+
         auto look = currentNode->children.find(label);
         if (look == currentNode->children.end())
         {

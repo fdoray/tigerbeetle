@@ -43,12 +43,14 @@ public:
     static const char kTimestampField[];
     static const char kFieldsField[];
     static const char kContextField[];
+    static const char kStreamPacketContextField[];
 
     // Names of the top-level fields of every event.
     static const size_t kNameFieldOffset;
     static const size_t kTimestampFieldOffset;
     static const size_t kFieldsFieldOffset;
     static const size_t kContextFieldOffset;
+    static const size_t kStreamPacketContextFieldOffset;
     static const size_t kNumFields;
 
     using value::StructValueBase::GetField;

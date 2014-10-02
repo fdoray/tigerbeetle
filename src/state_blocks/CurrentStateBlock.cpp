@@ -79,7 +79,12 @@ void CurrentStateBlock::onStateChange(state::AttributeKey attribute, const value
 
     value::StructValue::UP notification {new value::StructValue};
     notification->AddField<value::UIntValue>(kAttributeKeyField, attribute.get());
-    notification->AddField(kAttributeValueField, value->Copy());
+
+    if (value != nullptr)
+        notification->AddField(kAttributeValueField, value->Copy());
+    else
+        notification->AddField(kAttributeValueField, nullptr);
+
     _sinks[attribute.get()]->PostNotification(notification.get());
 }
 

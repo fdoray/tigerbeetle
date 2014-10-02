@@ -92,6 +92,8 @@ void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notifi
     AddKernelObserver(notificationCenter, RegexToken("^sched_wakeup"), std::bind(&LinuxSchedStateBlock::onSchedWakeupEvent, this, pl::_1));
     AddKernelObserver(notificationCenter, RegexToken("^sys_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
     AddKernelObserver(notificationCenter, RegexToken("^compat_sys_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
+    AddKernelObserver(notificationCenter, RegexToken("^syscall_entry_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
+    AddKernelObserver(notificationCenter, RegexToken("^syscall_exit_"), std::bind(&LinuxSchedStateBlock::onExitSyscall, this, pl::_1));
 }
 
 void LinuxSchedStateBlock::onExitSyscall(const trace::EventValue& event)
@@ -120,7 +122,7 @@ void LinuxSchedStateBlock::onIrqHandlerEntry(const trace::EventValue& event)
     // current IRQ's CPU
     State()->SetAttribute(currentIrqAttribute, {Q_CUR_CPU}, MakeValue(cpu));
 
-    if (currentCpuAttribute != state::InvalidAttributeKey())
+    if (currentThreadAttribute != state::InvalidAttributeKey())
     {
         // current thread's status
         State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_INTERRUPTED));
@@ -140,7 +142,11 @@ void LinuxSchedStateBlock::onIrqHandlerExit(const trace::EventValue& event)
     // reset current IRQ's CPU
     State()->NullAttribute(currentIrqAttribute, {Q_CUR_CPU});
 
-    if (currentThreadAttribute != state::InvalidAttributeKey())
+    bool cpuIsIdle =
+        State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr ||
+        State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger() == 0;
+
+    if (currentThreadAttribute != state::InvalidAttributeKey() && !cpuIsIdle)
     {
         if (State()->GetAttributeValue(currentThreadAttribute, {Q_SYSCALL}) == nullptr)
         {
@@ -156,13 +162,9 @@ void LinuxSchedStateBlock::onIrqHandlerExit(const trace::EventValue& event)
         }
     }
 
-    if (State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr)
+    if (cpuIsIdle)
     {
         // no current thread for this CPU: CPU is idle.
-        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
-    }
-    else if (State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger() == 0)
-    {
         State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
     }
 }
@@ -178,7 +180,7 @@ void LinuxSchedStateBlock::onSoftIrqEntry(const trace::EventValue& event)
     State()->SetAttribute(currentSoftIrqAttribute, {Q_CUR_CPU}, MakeValue(cpu));
 
     // reset current soft IRQ's CPU
-    State()->NullAttribute(currentSoftIrqAttribute, {Q_CUR_CPU});
+    State()->NullAttribute(currentSoftIrqAttribute, {Q_STATUS});
 
     if (currentThreadAttribute != state::InvalidAttributeKey())
     {
@@ -203,7 +205,11 @@ void LinuxSchedStateBlock::onSoftIrqExit(const trace::EventValue& event)
     // reset current soft IRQ's status
     State()->NullAttribute(currentSoftIrqAttribute, {Q_STATUS});
 
-    if (currentThreadAttribute != state::InvalidAttributeKey())
+    bool cpuIsIdle =
+        State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr ||
+        State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger() == 0;
+
+    if (currentThreadAttribute != state::InvalidAttributeKey() && !cpuIsIdle)
     {
         if (State()->GetAttributeValue(currentThreadAttribute, {Q_SYSCALL}) == nullptr)
         {
@@ -219,13 +225,9 @@ void LinuxSchedStateBlock::onSoftIrqExit(const trace::EventValue& event)
         }
     }
 
-    if (State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr)
+    if (cpuIsIdle)
     {
         // no current thread for this CPU: CPU is idle.
-        State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
-    }
-    else if (State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger() == 0)
-    {
         State()->SetAttribute(currentCpuAttribute, {Q_STATUS}, MakeValue(Q_IDLE));
     }
 }
@@ -308,10 +310,9 @@ void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)
     // child thread's syscall
     auto parentSyscall =
         State()->GetAttributeValue(linuxAttribute, {Q_THREADS, qParentTid, Q_SYSCALL});
-    State()->SetAttribute(
-        threadsChildTidAttribute,
-        {Q_SYSCALL},
-        parentSyscall->Copy());
+    if (parentSyscall) {
+        State()->SetAttribute(threadsChildTidAttribute, {Q_SYSCALL}, parentSyscall->Copy());
+    }
 
     if (State()->GetAttributeValue(threadsChildTidAttribute, {Q_SYSCALL}) == nullptr) {
         State()->SetAttribute(threadsChildTidAttribute, {Q_SYSCALL}, MakeValue(Q_SYS_CLONE));
@@ -331,7 +332,7 @@ void LinuxSchedStateBlock::onLttngStatedumpProcessState(const trace::EventValue&
 {
     auto linuxAttribute = getLinuxAttribute();
     auto qTid = State()->IntQuark(event.getFields()->GetField("tid")->AsInteger());
-    auto ppid = event.getFields()->GetField("tid")->AsInteger();
+    auto ppid = event.getFields()->GetField("ppid")->AsInteger();
     auto status = event.getFields()->GetField("status")->AsInteger();
     auto name = event.getFields()->GetField("name")->AsString();
     auto threadsTidAttribute = State()->GetAttributeKey(linuxAttribute, {Q_THREADS, qTid});

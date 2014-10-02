@@ -890,7 +890,6 @@ StructValueBase::Iterator StructValue::fields_end() const {
 
 bool StructValue::AddField(const std::string& name,
                            std::unique_ptr<Value> value) {
-  assert(value.get() != nullptr);
   if (HasField(name))
     return false;
   Value* raw_value = value.release();

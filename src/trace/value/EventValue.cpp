@@ -32,12 +32,14 @@ const char EventValue::kNameField[] = "name";
 const char EventValue::kTimestampField[] = "ts";
 const char EventValue::kFieldsField[] = "fields";
 const char EventValue::kContextField[]= "context";
+const char EventValue::kStreamPacketContextField[]= "stream-packet-context";
 
 const size_t EventValue::kNameFieldOffset = 0;
 const size_t EventValue::kTimestampFieldOffset = 1;
 const size_t EventValue::kFieldsFieldOffset = 2;
 const size_t EventValue::kContextFieldOffset = 3;
-const size_t EventValue::kNumFields = 4;
+const size_t EventValue::kStreamPacketContextFieldOffset = 4;
+const size_t EventValue::kNumFields = 5;
 
 namespace {
 const char* kEventTopLevelFields[] = {
@@ -45,6 +47,7 @@ const char* kEventTopLevelFields[] = {
     EventValue::kTimestampField,
     EventValue::kFieldsField,
     EventValue::kContextField,
+    EventValue::kStreamPacketContextField,
 };
 }  // namespace
 
@@ -70,6 +73,9 @@ bool EventValue::HasField(const std::string& name) const
 
     if (std::strcmp(kContextField, name.c_str()) == 0)
         return getContext() != nullptr;
+
+    if (std::strcmp(kStreamPacketContextField, name.c_str()) == 0)
+        return getStreamPacketContext() != nullptr;
 
     return false;
 }
@@ -102,6 +108,9 @@ const value::Value* EventValue::at(size_t index) const
 
     if (index == kContextFieldOffset)
         return getContext();
+
+    if (index == kStreamPacketContextFieldOffset)
+        return getStreamPacketContext();
 
     return nullptr;
 }
