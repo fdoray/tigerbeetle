@@ -18,8 +18,11 @@
 #ifndef _TIBEE_STATEBLOCKS_CURRENTSTATEBLOCK_HPP
 #define _TIBEE_STATEBLOCKS_CURRENTSTATEBLOCK_HPP
 
+#include <vector>
+
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationCenter.hpp"
+#include "notification/NotificationSink.hpp"
 #include "state/CurrentState.hpp"
 #include "value/Value.hpp"
 
@@ -39,15 +42,22 @@ public:
     static const char* kCurrentStateServiceName;
     static const char* kAttributeKeyField;
     static const char* kAttributeValueField;
+    static const char* kStateNotificationPrefix;
 
     CurrentStateBlock();
 
     virtual void RegisterServices(block::ServiceList* serviceList) override;
+    virtual void LoadServices(const block::ServiceList& serviceList) override;
 
 private:
     void onStateChange(state::AttributeKey attribute, const value::Value* value);
 
     state::CurrentState _currentState;
+
+    typedef std::vector<const notification::NotificationSink*> Sinks;
+    Sinks _sinks;
+
+    notification::NotificationCenter* _notificationCenter;
 };
 
 }

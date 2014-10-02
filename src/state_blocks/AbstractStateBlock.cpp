@@ -18,6 +18,7 @@
 #include "state_blocks/AbstractStateBlock.hpp"
 
 #include "block/ServiceList.hpp"
+#include "notification/NotificationCenter.hpp"
 #include "state_blocks/CurrentStateBlock.hpp"
 
 namespace tibee

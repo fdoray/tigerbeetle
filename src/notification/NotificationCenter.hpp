@@ -43,6 +43,8 @@ class NotificationCenter {
 public:
     friend class NotificationSink;
 
+    static const char* kNotificationCenterServiceName;
+
     NotificationCenter();
     ~NotificationCenter();
 

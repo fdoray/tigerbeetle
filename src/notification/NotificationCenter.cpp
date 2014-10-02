@@ -51,6 +51,8 @@ bool TokenMatch(const Token& token, const Token& search)
 
 }  // namespace
 
+const char* NotificationCenter::kNotificationCenterServiceName = "notificationCenter";
+
 NotificationCenter::NotificationCenter()
 {
 }

@@ -159,6 +159,11 @@ timestamp_t CurrentState::GetAttributeLastChange(const AttributePath& path)
     return GetAttributeLastChange(key);
 }
 
+void CurrentState::GetAttributePath(AttributeKey attribute, AttributeTree::Path* path) const
+{
+    _attributeTree.GetNodePath(attribute, path);
+}
+
 CurrentState::AttributeValue::AttributeValue() :
     since(0)
 {

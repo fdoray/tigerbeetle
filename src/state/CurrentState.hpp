@@ -80,6 +80,8 @@ public:
     timestamp_t GetAttributeLastChange(AttributeKey attribute, const AttributePath& subPath);
     timestamp_t GetAttributeLastChange(const AttributePath& path);
 
+    void GetAttributePath(AttributeKey attribute, AttributeTree::Path* path) const;
+
 private:
     struct AttributeValue {
         AttributeValue();

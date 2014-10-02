@@ -101,7 +101,7 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
     CurrentState()->SetAttribute(
-        CurrentState()->GetAttributeKeyStr({"test"}),
+        CurrentState()->GetAttributeKeyStr({"test", "dummy", "toto"}),
         MakeValue<IntValue>(42));
 }
 

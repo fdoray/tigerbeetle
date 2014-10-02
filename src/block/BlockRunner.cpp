@@ -52,6 +52,11 @@ void BlockRunner::Run()
     for (auto& block : _blocks)
         block.first->RegisterServices(&serviceList);
 
+    // Register the notification center.
+    serviceList.AddService(
+        notification::NotificationCenter::kNotificationCenterServiceName,
+        &notificationCenter);
+
     // Let the blocks load services.
     for (auto& block : _blocks)
         block.first->LoadServices(serviceList);
