@@ -38,7 +38,7 @@ class LinuxSchedStateBlock : public AbstractStateBlock
 public:
     LinuxSchedStateBlock();
 
-    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
+    virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
@@ -54,6 +54,31 @@ private:
     void onLttngStatedumpProcessState(const trace::EventValue& event);
     void onSchedWakeupEvent(const trace::EventValue& event);
     void onSysEvent(const trace::EventValue& event);
+
+    // Quarks.
+    quark::Quark Q_LINUX;
+    quark::Quark Q_THREADS;
+    quark::Quark Q_CPUS;
+    quark::Quark Q_CUR_CPU;
+    quark::Quark Q_CUR_THREAD;
+    quark::Quark Q_RESOURCES;
+    quark::Quark Q_IRQS;
+    quark::Quark Q_SOFT_IRQS;
+    quark::Quark Q_SYSCALL;
+    quark::Quark Q_STATUS;
+    quark::Quark Q_PPID;
+    quark::Quark Q_EXEC_NAME;
+    quark::Quark Q_IDLE;
+    quark::Quark Q_RUN_USERMODE;
+    quark::Quark Q_RUN_SYSCALL;
+    quark::Quark Q_IRQ;
+    quark::Quark Q_SOFT_IRQ;
+    quark::Quark Q_UNKNOWN;
+    quark::Quark Q_WAIT_BLOCKED;
+    quark::Quark Q_INTERRUPTED;
+    quark::Quark Q_WAIT_FOR_CPU;
+    quark::Quark Q_RAISED;
+    quark::Quark Q_SYS_CLONE;
 };
 
 }

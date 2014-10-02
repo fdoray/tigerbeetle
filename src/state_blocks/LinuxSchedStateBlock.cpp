@@ -41,7 +41,7 @@ enum NotificationTypes
     kThreadExecNotification,
     kThreadSyscallNotification,
     kCpuStatusNotification,
-    kCpuCurrentThreadNotification,
+    kCpuThreadNotification,
     kIrqCpuNotification,
 };
 
@@ -51,8 +51,34 @@ LinuxSchedStateBlock::LinuxSchedStateBlock()
 {
 }
 
-void LinuxSchedStateBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
+void LinuxSchedStateBlock::LoadServices(const block::ServiceList& serviceList)
 {
+    AbstractStateBlock::LoadServices(serviceList);
+
+    // Get constant quarks.
+    Q_LINUX = State()->Quark("linux");
+    Q_THREADS = State()->Quark("threads");
+    Q_CPUS = State()->Quark("cpus");
+    Q_CUR_CPU = State()->Quark("cur-cpu");
+    Q_CUR_THREAD = State()->Quark("cur-thread");
+    Q_RESOURCES = State()->Quark("resources");
+    Q_IRQS = State()->Quark("irqs");
+    Q_SOFT_IRQS = State()->Quark("soft-irqs");
+    Q_SYSCALL = State()->Quark("syscall");
+    Q_STATUS = State()->Quark("status");
+    Q_PPID = State()->Quark("ppid");
+    Q_EXEC_NAME = State()->Quark("exec-name");
+    Q_IDLE = State()->Quark("idle");
+    Q_RUN_USERMODE = State()->Quark("usermode");
+    Q_RUN_SYSCALL = State()->Quark("syscall");
+    Q_IRQ = State()->Quark("irq");
+    Q_SOFT_IRQ = State()->Quark("soft-irq");
+    Q_UNKNOWN = State()->Quark("unknown");
+    Q_WAIT_BLOCKED = State()->Quark("wait-blocked");
+    Q_INTERRUPTED = State()->Quark("interrupted");
+    Q_WAIT_FOR_CPU = State()->Quark("wait-for-cpu");
+    Q_RAISED = State()->Quark("raised");
+    Q_SYS_CLONE = State()->Quark("sys_clone");
 }
 
 void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notificationCenter)
@@ -100,8 +126,8 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
-    CurrentState()->SetAttribute(
-        CurrentState()->GetAttributeKeyStr({"test", "dummy", "toto"}),
+    State()->SetAttribute(
+        State()->GetAttributeKeyStr({"test", "dummy", "toto"}),
         MakeValue<IntValue>(42));
 }
 

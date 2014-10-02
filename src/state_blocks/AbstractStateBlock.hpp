@@ -45,11 +45,8 @@ class AbstractStateBlock : public block::AbstractBlock
 public:
     AbstractStateBlock();
 
-    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) = 0;
-    virtual void AddObservers(notification::NotificationCenter* notificationCenter) = 0;
-
     virtual void LoadServices(const block::ServiceList& serviceList) override;
-
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) = 0;
 
 protected:
     typedef std::function<void (const trace::EventValue&)> EventHandler;
@@ -60,7 +57,7 @@ protected:
                         notification::Token token,
                         EventHandler eventHandler);
 
-    state::CurrentState* CurrentState() { return _currentState; }
+    state::CurrentState* State() { return _currentState; }
 
 private:
     void onEvent(const value::Value* event, EventHandler handler);
