@@ -27,7 +27,7 @@ namespace tibee
 namespace keyed_tree
 {
 
-TEST(KeyedTree, KeyedTree)
+TEST(KeyedTree, CreateNodeKey)
 {
     KeyedTree<quark::Quark> tree;
     quark::QuarkDatabase<std::string> quarks;
@@ -51,6 +51,64 @@ TEST(KeyedTree, KeyedTree)
                           quarks.Insert("e")});
 
     EXPECT_EQ(a_b_c_d_e_1.get(), a_b_c_d_e_2.get());
+}
+
+TEST(KeyedTree, GetNodeKey)
+{
+    KeyedTree<quark::Quark> tree;
+    quark::QuarkDatabase<std::string> quarks;
+
+    NodeKey emptyExpected = tree.CreateNodeKey({});
+    NodeKey emptyActual;
+    EXPECT_TRUE(tree.GetNodeKey({}, &emptyActual));
+    EXPECT_EQ(emptyExpected.get(), emptyActual.get());
+
+    NodeKey abExpected = tree.CreateNodeKey({quarks.Insert("a"), quarks.Insert("b")});
+    NodeKey abActual;
+    EXPECT_TRUE(tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("b")}, &abActual));
+    EXPECT_EQ(abExpected.get(), abActual.get());
+
+    NodeKey abcdExpected = tree.CreateNodeKey({quarks.Insert("a"), quarks.Insert("b"), quarks.Insert("c"), quarks.Insert("d")});
+    NodeKey abcdActual;
+    EXPECT_TRUE(tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("b"), quarks.Insert("c"), quarks.Insert("d")},
+                                &abcdActual));
+    EXPECT_EQ(abcdExpected.get(), abcdActual.get());
+
+    NodeKey aExpected = tree.CreateNodeKey({quarks.Insert("a")});
+    NodeKey aActual;
+    EXPECT_TRUE(tree.GetNodeKey({quarks.Insert("a")}, &aActual));
+    EXPECT_EQ(aActual.get(), aExpected.get());
+
+    EXPECT_FALSE(tree.GetNodeKey({quarks.Insert("b")}, &aActual));
+    EXPECT_FALSE(tree.GetNodeKey({quarks.Insert("a"), quarks.Insert("c")}, &aActual));
+}
+
+TEST(KeyedTree, GetNodePath)
+{
+    KeyedTree<quark::Quark> tree;
+    quark::QuarkDatabase<std::string> quarks;
+
+    KeyedTree<quark::Quark>::Path expectedPathAbcd = {
+      quarks.Insert("a"), quarks.Insert("b"), quarks.Insert("c"), quarks.Insert("d")
+    };
+    NodeKey keyAbcd = tree.CreateNodeKey(expectedPathAbcd);
+    KeyedTree<quark::Quark>::Path actualPathAbcd;
+    tree.GetNodePath(keyAbcd, &actualPathAbcd);
+    EXPECT_EQ(expectedPathAbcd, actualPathAbcd);
+
+    KeyedTree<quark::Quark>::Path expectedPathA = {
+      quarks.Insert("a")
+    };
+    NodeKey keyA = tree.CreateNodeKey(expectedPathA);
+    KeyedTree<quark::Quark>::Path actualPathA;
+    tree.GetNodePath(keyA, &actualPathA);
+    EXPECT_EQ(expectedPathA, actualPathA);
+
+    KeyedTree<quark::Quark>::Path expectedPathEmpty = {};
+    NodeKey keyEmpty = tree.CreateNodeKey(expectedPathEmpty);
+    KeyedTree<quark::Quark>::Path actualPathEmpty;
+    tree.GetNodePath(keyEmpty, &actualPathEmpty);
+    EXPECT_EQ(expectedPathEmpty, actualPathEmpty);
 }
 
 TEST(KeyedTree, Iterator)

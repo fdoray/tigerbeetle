@@ -34,7 +34,7 @@ class NodeKey
 {
 public:
     NodeKey() :
-        _key(0) {}
+        _key(-1) {}
     NodeKey(size_t key) :
         _key(key) {}
 

@@ -19,6 +19,7 @@
 #define _TIBEE_KEYEDTREE_KEYEDTREE_HPP
 
 #include <assert.h>
+#include <deque>
 #include <iterator>
 #include <memory>
 #include <unordered_map>
@@ -51,7 +52,19 @@ private:
 
     struct Node
     {
+        Node(NodeKey key, NodeKey parent, const T& label)
+            : key(key), parent(parent), label(label) {}
+
+        // Key of the node.
         NodeKey key;
+
+        // Key of the parent node.
+        NodeKey parent;
+
+        // Label to reach this node from the parent.
+        T label;
+
+        // Children of the node.
         Nodes children;
     };
 
@@ -66,6 +79,8 @@ public:
 
     bool GetNodeKey(const Path& path, NodeKey* key) const;
     bool GetNodeKey(NodeKey root, const Path& path, NodeKey* key) const;
+
+    void GetNodePath(NodeKey node, Path* path) const;
 
     typedef std::pair<T, NodeKey> LabelNodeKeyPair;
     class Iterator :
@@ -102,8 +117,11 @@ template <typename T>
 KeyedTree<T>::KeyedTree()
 {
     // Create the root node.
-    std::unique_ptr<Node> root {new Node};
-    root->key = NodeKey(_nodes.size());
+    std::unique_ptr<Node> root {new Node {
+        NodeKey(_nodes.size()),
+        NodeKey(-1),
+        T()
+    }};
     _nodes.push_back(std::move(root));
 }
 
@@ -152,6 +170,21 @@ bool KeyedTree<T>::GetNodeKey(NodeKey root, const Path& path, NodeKey* key) cons
 }
 
 template <typename T>
+void KeyedTree<T>::GetNodePath(NodeKey node, Path* path) const
+{
+    std::deque<T> pathDeque;
+    NodeKey currentNode = node;
+
+    while (currentNode.get() != kRootNodeKey)
+    {
+        pathDeque.push_front(_nodes[currentNode.get()]->label);
+        currentNode = _nodes[currentNode.get()]->parent;
+    }
+
+    *path = Path(pathDeque.begin(), pathDeque.end());
+}
+
+template <typename T>
 typename KeyedTree<T>::Node* KeyedTree<T>::CreateNode(Node* root, const Path& subPath)
 {
     Node* currentNode = root;
@@ -160,9 +193,12 @@ typename KeyedTree<T>::Node* KeyedTree<T>::CreateNode(Node* root, const Path& su
         auto look = currentNode->children.find(label);
         if (look == currentNode->children.end())
         {
-            std::unique_ptr<Node> newNode { new Node };
+            std::unique_ptr<Node> newNode {new Node {
+                NodeKey(_nodes.size()),
+                currentNode->key,
+                label
+            }};
             auto newNodePtr = newNode.get();
-            newNodePtr->key = NodeKey(_nodes.size());
 
             _nodes.push_back(std::move(newNode));
 
