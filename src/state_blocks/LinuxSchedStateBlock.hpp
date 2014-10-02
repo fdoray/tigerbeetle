@@ -55,6 +55,16 @@ private:
     void onSchedWakeupEvent(const trace::EventValue& event);
     void onSysEvent(const trace::EventValue& event);
 
+    // Utility methods.
+    uint32_t getEventCpu(const trace::EventValue& event) const;
+    quark::Quark getEventCpuQuark(const trace::EventValue& event) const;
+    state::AttributeKey getLinuxAttribute() const;
+    state::AttributeKey getCurrentCpuAttribute(const trace::EventValue& event) const;
+    state::AttributeKey getCpuCurrentThreadAttribute(const trace::EventValue& event) const;
+    state::AttributeKey getCurrentThreadAttribute(const trace::EventValue& event) const;
+    state::AttributeKey getCurrentIrqAttribute(const trace::EventValue& event) const;
+    state::AttributeKey getCurrentSoftIrqAttribute(const trace::EventValue& event) const;
+
     // Quarks.
     quark::Quark Q_LINUX;
     quark::Quark Q_THREADS;

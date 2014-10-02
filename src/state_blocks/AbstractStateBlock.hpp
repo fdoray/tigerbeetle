@@ -57,7 +57,7 @@ protected:
                         notification::Token token,
                         EventHandler eventHandler);
 
-    state::CurrentState* State() { return _currentState; }
+    state::CurrentState* State() const { return _currentState; }
 
 private:
     void onEvent(const value::Value* event, EventHandler handler);

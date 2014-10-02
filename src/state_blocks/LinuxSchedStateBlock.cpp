@@ -31,22 +31,6 @@ using namespace value;
 using notification::RegexToken;
 using notification::Token;
 
-namespace
-{
-
-enum NotificationTypes
-{
-    kThreadStatusNotification = 0,
-    kThreadPpidNotification,
-    kThreadExecNotification,
-    kThreadSyscallNotification,
-    kCpuStatusNotification,
-    kCpuThreadNotification,
-    kIrqCpuNotification,
-};
-
-}  // namespace
-
 LinuxSchedStateBlock::LinuxSchedStateBlock()
 {
 }
@@ -126,9 +110,6 @@ void LinuxSchedStateBlock::onSoftIrqRaise(const trace::EventValue& event)
 
 void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
 {
-    State()->SetAttribute(
-        State()->GetAttributeKeyStr({"test", "dummy", "toto"}),
-        MakeValue<IntValue>(42));
 }
 
 void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)
@@ -149,6 +130,60 @@ void LinuxSchedStateBlock::onSchedWakeupEvent(const trace::EventValue& event)
 
 void LinuxSchedStateBlock::onSysEvent(const trace::EventValue& event)
 {
+}
+
+uint32_t LinuxSchedStateBlock::getEventCpu(const trace::EventValue& event) const
+{
+    assert(event.getStreamPacketContext());
+    return event.getStreamPacketContext()->GetField("cpu_id")->AsUInteger();
+}
+
+quark::Quark LinuxSchedStateBlock::getEventCpuQuark(const trace::EventValue& event) const
+{
+    return State()->IntQuark(static_cast<int>(getEventCpu(event)));
+}
+
+state::AttributeKey LinuxSchedStateBlock::getLinuxAttribute() const
+{
+    return State()->GetAttributeKey({Q_LINUX});
+}
+
+state::AttributeKey LinuxSchedStateBlock::getCurrentCpuAttribute(const trace::EventValue& event) const
+{
+    auto qCpu = getEventCpuQuark(event);
+    return State()->GetAttributeKey(getLinuxAttribute(), {Q_CPUS, qCpu});
+}
+
+state::AttributeKey LinuxSchedStateBlock::getCpuCurrentThreadAttribute(const trace::EventValue& event) const
+{
+    return State()->GetAttributeKey(getCurrentCpuAttribute(event), {Q_CUR_THREAD});
+}
+
+state::AttributeKey LinuxSchedStateBlock::getCurrentThreadAttribute(const trace::EventValue& event) const
+{
+    auto cpuCurrentThreadAttribute = getCpuCurrentThreadAttribute(event);
+    if (State()->GetAttributeValue(cpuCurrentThreadAttribute) == nullptr)
+        return state::AttributeKey(-1);
+
+    auto qCurrentThread = State()->IntQuark(State()->GetAttributeValue(cpuCurrentThreadAttribute)->AsInteger());
+
+    return State()->GetAttributeKey(getLinuxAttribute(), {Q_THREADS, qCurrentThread});
+}
+
+state::AttributeKey LinuxSchedStateBlock::getCurrentIrqAttribute(const trace::EventValue& event) const
+{
+    int32_t irq = event.getFields()->GetField("irq")->AsInteger();
+    auto qIrq = State()->IntQuark(irq);
+
+    return State()->GetAttributeKey(getLinuxAttribute(), {Q_RESOURCES, Q_IRQS, qIrq});
+}
+
+state::AttributeKey LinuxSchedStateBlock::getCurrentSoftIrqAttribute(const trace::EventValue& event) const
+{
+    uint32_t vec = event.getFields()->GetField("vec")->AsUInteger();
+    auto qVec = State()->IntQuark(vec);
+
+    return State()->GetAttributeKey(getLinuxAttribute(), {Q_RESOURCES, Q_SOFT_IRQS, qVec});   
 }
 
 }
