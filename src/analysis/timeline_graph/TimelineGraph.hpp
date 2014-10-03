@@ -30,6 +30,8 @@ namespace timeline_graph {
 
 class TimelineGraph {
  public:
+    typedef std::unique_ptr<TimelineGraph> UP;
+
     TimelineGraph();
     ~TimelineGraph();
 
