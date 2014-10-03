@@ -27,6 +27,12 @@ before_install:
   - sudo apt-get update -qq
 
 install:
+  # mongodb cxx driver
+  - git clone https://github.com/mongodb/mongo-cxx-driver.git
+  - cd mongo-cxx-driver
+  - sudo scons --prefix=/usr/local install
+  - cd ..
+
   # stuff needed by Babeltrace
   - sudo apt-get install -qq libtool
   - sudo apt-get install -qq autoconf
