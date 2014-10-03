@@ -3,6 +3,7 @@ import os
 Import('lib_env')
 
 sources = [
+    'StateTimers.cpp',
     'timeline_graph/Matcher.cpp',
     'timeline_graph/Node.cpp',
     'timeline_graph/PreorderIterator.cpp',
