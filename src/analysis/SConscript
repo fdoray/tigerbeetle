@@ -1,0 +1,12 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'timeline_graph/Matcher.cpp',
+    'timeline_graph/Node.cpp',
+    'timeline_graph/PreorderIterator.cpp',
+    'timeline_graph/TimelineGraph.cpp',
+]
+
+Return(['sources'])
