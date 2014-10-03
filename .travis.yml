@@ -27,12 +27,6 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  # mongodb cxx driver
-  - git clone https://github.com/mongodb/mongo-cxx-driver.git
-  - cd mongo-cxx-driver
-  - sudo scons --prefix=/usr/local install
-  - cd ..
-
   # stuff needed by Babeltrace
   - sudo apt-get install -qq libtool
   - sudo apt-get install -qq autoconf
@@ -49,6 +43,12 @@ install:
   - sudo apt-get install -qq boost1.55
   - sudo apt-get install -qq libzmq3-dev
   - sudo apt-get install -qq libyajl-dev
+
+  # mongodb cxx driver
+  - git clone https://github.com/mongodb/mongo-cxx-driver.git
+  - cd mongo-cxx-driver
+  - sudo scons --prefix=/usr/local install
+  - cd ..
 
 script:
   - export CXX=g++-4.8
