@@ -252,6 +252,11 @@ class ScalarValue : public Value {
   // @returns the casted value.
   static const SelfType* Cast(const Value* value);
 
+  // Cast |value| to type |TYPE|.
+  // @param value the value to cast.
+  // @returns the casted value.
+  static SelfType* Cast(Value* value);
+
   // Returns the minimun value representable by |T|.
   static T MinValue();
 

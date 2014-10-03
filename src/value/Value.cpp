@@ -441,6 +441,13 @@ const ScalarValue<T, TYPE>* ScalarValue<T, TYPE>::Cast(const Value* value) {
 }
 
 template<class T, int TYPE>
+ScalarValue<T, TYPE>* ScalarValue<T, TYPE>::Cast(Value* value) {
+  assert(value != nullptr);
+  assert(value->GetType() == TYPE);
+  return reinterpret_cast<SelfType*>(value);
+}
+
+template<class T, int TYPE>
 const T& ScalarValue<T, TYPE>::GetValue(const Value* value) {
   assert(value != nullptr);
   return Cast(value)->GetValue();
