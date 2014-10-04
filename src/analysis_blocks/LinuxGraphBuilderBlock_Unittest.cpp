@@ -21,6 +21,8 @@
 #include "state_blocks/CurrentStateBlock.hpp"
 #include "state_blocks/LinuxSchedStateBlock.hpp"
 #include "trace_blocks/TraceBlock.hpp"
+#include "value/MakeValue.hpp"
+#include "value/Value.hpp"
 
 namespace tibee
 {
@@ -40,11 +42,14 @@ TEST(LinuxGraphBuilderBlock, LinuxGraphBuilderBlock)
     state_blocks::LinuxSchedStateBlock linuxSchedStateBlock;
     LinuxGraphBuilderBlock linuxGraphBuilderBlock;
 
+    value::ArrayValue graphBuilderParams;
+    graphBuilderParams.Append(value::MakeValue("wk-tasks"));
+
     block::BlockRunner blockRunner;
     blockRunner.AddBlock(&traceBlock, &traceParams);
     blockRunner.AddBlock(&currentStateBlock, nullptr);
     blockRunner.AddBlock(&linuxSchedStateBlock, nullptr);
-    blockRunner.AddBlock(&linuxGraphBuilderBlock, nullptr);
+    blockRunner.AddBlock(&linuxGraphBuilderBlock, &graphBuilderParams);
     blockRunner.Run();
 }
 
