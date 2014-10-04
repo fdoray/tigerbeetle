@@ -37,25 +37,37 @@ namespace tibee
 namespace value
 {
 
-std::unique_ptr<Value> MakeValue(quark::Quark value)
+inline std::unique_ptr<Value> MakeValue(quark::Quark value)
 {
     std::unique_ptr<Value> value_wrapper { new UIntValue { value.get() } };
     return value_wrapper;
 }
 
-std::unique_ptr<Value> MakeValue(int32_t value)
+inline std::unique_ptr<Value> MakeValue(int32_t value)
 {
     std::unique_ptr<Value> value_wrapper { new IntValue { value } };
     return value_wrapper;
 }
 
-std::unique_ptr<Value> MakeValue(uint32_t value)
+inline std::unique_ptr<Value> MakeValue(uint32_t value)
 {
     std::unique_ptr<Value> value_wrapper { new UIntValue { value } };
     return value_wrapper;
 }
 
-std::unique_ptr<Value> MakeValue(const std::string& value)
+inline std::unique_ptr<Value> MakeValue(int64_t value)
+{
+    std::unique_ptr<Value> value_wrapper { new LongValue { value } };
+    return value_wrapper;
+}
+
+inline std::unique_ptr<Value> MakeValue(uint64_t value)
+{
+    std::unique_ptr<Value> value_wrapper { new ULongValue { value } };
+    return value_wrapper;
+}
+
+inline std::unique_ptr<Value> MakeValue(const std::string& value)
 {
     std::unique_ptr<Value> value_wrapper { new StringValue { value } };
     return value_wrapper;

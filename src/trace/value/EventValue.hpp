@@ -108,6 +108,14 @@ public:
     const value::Value* getFields() const;
 
     /**
+     * Returns the value of a field.
+     *
+     * @param name the name of the field to get.
+     * @returns the value of the field.
+     */
+    const value::Value* getEventField(const std::string& name) const;
+
+    /**
      * Returns the event context dictionary.
      *
      * The returned reference is only valid while this event is valid.

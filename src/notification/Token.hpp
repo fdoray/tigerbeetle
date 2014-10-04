@@ -75,6 +75,11 @@ inline Token RegexToken(const std::string& token)
     return Token(token, true);
 }
 
+inline Token AnyToken()
+{
+    return RegexToken(".*");
+}
+
 inline size_t hash_value(const Token& token)
 {
     std::size_t seed = 0;

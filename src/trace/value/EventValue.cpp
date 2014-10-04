@@ -170,6 +170,11 @@ const value::Value* EventValue::getFields() const
     return _fieldsDict;
 }
 
+const value::Value* EventValue::getEventField(const std::string& name) const
+{
+    return getFields()->GetField(name);
+}
+
 const value::Value* EventValue::getContext() const
 {
     if (!_contextDict) {

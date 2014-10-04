@@ -25,8 +25,12 @@ namespace tibee
 namespace trace_blocks
 {
 
+using notification::Token;
 using tibee::base::tbendl;
 using tibee::base::tbwarn;
+
+const char TraceBlock::kNotificationPrefix[] = "event";
+const char TraceBlock::kTimestampNotificationName[] = "ts";
 
 void TraceBlock::Start(const value::Value* params)
 {
@@ -55,28 +59,38 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
         for (const auto& eventNameIdPair : *traceInfos->getEventMap())
         {
             notification::Path keyPath = {
-                notification::Token("event"),
-                notification::Token(traceInfos->getTraceType()),
-                notification::Token(eventNameIdPair.first)
+                Token(kNotificationPrefix),
+                Token(traceInfos->getTraceType()),
+                Token(eventNameIdPair.first)
             };
 
             auto traceId = traceInfos->getId();
             auto eventId = eventNameIdPair.second->getId();
 
-            _sinks[traceId][eventId] = notificationCenter->GetSink(keyPath);
+            _eventSinks[traceId][eventId] = notificationCenter->GetSink(keyPath);
         }
     }
+
+    _tsSink = notificationCenter->GetSink({
+        Token(kNotificationPrefix),
+        Token(kTimestampNotificationName)
+    });
 }
 
 void TraceBlock::Execute()
 {
     for (const auto& event : *_traceSet)
     {
+        // Timestamp notification.
+        _tsNotification.SetValue(event.getTimestamp());
+        _tsSink->PostNotification(&_tsNotification);
+
+        // Event notification.
         auto traceId = event.getTraceId();
         auto eventId = event.getId();
 
-        auto traceIt = _sinks.find(traceId);
-        assert(traceIt != _sinks.end());
+        auto traceIt = _eventSinks.find(traceId);
+        assert(traceIt != _eventSinks.end());
 
         auto eventIt = traceIt->second.find(eventId);
         assert(eventIt != traceIt->second.end());

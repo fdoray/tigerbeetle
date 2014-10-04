@@ -10,6 +10,7 @@ env.Append(CPPPATH=['#/src'])
 lib_env = env.Clone();
 
 analysis = SConscript(os.path.join('analysis', 'SConscript'), exports=['lib_env'])
+analysis_blocks = SConscript(os.path.join('analysis_blocks', 'SConscript'), exports=['lib_env'])
 base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
 block = SConscript(os.path.join('block', 'SConscript'), exports=['lib_env'])
 mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
@@ -23,6 +24,7 @@ value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
 
 subs = [
     ('analysis', analysis),
+    ('analysis_blocks', analysis_blocks),
     ('base', base),
     ('block', block),
     ('mq', mq),

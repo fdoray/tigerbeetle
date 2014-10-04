@@ -36,8 +36,12 @@ namespace value {
 namespace {
 
 bool ToString(const Value* value, size_t indent, std::stringstream* result) {
-  assert(value != nullptr);
   assert(result != nullptr);
+
+  if (value == nullptr) {
+    *result << "null";
+    return true;
+  }
 
   if (value->IsScalar()) {
     int8_t char_value = 0;
@@ -130,7 +134,6 @@ bool ToString(const Value* value, size_t indent, std::stringstream* result) {
 }  // namespace
 
 bool ToString(const Value* value, std::string* result) {
-  assert(value != nullptr);
   assert(result != nullptr);
 
   std::stringstream ss;

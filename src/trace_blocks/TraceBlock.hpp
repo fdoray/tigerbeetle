@@ -24,6 +24,7 @@
 #include "notification/NotificationSink.hpp"
 #include "trace/BasicTypes.hpp"
 #include "trace/TraceSet.hpp"
+#include "value/Value.hpp"
 
 namespace tibee
 {
@@ -38,6 +39,9 @@ namespace trace_blocks
 class TraceBlock : public block::AbstractBlock
 {
 public:
+    static const char kNotificationPrefix[];
+    static const char kTimestampNotificationName[];
+
     virtual void Start(const value::Value* params) override;
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
     virtual void Execute() override;
@@ -51,8 +55,14 @@ private:
     // (trace ID -> (event ID -> event callback)) map
     typedef std::unordered_map<trace::trace_id_t, EventIdSinkMap> TraceIdEventIdSinkMap;
 
-    TraceIdEventIdSinkMap _sinks;
+    // Sinks for events.
+    TraceIdEventIdSinkMap _eventSinks;
 
+    // Sink for timestamp.
+    const notification::NotificationSink* _tsSink;
+
+    // Timestamp notification.
+    value::ULongValue _tsNotification;
 };
 
 }

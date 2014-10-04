@@ -18,6 +18,7 @@
 #include "analysis/timeline_graph/TimelineGraphProperties.hpp"
 
 #include "base/print.hpp"
+#include "value/MakeValue.hpp"
 
 namespace tibee {
 namespace analysis {
@@ -69,6 +70,22 @@ const TimelineGraphProperties::PropertyMap& TimelineGraphProperties::GetProperti
     return *_properties[node_id];
 }
 
+void TimelineGraphProperties::SetProperty(
+    NodeId node_id,
+    quark::Quark property_name,
+    value::Value::UP property_value)
+{
+    if (_properties.size() <= node_id)
+        _properties.resize(node_id + 1);
+
+    if (!_properties[node_id].get()) {
+        _properties[node_id] = std::unique_ptr<PropertyMap>(
+            new PropertyMap());
+    }
+
+    (*_properties[node_id])[property_name] = std::move(property_value); 
+}
+
 void TimelineGraphProperties::IncrementProperty(
     NodeId node_id,
     quark::Quark property_name,
@@ -77,7 +94,11 @@ void TimelineGraphProperties::IncrementProperty(
 
     auto value = GetProperty(node_id, property_name);
 
-    if (value::ULongValue::InstanceOf(value))
+    if (value == nullptr)
+    {
+        SetProperty(node_id, property_name, value::MakeValue(increment));
+    }
+    else if (value::ULongValue::InstanceOf(value))
     {
         auto ulong_value = value::ULongValue::Cast(value);
         uint64_t new_value = ulong_value->GetValue() + increment;

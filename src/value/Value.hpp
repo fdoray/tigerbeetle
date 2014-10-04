@@ -145,6 +145,12 @@ class Value {
   std::wstring AsWString() const;
   // @}
 
+  // Compare 2 values.
+  // @param left the first value to compare.
+  // @param right the second value to compare.
+  // @returns true when both values are equal, false otherwise.
+  static bool AreEqual(const Value* left, const Value* right);
+
   // Compare this value with the given value |value|.
   // @param value the value to compare with.
   // @returns true when both values are equal, false otherwise.

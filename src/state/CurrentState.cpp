@@ -16,6 +16,7 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "state/CurrentState.hpp"
+#include "value/Utils.hpp"
 
 #include <assert.h>
 
@@ -81,6 +82,9 @@ AttributeKey CurrentState::GetAttributeKey(AttributeKey root, const AttributePat
 
 void CurrentState::SetAttribute(AttributeKey attribute, value::Value::UP value)
 {
+    if (value::Value::AreEqual(value.get(), GetAttributeValue(attribute)))
+        return;
+
     if (_onAttributeChangeCallback != nullptr)
         _onAttributeChangeCallback(attribute, value.get());
 

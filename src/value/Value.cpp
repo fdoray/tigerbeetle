@@ -363,6 +363,13 @@ std::wstring Value::AsWString() const
   return value;
 }
 
+bool Value::AreEqual(const Value* left, const Value* right) {
+  if (left == nullptr || right == nullptr)
+    return left == right;
+
+  return left->Equals(right);
+}
+
 bool Value::GetField(const std::string& name,
                      const Value** value) const {
   assert(value != nullptr);
@@ -429,7 +436,8 @@ const T& ScalarValue<T, TYPE>::GetValue() const {
 
 template<class T, int TYPE>
 bool ScalarValue<T, TYPE>::InstanceOf(const Value* value) {
-  assert(value != nullptr);
+  if (value == nullptr)
+    return false;
   return value->GetType() == TYPE;
 }
 
@@ -600,7 +608,8 @@ Value::UP ArrayValueBase::Copy() const {
 }
 
 bool ArrayValueBase::InstanceOf(const Value* value) {
-  assert(value != nullptr);
+  if (value == nullptr)
+    return false;
   return value->GetType() == VALUE_ARRAY;
 }
 
@@ -819,7 +828,8 @@ Value::UP StructValueBase::Copy() const {
 }
 
 bool StructValueBase::InstanceOf(const Value* value) {
-  assert(value != nullptr);
+  if (value == nullptr)
+    return false;
   return value->GetType() == VALUE_STRUCT;
 }
 

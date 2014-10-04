@@ -40,6 +40,14 @@ class GraphBuilder
 public:
     typedef uint64_t TaskId;
 
+    struct GraphAndProperties
+    {
+        typedef std::unique_ptr<GraphAndProperties> UP;
+        TimelineGraph graph;
+        TimelineGraphProperties properties;
+    };
+    typedef std::vector<GraphAndProperties::UP> Graphs;
+
     GraphBuilder();
     ~GraphBuilder();
 
@@ -52,6 +60,9 @@ public:
 
     bool StartTimer(TaskId task_id, quark::Quark state);
     bool StopTimer(TaskId task_id, quark::Quark state);
+
+    Graphs::const_iterator begin() const { return _graphs.begin(); }
+    Graphs::const_iterator end() const { return _graphs.end(); }
 
 private:
     bool GetLastNodeForTask(TaskId task_id,
@@ -74,13 +85,6 @@ private:
     TaskIdNodeKeyMap _last_node_for_task_id;
 
     // The constructed graphs.
-    struct GraphAndProperties
-    {
-        typedef std::unique_ptr<GraphAndProperties> UP;
-        TimelineGraph graph;
-        TimelineGraphProperties properties;
-    };
-    typedef std::vector<GraphAndProperties::UP> Graphs;
     Graphs _graphs;
 
     // Current timestamp.

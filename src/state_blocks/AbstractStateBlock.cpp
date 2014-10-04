@@ -20,6 +20,7 @@
 #include "block/ServiceList.hpp"
 #include "notification/NotificationCenter.hpp"
 #include "state_blocks/CurrentStateBlock.hpp"
+#include "trace_blocks/TraceBlock.hpp"
 
 namespace tibee
 {
@@ -47,7 +48,9 @@ void AbstractStateBlock::AddKernelObserver(
 {
     namespace pl = std::placeholders;
 
-    notification::Path path {Token("event"), Token("lttng-kernel"), token};
+    notification::Path path {Token(trace_blocks::TraceBlock::kNotificationPrefix),
+                             Token("lttng-kernel"),
+                             token};
     notification::Callback func =
         std::bind(&AbstractStateBlock::onEvent,
                   this,
@@ -63,7 +66,9 @@ void AbstractStateBlock::AddUstObserver(
 {
     namespace pl = std::placeholders;
 
-    notification::Path path {Token("event"), Token("lttng-ust"), token};
+    notification::Path path {Token(trace_blocks::TraceBlock::kNotificationPrefix),
+                             Token("lttng-ust"),
+                             token};
     notification::Callback func =
         std::bind(&AbstractStateBlock::onEvent,
                   this,

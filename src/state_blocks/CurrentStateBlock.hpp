@@ -23,6 +23,7 @@
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationCenter.hpp"
 #include "notification/NotificationSink.hpp"
+#include "notification/Path.hpp"
 #include "state/CurrentState.hpp"
 #include "value/Value.hpp"
 
@@ -42,14 +43,16 @@ public:
     static const char* kCurrentStateServiceName;
     static const char* kAttributeKeyField;
     static const char* kAttributeValueField;
-    static const char* kStateNotificationPrefix;
+    static const char* kNotificationPrefix;
 
     CurrentStateBlock();
 
     virtual void RegisterServices(block::ServiceList* serviceList) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
+    void onTimestamp(const notification::Path& path, const value::Value* value);
     void onStateChange(state::AttributeKey attribute, const value::Value* value);
 
     state::CurrentState _currentState;
