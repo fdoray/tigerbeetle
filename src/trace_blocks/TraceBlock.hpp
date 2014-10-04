@@ -41,6 +41,8 @@ class TraceBlock : public block::AbstractBlock
 public:
     static const char kNotificationPrefix[];
     static const char kTimestampNotificationName[];
+    static const char kBeginNotificationName[];
+    static const char kEndNotificationName[];
 
     virtual void Start(const value::Value* params) override;
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
@@ -58,7 +60,13 @@ private:
     // Sinks for events.
     TraceIdEventIdSinkMap _eventSinks;
 
-    // Sink for timestamp.
+    // Sink for begin event.
+    const notification::NotificationSink* _beginSink;
+
+    // Sink for end event.
+    const notification::NotificationSink* _endSink;
+
+    // Sink for timestamps.
     const notification::NotificationSink* _tsSink;
 
     // Timestamp notification.

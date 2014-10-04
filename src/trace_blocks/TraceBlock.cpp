@@ -31,6 +31,8 @@ using tibee::base::tbwarn;
 
 const char TraceBlock::kNotificationPrefix[] = "event";
 const char TraceBlock::kTimestampNotificationName[] = "ts";
+const char TraceBlock::kBeginNotificationName[] = "begin";
+const char TraceBlock::kEndNotificationName[] = "end";
 
 void TraceBlock::Start(const value::Value* params)
 {
@@ -71,14 +73,23 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
         }
     }
 
+    _beginSink = notificationCenter->GetSink({
+        Token(kNotificationPrefix), Token(kBeginNotificationName)
+    });
+
+    _endSink = notificationCenter->GetSink({
+        Token(kNotificationPrefix), Token(kEndNotificationName)
+    });
+
     _tsSink = notificationCenter->GetSink({
-        Token(kNotificationPrefix),
-        Token(kTimestampNotificationName)
+        Token(kNotificationPrefix), Token(kTimestampNotificationName)
     });
 }
 
 void TraceBlock::Execute()
 {
+    _beginSink->PostNotification(nullptr);
+
     for (const auto& event : *_traceSet)
     {
         // Timestamp notification.
@@ -97,6 +108,8 @@ void TraceBlock::Execute()
 
         eventIt->second->PostNotification(&event);
     }
+
+    _endSink->PostNotification(nullptr);
 }
 
 }
