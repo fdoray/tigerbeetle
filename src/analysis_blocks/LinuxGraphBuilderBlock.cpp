@@ -40,6 +40,9 @@ using notification::Token;
 using state_blocks::CurrentStateBlock;
 using trace_blocks::TraceBlock;
 
+const char LinuxGraphBuilderBlock::kNotificationPrefix[] = "linux-graph-builder";
+const char LinuxGraphBuilderBlock::kGraphNotificationName[] = "graph";
+
 LinuxGraphBuilderBlock::LinuxGraphBuilderBlock()
 {
 }
@@ -88,6 +91,14 @@ void LinuxGraphBuilderBlock::AddObservers(notification::NotificationCenter* noti
     notificationCenter->AddObserver(
         {Token(CurrentStateBlock::kNotificationPrefix), Token("linux"), Token("threads"), AnyToken(), Token("status")},
         base::BindObject(&LinuxGraphBuilderBlock::onStatusChange, this));
+    notificationCenter->AddObserver(
+        {Token(TraceBlock::kNotificationPrefix), Token(TraceBlock::kEndNotificationName)},
+        base::BindObject(&LinuxGraphBuilderBlock::onEnd, this));
+}
+
+void LinuxGraphBuilderBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
+{
+    _graphSink = notificationCenter->GetSink({Token(kNotificationPrefix), Token(kGraphNotificationName)});
 }
 
 void LinuxGraphBuilderBlock::onTimestamp(const notification::Path& path, const value::Value* value)
@@ -152,6 +163,14 @@ void LinuxGraphBuilderBlock::onStatusChange(const notification::Path& path, cons
     auto nextStatus = value->GetField(CurrentStateBlock::kAttributeValueField);
     if (nextStatus != nullptr)
         _graphBuilder.StartTimer(tid, quark::Quark(nextStatus->AsUInteger()));
+}
+
+void LinuxGraphBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)
+{  
+    for (const auto& graph : _graphBuilder)
+    {
+        _graphSink->PostNotification(reinterpret_cast<const value::Value*>(graph.get()));
+    }
 }
 
 }  // namespace analysis_blocks

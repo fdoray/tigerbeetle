@@ -24,6 +24,7 @@
 #include "analysis/timeline_graph/GraphBuilder.hpp"
 #include "base/BasicTypes.hpp"
 #include "block/AbstractBlock.hpp"
+#include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
 #include "state/CurrentState.hpp"
 
@@ -38,11 +39,15 @@ namespace analysis_blocks {
 class LinuxGraphBuilderBlock : public block::AbstractBlock
 {
 public:
+    static const char kNotificationPrefix[];
+    static const char kGraphNotificationName[];
+
     LinuxGraphBuilderBlock();
 
     virtual void Start(const value::Value* parameters) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
+    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
 
 private:
     void onTimestamp(const notification::Path& path, const value::Value* value);
@@ -50,6 +55,7 @@ private:
     void onSchedProcessFork(const notification::Path& path, const value::Value* value);
     void onSchedProcessExit(const notification::Path& path, const value::Value* value);
     void onStatusChange(const notification::Path& path, const value::Value* value);
+    void onEnd(const notification::Path& path, const value::Value* value);
 
     typedef std::unordered_set<std::string> AnalyzedExecutables;
     AnalyzedExecutables _analyzedExecutables;
@@ -70,6 +76,9 @@ private:
     quark::Quark Q_STATUS;
     quark::Quark Q_WAIT_FOR_CPU;
     quark::Quark Q_DURATION;
+
+    // Sink to send completed graphs.
+    const notification::NotificationSink* _graphSink;
 };
 
 }  // namespace analysis_blocks
