@@ -46,8 +46,10 @@ LinuxGraphBuilderBlock::LinuxGraphBuilderBlock()
 
 void LinuxGraphBuilderBlock::Start(const value::Value* parameters)
 {
-    if (!value::ArrayValueBase::InstanceOf(parameters))
+    if (!value::ArrayValueBase::InstanceOf(parameters)) {
         base::tberror() << "LinuxGraphBuilderBlock received invalid parameters." << base::tbendl();
+        return;
+    }
 
     auto arrayParameters = value::ArrayValueBase::Cast(parameters);
 
