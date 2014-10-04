@@ -20,10 +20,12 @@
 #include <stdlib.h>
 
 #include "base/BindObject.hpp"
+#include "base/print.hpp"
 #include "block/ServiceList.hpp"
 #include "state_blocks/CurrentStateBlock.hpp"
 #include "trace/value/EventValue.hpp"
 #include "trace_blocks/TraceBlock.hpp"
+#include "value/Value.hpp"
 
 namespace tibee {
 namespace analysis_blocks {
@@ -44,7 +46,13 @@ LinuxGraphBuilderBlock::LinuxGraphBuilderBlock()
 
 void LinuxGraphBuilderBlock::Start(const value::Value* parameters)
 {
-    _analyzedExecutables.insert("lttng");
+    if (!value::ArrayValueBase::InstanceOf(parameters))
+        base::tberror() << "LinuxGraphBuilderBlock received invalid parameters." << base::tbendl();
+
+    auto arrayParameters = value::ArrayValueBase::Cast(parameters);
+
+    for (const auto& execName : *arrayParameters)
+        _analyzedExecutables.insert(execName.AsString());
 }
 
 void LinuxGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList)
