@@ -60,9 +60,6 @@ private:
     //  The graphs that are being built.
     analysis::timeline_graph::GraphBuilder _graphBuilder;
 
-    // Timestamp.
-    timestamp_t _ts;
-
     // Current state.
     state::CurrentState* _currentState;
 

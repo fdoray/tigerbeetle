@@ -101,7 +101,7 @@ void LinuxGraphBuilderBlock::GetNotificationSinks(notification::NotificationCent
 
 void LinuxGraphBuilderBlock::onTimestamp(const notification::Path& path, const value::Value* value)
 {
-    _ts = value->AsULong();
+    _graphBuilder.SetTimestamp(value->AsULong());
 }
 
 void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const value::Value* value)
