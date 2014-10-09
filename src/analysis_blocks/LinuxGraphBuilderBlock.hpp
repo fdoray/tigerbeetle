@@ -39,9 +39,6 @@ namespace analysis_blocks {
 class LinuxGraphBuilderBlock : public block::AbstractBlock
 {
 public:
-    static const char kNotificationPrefix[];
-    static const char kGraphNotificationName[];
-
     LinuxGraphBuilderBlock();
 
     virtual void Start(const value::Value* parameters) override;

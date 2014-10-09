@@ -7,9 +7,6 @@ env:
   - BUILD_MODE=debug
   - BUILD_MODE=release
 
-services:
-  - mongodb
-
 before_install:
   # support C++11
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -43,12 +40,6 @@ install:
   - sudo apt-get install -qq boost1.55
   - sudo apt-get install -qq libzmq3-dev
   - sudo apt-get install -qq libyajl-dev
-
-  # mongodb cxx driver
-  - git clone https://github.com/mongodb/mongo-cxx-driver.git
-  - cd mongo-cxx-driver
-  - sudo scons --prefix=/usr/local install
-  - cd ..
 
 script:
   - export CXX=g++-4.8

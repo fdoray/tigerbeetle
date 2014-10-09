@@ -3,6 +3,7 @@ import os
 Import('lib_env')
 
 sources = [
+    'GraphBuilderBlock.cpp',
     'LinuxGraphBuilderBlock.cpp',
 ]
 

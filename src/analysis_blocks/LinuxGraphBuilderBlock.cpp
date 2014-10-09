@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 
+#include "analysis_blocks/GraphBuilderBlock.hpp"
 #include "base/BindObject.hpp"
 #include "base/print.hpp"
 #include "block/ServiceList.hpp"
@@ -39,9 +40,6 @@ using notification::RegexToken;
 using notification::Token;
 using state_blocks::CurrentStateBlock;
 using trace_blocks::TraceBlock;
-
-const char LinuxGraphBuilderBlock::kNotificationPrefix[] = "linux-graph-builder";
-const char LinuxGraphBuilderBlock::kGraphNotificationName[] = "graph";
 
 LinuxGraphBuilderBlock::LinuxGraphBuilderBlock()
 {
@@ -98,7 +96,7 @@ void LinuxGraphBuilderBlock::AddObservers(notification::NotificationCenter* noti
 
 void LinuxGraphBuilderBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
 {
-    _graphSink = notificationCenter->GetSink({Token(kNotificationPrefix), Token(kGraphNotificationName)});
+    _graphSink = notificationCenter->GetSink({Token(kGraphBuilderNotificationPrefix), Token(kGraphNotificationName)});
 }
 
 void LinuxGraphBuilderBlock::onTimestamp(const notification::Path& path, const value::Value* value)
