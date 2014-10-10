@@ -37,6 +37,9 @@ public:
     ~StateTimers();
 
     void StartTimer(uint64_t ts, quark::Quark state);
+    bool ReadTimer(uint64_t ts,
+                   quark::Quark state,
+                   uint64_t* elapsed_time);
     bool ReadAndStopTimer(uint64_t ts,
                           quark::Quark state,
                           uint64_t* elapsed_time);

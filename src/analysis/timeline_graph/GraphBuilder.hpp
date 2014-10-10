@@ -25,6 +25,7 @@
 #include "analysis/timeline_graph/TimelineGraph.hpp"
 #include "analysis/timeline_graph/TimelineGraphProperties.hpp"
 #include "base/BasicTypes.hpp"
+#include "value/Value.hpp"
 
 namespace tibee {
 namespace analysis {
@@ -61,6 +62,10 @@ public:
 
     bool StartTimer(TaskId task_id, quark::Quark state);
     bool StopTimer(TaskId task_id, quark::Quark state);
+    uint64_t ReadTimer(TaskId task_id, quark::Quark state);
+
+    bool SetProperty(TaskId task_id, quark::Quark property, value::Value::UP value);
+    value::Value* GetProperty(TaskId task_id, quark::Quark property);
 
     Graphs::const_iterator begin() const { return _graphs.begin(); }
     Graphs::const_iterator end() const { return _graphs.end(); }

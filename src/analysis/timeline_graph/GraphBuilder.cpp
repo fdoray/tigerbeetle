@@ -123,9 +123,47 @@ bool GraphBuilder::StopTimer(TaskId task_id, quark::Quark timer_name) {
     Node* node = nullptr;
     if (!GetLastNodeForTask(task_id, &graph_index, &node))
         return false;
-    _graphs[graph_index]->properties.IncrementProperty(node->id(), timer_name, elapsed_time);
+    if (elapsed_time != 0)
+    {
+        _graphs[graph_index]->properties.IncrementProperty(node->id(), timer_name, elapsed_time);
+    }
 
     return true;
+}
+
+uint64_t GraphBuilder::ReadTimer(TaskId task_id, quark::Quark timer_name) {
+    if (_last_node_for_task_id.find(task_id) ==
+            _last_node_for_task_id.end()) {
+        return 0;
+    }
+
+    uint64_t elapsed_time = 0;
+    if (!_timers[task_id].ReadTimer(_ts, timer_name, &elapsed_time))
+        return 0;
+
+    return elapsed_time;
+}
+
+bool GraphBuilder::SetProperty(TaskId task_id, quark::Quark property, value::Value::UP value)
+{
+    size_t graph_index = 0;
+    Node* node = nullptr;
+    if (!GetLastNodeForTask(task_id, &graph_index, &node))
+        return false;
+
+    _graphs[graph_index]->properties.SetProperty(node->id(), property, std::move(value));
+
+    return true;
+}
+
+value::Value* GraphBuilder::GetProperty(TaskId task_id, quark::Quark property)
+{
+    size_t graph_index = 0;
+    Node* node = nullptr;
+    if (!GetLastNodeForTask(task_id, &graph_index, &node))
+        return nullptr;
+
+    return _graphs[graph_index]->properties.GetProperty(node->id(), property);
 }
 
 bool GraphBuilder::GetLastNodeForTask(TaskId task_id,

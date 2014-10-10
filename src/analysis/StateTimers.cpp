@@ -34,6 +34,18 @@ void StateTimers::StartTimer(uint64_t ts, quark::Quark state) {
     _timers[state] = ts;
 }
 
+bool StateTimers::ReadTimer(uint64_t ts,
+                            quark::Quark state,
+                            uint64_t* elapsed_time) {
+    auto look = _timers.find(state);
+    if (look == _timers.end())
+        return false;
+
+    *elapsed_time = ts - look->second;
+
+    return true;
+}
+
 bool StateTimers::ReadAndStopTimer(uint64_t ts,
                                    quark::Quark state,
                                    uint64_t* elapsed_time) {
@@ -51,7 +63,10 @@ void StateTimers::ReadAndResetTimers(uint64_t ts,
                                      const ReadTimerCallback& callback) {
     for (auto& timer : _timers) {
         uint64_t elapsed_time = ts - timer.second;
-        callback(timer.first, elapsed_time);
+        if (elapsed_time != 0)
+        {
+            callback(timer.first, elapsed_time);
+        }
         timer.second = ts;
     }
 }

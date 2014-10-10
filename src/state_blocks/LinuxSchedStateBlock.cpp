@@ -37,9 +37,16 @@ namespace tibee
 namespace state_blocks
 {
 
+namespace
+{
+
 using notification::RegexToken;
 using notification::Token;
 using value::MakeValue;
+
+const char kSyscallWithParamsPrefix[] = "syscall_entry_";
+
+}  // namespace
 
 LinuxSchedStateBlock::LinuxSchedStateBlock()
 {
@@ -391,7 +398,11 @@ void LinuxSchedStateBlock::onSysEvent(const trace::EventValue& event)
     auto currentCpuAttribute = getCurrentCpuAttribute(event);
 
     if (currentThreadAttribute != state::InvalidAttributeKey()) {
-        State()->SetAttribute(currentThreadAttribute, {Q_SYSCALL}, MakeValue(event.getName()));
+        std::string syscall = event.getName();
+        if (syscall.find(kSyscallWithParamsPrefix) == 0)
+            syscall = syscall.substr(strlen(kSyscallWithParamsPrefix));
+
+        State()->SetAttribute(currentThreadAttribute, {Q_SYSCALL}, MakeValue(syscall));
         State()->SetAttribute(currentThreadAttribute, {Q_STATUS}, MakeValue(Q_RUN_SYSCALL));
     }
 

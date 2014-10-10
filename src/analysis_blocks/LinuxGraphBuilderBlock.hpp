@@ -53,6 +53,7 @@ private:
     void onSchedProcessFork(const notification::Path& path, const value::Value* value);
     void onSchedProcessExit(const notification::Path& path, const value::Value* value);
     void onStatusChange(const notification::Path& path, const value::Value* value);
+    void onSyscallChange(const notification::Path& path, const value::Value* value);
     void onEnd(const notification::Path& path, const value::Value* value);
 
     typedef std::unordered_set<std::string> AnalyzedExecutables;
@@ -71,6 +72,7 @@ private:
     quark::Quark Q_STATUS;
     quark::Quark Q_WAIT_FOR_CPU;
     quark::Quark Q_DURATION;
+    quark::Quark Q_NODE_TYPE;
 
     // Sink to send completed graphs.
     const notification::NotificationSink* _graphSink;
