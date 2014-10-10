@@ -38,6 +38,7 @@ install:
   - sudo apt-get install -qq pkg-config
   - sudo apt-get install -qq libcppunit-dev
   - sudo apt-get install -qq boost1.55
+  - sudo apt-get install -qq libboost1.55-dev
   - sudo apt-get install -qq libzmq3-dev
   - sudo apt-get install -qq libyajl-dev
 
