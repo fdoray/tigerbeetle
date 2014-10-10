@@ -43,6 +43,7 @@ public:
     struct GraphAndProperties
     {
         typedef std::unique_ptr<GraphAndProperties> UP;
+        std::string description;
         TimelineGraph graph;
         TimelineGraphProperties properties;
     };
@@ -53,7 +54,7 @@ public:
 
     void SetTimestamp(timestamp_t ts);
 
-    bool AddGraph(TaskId task_id);
+    bool AddGraph(TaskId task_id, const std::string& description);
     bool AddChildTask(TaskId parent_task_id, TaskId child_task_id);
     bool AddTaskStep(TaskId task_id);
     bool EndTask(TaskId task_id);

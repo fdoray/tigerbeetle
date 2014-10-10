@@ -32,7 +32,7 @@ void GraphBuilder::SetTimestamp(timestamp_t ts) {
     _ts = ts;
 }
 
-bool GraphBuilder::AddGraph(TaskId task_id) {
+bool GraphBuilder::AddGraph(TaskId task_id, const std::string& description) {
     // A graph already exists for this task.
     if (_last_node_for_task_id.find(task_id) !=
             _last_node_for_task_id.end()) {
@@ -43,6 +43,7 @@ bool GraphBuilder::AddGraph(TaskId task_id) {
     auto graph_and_properties = GraphAndProperties::UP {new GraphAndProperties};
     auto& node = graph_and_properties->graph.CreateNode();
     auto graph_index = _graphs.size();
+    graph_and_properties->description = description;
     _graphs.push_back(std::move(graph_and_properties));
 
     // Keep track of the last node for the root task.

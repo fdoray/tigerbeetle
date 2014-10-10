@@ -19,6 +19,7 @@
 #define _TIBEE_ANALYSISBLOCKS_LINUXGRAPHBUILDERBLOCK_HPP
 
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "analysis/timeline_graph/GraphBuilder.hpp"

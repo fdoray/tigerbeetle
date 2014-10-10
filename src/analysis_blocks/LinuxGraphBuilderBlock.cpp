@@ -115,7 +115,7 @@ void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const va
         return;
 
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
-    if (!_graphBuilder.AddGraph(tid))
+    if (!_graphBuilder.AddGraph(tid, execName))
         return;
 
     quark::Quark qStatus = Q_WAIT_FOR_CPU;
