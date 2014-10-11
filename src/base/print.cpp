@@ -36,7 +36,7 @@ std::ostream& tbwarn()
 
 std::ostream& tbinfo()
 {
-    return std::cout << TM(TM::FG_BLUE) << "Warning: " << TM(TM::BOLD);
+    return std::cout << TM(TM::FG_BLUE) << "Info: " << TM(TM::BOLD);
 }
 
 std::ostream& tbmsg(const std::string& moduleName)
