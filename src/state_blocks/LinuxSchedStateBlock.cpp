@@ -86,6 +86,7 @@ void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notifi
 {
     namespace pl = std::placeholders;
 
+    AddKernelObserver(notificationCenter, Token("syscall_entry_execve"), std::bind(&LinuxSchedStateBlock::onSysEntryExecve, this, pl::_1));
     AddKernelObserver(notificationCenter, Token("exit_syscall"), std::bind(&LinuxSchedStateBlock::onExitSyscall, this, pl::_1));
     AddKernelObserver(notificationCenter, Token("irq_handler_entry"), std::bind(&LinuxSchedStateBlock::onIrqHandlerEntry, this, pl::_1));
     AddKernelObserver(notificationCenter, Token("irq_handler_exit"), std::bind(&LinuxSchedStateBlock::onIrqHandlerExit, this, pl::_1));
@@ -101,6 +102,18 @@ void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notifi
     AddKernelObserver(notificationCenter, RegexToken("^compat_sys_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
     AddKernelObserver(notificationCenter, RegexToken("^syscall_entry_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
     AddKernelObserver(notificationCenter, RegexToken("^syscall_exit_"), std::bind(&LinuxSchedStateBlock::onExitSyscall, this, pl::_1));
+}
+
+void LinuxSchedStateBlock::onSysEntryExecve(const trace::EventValue& event)
+{
+    auto currentThreadAttribute = getCurrentThreadAttribute(event);
+    auto filename = event.getFields()->GetField("filename")->AsString();
+    auto last_slash_pos = filename.find_last_of('/');
+    if (last_slash_pos != std::string::npos)
+        filename = filename.substr(last_slash_pos + 1);
+
+    // exec name
+    State()->SetAttribute(currentThreadAttribute, {Q_EXEC_NAME}, MakeValue(filename));
 }
 
 void LinuxSchedStateBlock::onExitSyscall(const trace::EventValue& event)

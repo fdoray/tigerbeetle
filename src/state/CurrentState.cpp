@@ -18,8 +18,6 @@
 #include "state/CurrentState.hpp"
 #include "value/Utils.hpp"
 
-#include <assert.h>
-
 namespace tibee
 {
 namespace state

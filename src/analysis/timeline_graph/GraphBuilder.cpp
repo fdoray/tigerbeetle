@@ -17,6 +17,9 @@
  */
 #include "analysis/timeline_graph/GraphBuilder.hpp"
 
+#include <iostream>
+#include "value/Utils.hpp"
+
 namespace tibee {
 namespace analysis {
 namespace timeline_graph {
