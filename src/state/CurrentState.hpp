@@ -95,9 +95,6 @@ private:
     // Quark database.
     quark::QuarkDatabase<std::string> _quarks;
 
-    // Quarks for integers 0 to 65535.
-    std::vector<quark::Quark> _intQuarks;
-
     // Attribute tree.
     AttributeTree _attributeTree;
 

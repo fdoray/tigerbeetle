@@ -32,9 +32,8 @@ CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback) 
     _ts(0),
     _onAttributeChangeCallback(onAttributeChangeCallback)
 {
-    _intQuarks.reserve(kMaxIntQuark + 1);
     for (int i = 0; i <= kMaxIntQuark; ++i)
-        _intQuarks.push_back(Quark(std::to_string(i)));
+        Quark(std::to_string(i));
 }
 
 CurrentState::~CurrentState()
@@ -44,7 +43,7 @@ CurrentState::~CurrentState()
 quark::Quark CurrentState::IntQuark(int val)
 {
     if (val >= 0 && val <= kMaxIntQuark)
-        return _intQuarks[val];
+        return quark::Quark(val);
     return Quark(std::to_string(val));
 }
 
