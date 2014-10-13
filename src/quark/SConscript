@@ -1,0 +1,9 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'StringQuarkDatabase.cpp',
+]
+
+Return(['sources'])

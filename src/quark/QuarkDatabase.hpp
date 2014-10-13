@@ -49,7 +49,7 @@ public:
     QuarkDatabase();
 
     /*
-     * Inserts a value in the databse if it's not already present and returns
+     * Inserts a value in the database if it's not already present and returns
      * its quark.
      *
      * @param value An immutable value to add to the database.

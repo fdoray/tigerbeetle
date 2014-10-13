@@ -32,29 +32,31 @@ namespace tibee
 {
 namespace state_blocks
 {
-
-namespace pl = std::placeholders;
-
 using notification::Token;
 using trace_blocks::TraceBlock;
 
 const char* CurrentStateBlock::kCurrentStateServiceName = "currentState";
+const char* CurrentStateBlock::kQuarksServiceName = "quarks";
 const char* CurrentStateBlock::kAttributeKeyField = "key";
 const char* CurrentStateBlock::kAttributeValueField = "value";
 const char* CurrentStateBlock::kNotificationPrefix = "state";
 
 CurrentStateBlock::CurrentStateBlock()
-    : _currentState(std::bind(&CurrentStateBlock::onStateChange,
-                              this,
-                              pl::_1,
-                              pl::_2)),
-      _notificationCenter(nullptr)
+    : _notificationCenter(nullptr)
 {
+    namespace pl = std::placeholders;
+
+    _quarks.reset(new quark::StringQuarkDatabase);
+    _currentState.reset(new state::CurrentState(
+        std::bind(&CurrentStateBlock::onStateChange,
+                  this, pl::_1, pl::_2),
+        _quarks.get()));
 }
 
 void CurrentStateBlock::RegisterServices(block::ServiceList* serviceList)
 {
-    serviceList->AddService(kCurrentStateServiceName, &_currentState);
+    serviceList->AddService(kCurrentStateServiceName, _currentState.get());
+    serviceList->AddService(kQuarksServiceName, _quarks.get());
 }
 
 void CurrentStateBlock::LoadServices(const block::ServiceList& serviceList)
@@ -73,7 +75,7 @@ void CurrentStateBlock::AddObservers(notification::NotificationCenter* notificat
 
 void CurrentStateBlock::onTimestamp(const notification::Path& path, const value::Value* value)
 {
-    _currentState.SetTimestamp(value->AsULong());
+    _currentState->SetTimestamp(value->AsULong());
 }
 
 void CurrentStateBlock::onStateChange(state::AttributeKey attribute, const value::Value* value)
@@ -87,10 +89,10 @@ void CurrentStateBlock::onStateChange(state::AttributeKey attribute, const value
     if (_sinks[attribute.get()] == nullptr)
     {
         state::AttributeTree::Path path;
-        _currentState.GetAttributePath(attribute, &path);
+        _currentState->GetAttributePath(attribute, &path);
         notification::Path notificationPath {notification::Token { kNotificationPrefix } };
         for (const auto& quark : path)
-            notificationPath.push_back(notification::Token { _currentState.String(quark) });
+            notificationPath.push_back(notification::Token { _currentState->String(quark) });
 
         _sinks[attribute.get()] = _notificationCenter->GetSink(notificationPath);
     }

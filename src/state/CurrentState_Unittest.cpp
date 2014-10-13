@@ -16,6 +16,7 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "gtest/gtest.h"
+#include "quark/StringQuarkDatabase.hpp"
 #include "state/CurrentState.hpp"
 
 namespace tibee
@@ -25,7 +26,8 @@ namespace state
 
 TEST(CurrentState, Timestamp)
 {
-    CurrentState currentState(nullptr);
+    quark::StringQuarkDatabase quarks;
+    CurrentState currentState(nullptr, &quarks);
     EXPECT_EQ(0, currentState.timestamp());
 
     currentState.SetTimestamp(1);
@@ -34,7 +36,8 @@ TEST(CurrentState, Timestamp)
 
 TEST(CurrentState, AttributeChanges)
 {
-    CurrentState currentState(nullptr);
+    quark::StringQuarkDatabase quarks;
+    CurrentState currentState(nullptr, &quarks);
 
     AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});
 
@@ -63,7 +66,8 @@ TEST(CurrentState, AttributeChanges)
 
 TEST(CurrentState, NullAttribute)
 {
-    CurrentState currentState(nullptr);
+    quark::StringQuarkDatabase quarks;
+    CurrentState currentState(nullptr, &quarks);
 
     AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});
     AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});

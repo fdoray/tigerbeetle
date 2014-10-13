@@ -19,12 +19,13 @@
 #define _TIBEE_STATE_CURRENTSTATE_HPP
 
 #include <boost/functional/hash.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "base/BasicTypes.hpp"
-#include "quark/QuarkDatabase.hpp"
+#include "quark/StringQuarkDatabase.hpp"
 #include "state/AttributeKey.hpp"
 #include "state/AttributePath.hpp"
 #include "state/AttributeTree.hpp"
@@ -43,10 +44,12 @@ namespace state
 class CurrentState
 {
 public:
+    typedef std::unique_ptr<CurrentState> UP;
     typedef std::function<void (AttributeKey attribute, const value::Value* newValue)>
         OnAttributeChangeCallback;
 
-    CurrentState(OnAttributeChangeCallback onAttributeChangeCallback);
+    CurrentState(OnAttributeChangeCallback onAttributeChangeCallback,
+                 quark::StringQuarkDatabase* quarks);
     ~CurrentState();
 
     void SetTimestamp(timestamp_t ts) {
@@ -93,7 +96,7 @@ private:
     timestamp_t _ts;
 
     // Quark database.
-    quark::QuarkDatabase<std::string> _quarks;
+    quark::StringQuarkDatabase* _quarks;
 
     // Attribute tree.
     AttributeTree _attributeTree;

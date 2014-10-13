@@ -24,6 +24,7 @@
 #include "notification/NotificationCenter.hpp"
 #include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
+#include "quark/StringQuarkDatabase.hpp"
 #include "state/CurrentState.hpp"
 #include "value/Value.hpp"
 
@@ -41,6 +42,7 @@ class CurrentStateBlock : public block::AbstractBlock
 {
 public:
     static const char* kCurrentStateServiceName;
+    static const char* kQuarksServiceName;
     static const char* kAttributeKeyField;
     static const char* kAttributeValueField;
     static const char* kNotificationPrefix;
@@ -55,7 +57,8 @@ private:
     void onTimestamp(const notification::Path& path, const value::Value* value);
     void onStateChange(state::AttributeKey attribute, const value::Value* value);
 
-    state::CurrentState _currentState;
+    quark::StringQuarkDatabase::UP _quarks;
+    state::CurrentState::UP _currentState;
 
     typedef std::vector<const notification::NotificationSink*> Sinks;
     Sinks _sinks;

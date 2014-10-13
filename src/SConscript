@@ -15,6 +15,7 @@ base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
 block = SConscript(os.path.join('block', 'SConscript'), exports=['lib_env'])
 mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
 notification = SConscript(os.path.join('notification', 'SConscript'), exports=['lib_env'])
+quark = SConscript(os.path.join('quark', 'SConscript'), exports=['lib_env'])
 rpc = SConscript(os.path.join('rpc', 'SConscript'), exports=['lib_env'])
 state = SConscript(os.path.join('state', 'SConscript'), exports=['lib_env'])
 state_blocks = SConscript(os.path.join('state_blocks', 'SConscript'), exports=['lib_env'])
@@ -29,6 +30,7 @@ subs = [
     ('block', block),
     ('mq', mq),
     ('notification', notification),
+    ('quark', quark),
     ('rpc', rpc),
     ('state', state),
     ('state_blocks', state_blocks),

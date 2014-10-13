@@ -23,17 +23,13 @@ namespace tibee
 namespace state
 {
 
-namespace
-{
-const int kMaxIntQuark = 65535;
-}  // namespace
-
-CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback) :
+CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback,
+                           quark::StringQuarkDatabase* quarks) :
     _ts(0),
+    _quarks(quarks),
     _onAttributeChangeCallback(onAttributeChangeCallback)
 {
-    for (int i = 0; i <= kMaxIntQuark; ++i)
-        Quark(std::to_string(i));
+    assert(_quarks != nullptr);
 }
 
 CurrentState::~CurrentState()
@@ -42,20 +38,17 @@ CurrentState::~CurrentState()
 
 quark::Quark CurrentState::IntQuark(int val)
 {
-    if (val >= 0 && val <= kMaxIntQuark)
-        return quark::Quark(val);
-    return Quark(std::to_string(val));
+    return _quarks->IntQuark(val);
 }
 
 quark::Quark CurrentState::Quark(const std::string& str)
 {
-    quark::Quark quark = _quarks.Insert(str);
-    return quark;
+    return _quarks->StrQuark(str);
 }
 
 const std::string& CurrentState::String(quark::Quark quark) const
 {
-    return _quarks.ValueOf(quark);
+    return _quarks->String(quark);
 }
 
 AttributeKey CurrentState::GetAttributeKey(const AttributePath& path)
