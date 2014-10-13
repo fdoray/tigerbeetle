@@ -145,5 +145,12 @@ bool ToString(const Value* value, std::string* result) {
   return true;
 }
 
+std::string ToString(const Value* value)
+{
+  std::string result;
+  ToString(value, &result);
+  return result;
+}
+
 }  // namespace value
 }  // namespace tibee

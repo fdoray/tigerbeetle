@@ -40,6 +40,8 @@ class Value;
 // @returns true if the conversion was successful, false otherwise.
 bool ToString(const Value* value, std::string* result);
 
+std::string ToString(const Value* value);
+
 }  // namespace value
 }  // namespace tibee
 

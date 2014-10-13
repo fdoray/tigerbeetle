@@ -73,6 +73,12 @@ inline std::unique_ptr<Value> MakeValue(const std::string& value)
     return value_wrapper;
 }
 
+inline std::unique_ptr<Value> MakeNullValue()
+{
+    std::unique_ptr<Value> value_wrapper { };
+    return value_wrapper;
+}
+
 }  // namespace value
 }  // namespace tibee
 
