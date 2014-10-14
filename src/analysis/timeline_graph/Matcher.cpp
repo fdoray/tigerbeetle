@@ -206,7 +206,7 @@ uint64_t MatchGraphs(const TimelineGraph& graph_a,
                      const TimelineGraph& graph_b,
                      const MatchNodesCostFunc& match_cost_func,
                      uint64_t skip_cost,
-                     std::vector<NodePair>* matching_nodes) {
+                     MatchVector* matching_nodes) {
     assert(matching_nodes);
 
     // Generate preorder traversals of the graphs.

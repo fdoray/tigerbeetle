@@ -30,11 +30,13 @@ namespace timeline_graph {
 typedef std::function<uint64_t (NodeId a,
                                 NodeId b)> MatchNodesCostFunc;
 
+typedef std::vector<NodePair> MatchVector;
+
 uint64_t MatchGraphs(const TimelineGraph& graph_a,
                      const TimelineGraph& graph_b,
                      const MatchNodesCostFunc& match_cost_func,
                      uint64_t skip_cost,
-                     std::vector<NodePair>* matching_nodes);
+                     MatchVector* matching_nodes);
 
 }    // namespace timeline_graph
 }    // namespace analysis
