@@ -39,11 +39,6 @@ namespace trace_blocks
 class TraceBlock : public block::AbstractBlock
 {
 public:
-    static const char kNotificationPrefix[];
-    static const char kTimestampNotificationName[];
-    static const char kBeginNotificationName[];
-    static const char kEndNotificationName[];
-
     virtual void Start(const value::Value* params) override;
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
     virtual void Execute() override;

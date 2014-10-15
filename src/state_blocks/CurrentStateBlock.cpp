@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include "base/BindObject.hpp"
+#include "base/Constants.hpp"
 #include "block/ServiceList.hpp"
 #include "notification/NotificationCenter.hpp"
 #include "notification/Path.hpp"
@@ -69,7 +70,7 @@ void CurrentStateBlock::LoadServices(const block::ServiceList& serviceList)
 void CurrentStateBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(TraceBlock::kNotificationPrefix), Token(TraceBlock::kTimestampNotificationName)},
+        {Token(kTraceNotificationPrefix), Token(kTimestampNotificationName)},
         base::BindObject(&CurrentStateBlock::onTimestamp, this));   
 }
 

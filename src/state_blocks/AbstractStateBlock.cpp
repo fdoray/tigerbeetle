@@ -17,6 +17,7 @@
  */
 #include "state_blocks/AbstractStateBlock.hpp"
 
+#include "base/Constants.hpp"
 #include "block/ServiceList.hpp"
 #include "notification/NotificationCenter.hpp"
 #include "state_blocks/CurrentStateBlock.hpp"
@@ -48,7 +49,7 @@ void AbstractStateBlock::AddKernelObserver(
 {
     namespace pl = std::placeholders;
 
-    notification::Path path {Token(trace_blocks::TraceBlock::kNotificationPrefix),
+    notification::Path path {Token(kTraceNotificationPrefix),
                              Token("lttng-kernel"),
                              token};
     notification::Callback func =
@@ -66,7 +67,7 @@ void AbstractStateBlock::AddUstObserver(
 {
     namespace pl = std::placeholders;
 
-    notification::Path path {Token(trace_blocks::TraceBlock::kNotificationPrefix),
+    notification::Path path {Token(kTraceNotificationPrefix),
                              Token("lttng-ust"),
                              token};
     notification::Callback func =

@@ -17,6 +17,7 @@
  */
 #include "trace_blocks/TraceBlock.hpp"
 
+#include "base/Constants.hpp"
 #include "base/print.hpp"
 #include "notification/NotificationCenter.hpp"
 
@@ -28,11 +29,6 @@ namespace trace_blocks
 using notification::Token;
 using tibee::base::tbendl;
 using tibee::base::tbwarn;
-
-const char TraceBlock::kNotificationPrefix[] = "event";
-const char TraceBlock::kTimestampNotificationName[] = "ts";
-const char TraceBlock::kBeginNotificationName[] = "begin";
-const char TraceBlock::kEndNotificationName[] = "end";
 
 void TraceBlock::Start(const value::Value* params)
 {
@@ -61,7 +57,7 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
         for (const auto& eventNameIdPair : *traceInfos->getEventMap())
         {
             notification::Path keyPath = {
-                Token(kNotificationPrefix),
+                Token(kTraceNotificationPrefix),
                 Token(traceInfos->getTraceType()),
                 Token(eventNameIdPair.first)
             };
@@ -74,15 +70,15 @@ void TraceBlock::GetNotificationSinks(notification::NotificationCenter* notifica
     }
 
     _beginSink = notificationCenter->GetSink({
-        Token(kNotificationPrefix), Token(kBeginNotificationName)
+        Token(kTraceNotificationPrefix), Token(kBeginNotificationName)
     });
 
     _endSink = notificationCenter->GetSink({
-        Token(kNotificationPrefix), Token(kEndNotificationName)
+        Token(kTraceNotificationPrefix), Token(kEndNotificationName)
     });
 
     _tsSink = notificationCenter->GetSink({
-        Token(kNotificationPrefix), Token(kTimestampNotificationName)
+        Token(kTraceNotificationPrefix), Token(kTimestampNotificationName)
     });
 }
 

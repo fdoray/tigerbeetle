@@ -28,6 +28,40 @@ extern const char kGraphBuilderServiceName[];
 extern const char kGraphBuilderNotificationPrefix[];
 extern const char kGraphBuilderNotificationName[];
 
+extern const char kTraceNotificationPrefix[];
+extern const char kTimestampNotificationName[];
+extern const char kBeginNotificationName[];
+extern const char kEndNotificationName[];
+
+// State system.
+extern const char kStateLinux[];
+extern const char kStateThreads[];
+extern const char kStateCpus[];
+extern const char kStateCurCpu[];
+extern const char kStateCurThread[];
+extern const char kStateResources[];
+extern const char kStateIrqs[];
+extern const char kStateSoftIrqs[];
+extern const char kStateSyscall[];
+extern const char kStateStatus[];
+extern const char kStatePpid[];
+extern const char kStateExecName[];
+extern const char kStateIdle[];
+extern const char kStateRunUsermode[];
+extern const char kStateRunSyscall[];
+extern const char kStateIrq[];
+extern const char kStateSoftIrq[];
+extern const char kStateUnknown[];
+extern const char kStateWaitBlocked[];
+extern const char kStateInterrupted[];
+extern const char kStateWaitForCpu[];
+extern const char kStateRaised[];
+extern const char kStateSysClone[];
+
+// Graph.
+extern const char kDuration[];
+extern const char kNodeType[];
+
 }
 
 #endif // _TIBEE_BASE_CONSTANTS_HPP

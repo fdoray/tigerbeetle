@@ -46,7 +46,7 @@ void GraphBuilderBlock::RegisterServices(block::ServiceList* serviceList)
 void GraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(TraceBlock::kNotificationPrefix), Token(TraceBlock::kEndNotificationName)},
+        {Token(kTraceNotificationPrefix), Token(kEndNotificationName)},
         base::BindObject(&GraphBuilderBlock::onEnd, this));
 }
 

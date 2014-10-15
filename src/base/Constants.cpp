@@ -25,4 +25,36 @@ extern const char kGraphBuilderServiceName[] = "graph-builder";
 const char kGraphBuilderNotificationPrefix[] = "graph-builder";
 const char kGraphBuilderNotificationName[] = "graph";
 
-}
+const char kTraceNotificationPrefix[] = "event";
+const char kTimestampNotificationName[] = "ts";
+const char kBeginNotificationName[] = "begin";
+const char kEndNotificationName[] = "end";
+
+const char kStateLinux[] = "linux";
+const char kStateThreads[] = "threads";
+const char kStateCpus[] = "cpus";
+const char kStateCurCpu[] = "cur-cpu";
+const char kStateCurThread[] = "cur-thread";
+const char kStateResources[] = "resources";
+const char kStateIrqs[] = "irqs";
+const char kStateSoftIrqs[] = "soft-irqs";
+const char kStateSyscall[] = "syscall";
+const char kStateStatus[] = "status";
+const char kStatePpid[] = "ppid";
+const char kStateExecName[] = "exec-name";
+const char kStateIdle[] = "idle";
+const char kStateRunUsermode[] = "usermode";
+const char kStateRunSyscall[] = "syscall";
+const char kStateIrq[] = "irq";
+const char kStateSoftIrq[] = "soft-irq";
+const char kStateUnknown[] = "unknown";
+const char kStateWaitBlocked[] = "wait-blocked";
+const char kStateInterrupted[] = "interrupted";
+const char kStateWaitForCpu[] = "wait-for-cpu";
+const char kStateRaised[] = "raised";
+const char kStateSysClone[] = "sys_clone";
+
+const char kDuration[] = "duration";
+const char kNodeType[] = "node-type";
+
+}  // namespace tibee

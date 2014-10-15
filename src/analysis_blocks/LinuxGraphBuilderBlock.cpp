@@ -70,34 +70,34 @@ void LinuxGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList)
                              reinterpret_cast<void**>(&_currentState));
 
     // Get constant quarks.
-    Q_LINUX = _currentState->Quark("linux");
-    Q_THREADS = _currentState->Quark("threads");
-    Q_SYSCALL = _currentState->Quark("syscall");
-    Q_STATUS = _currentState->Quark("status");
-    Q_WAIT_FOR_CPU = _currentState->Quark("wait-for-cpu");
-    Q_DURATION = _currentState->Quark("duration");
-    Q_NODE_TYPE = _currentState->Quark("node-type");
+    Q_LINUX = _currentState->Quark(kStateLinux);
+    Q_THREADS = _currentState->Quark(kStateThreads);
+    Q_SYSCALL = _currentState->Quark(kStateSyscall);
+    Q_STATUS = _currentState->Quark(kStateStatus);
+    Q_WAIT_FOR_CPU = _currentState->Quark(kStateWaitForCpu);
+    Q_DURATION = _currentState->Quark(kDuration);
+    Q_NODE_TYPE = _currentState->Quark(kNodeType);
 }
 
 void LinuxGraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(TraceBlock::kNotificationPrefix), Token(TraceBlock::kTimestampNotificationName)},
+        {Token(kTraceNotificationPrefix), Token(kTimestampNotificationName)},
         base::BindObject(&LinuxGraphBuilderBlock::onTimestamp, this));
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token("linux"), Token("threads"), AnyToken(), Token("exec-name")},
+        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateExecName)},
         base::BindObject(&LinuxGraphBuilderBlock::onExecName, this));
     notificationCenter->AddObserver(
-        {Token(TraceBlock::kNotificationPrefix), Token("lttng-kernel"), Token("sched_process_fork")},
+        {Token(kTraceNotificationPrefix), Token("lttng-kernel"), Token("sched_process_fork")},
         base::BindObject(&LinuxGraphBuilderBlock::onSchedProcessFork, this));
     notificationCenter->AddObserver(
-        {Token(TraceBlock::kNotificationPrefix), Token("lttng-kernel"), Token("sched_process_exit")},
+        {Token(kTraceNotificationPrefix), Token("lttng-kernel"), Token("sched_process_exit")},
         base::BindObject(&LinuxGraphBuilderBlock::onSchedProcessExit, this));
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token("linux"), Token("threads"), AnyToken(), Token("status")},
+        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateStatus)},
         base::BindObject(&LinuxGraphBuilderBlock::onStatusChange, this));
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token("linux"), Token("threads"), AnyToken(), Token("syscall")},
+        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
         base::BindObject(&LinuxGraphBuilderBlock::onSyscallChange, this));
 }
 
