@@ -46,6 +46,8 @@ class QuarkDatabase
     : boost::noncopyable
 {
 public:
+    typedef typename std::vector<const T*> KeysToValuesVector;
+
     QuarkDatabase();
 
     /*
@@ -65,9 +67,19 @@ public:
      */
     const T& ValueOf(const Quark& quark) const;
 
+    /*
+     * Iterators.
+     */
+    typename KeysToValuesVector::const_iterator begin() const { return keys_.begin(); }
+    typename KeysToValuesVector::const_iterator end() const { return keys_.end(); }
+
+    /*
+     * Number of elements.
+     */
+    size_t size() const { return keys_.size(); }
+
 private:
     typedef typename boost::unordered_map<const T, Quark> ValuesToKeysMap;
-    typedef typename std::vector<const T*> KeysToValuesVector;
 
     ValuesToKeysMap values_map_;
     KeysToValuesVector keys_;

@@ -4,6 +4,8 @@ Import('lib_env')
 
 sources = [
     'AbstractMqSocket.cpp',
+    'MessageDecoder.cpp',
+    'MessageEncoder.cpp',
     'MqContext.cpp',
     'MqMessage.cpp',
 ]
