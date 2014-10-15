@@ -21,6 +21,7 @@
 
 #include "analysis_blocks/GraphBuilderBlock.hpp"
 #include "base/BindObject.hpp"
+#include "base/Constants.hpp"
 #include "base/print.hpp"
 #include "block/ServiceList.hpp"
 #include "state_blocks/CurrentStateBlock.hpp"
@@ -62,6 +63,9 @@ void LinuxGraphBuilderBlock::Start(const value::Value* parameters)
 
 void LinuxGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList)
 {
+    serviceList.QueryService(kGraphBuilderServiceName,
+                             reinterpret_cast<void**>(&_graphBuilder));
+
     serviceList.QueryService(CurrentStateBlock::kCurrentStateServiceName,
                              reinterpret_cast<void**>(&_currentState));
 
@@ -95,19 +99,11 @@ void LinuxGraphBuilderBlock::AddObservers(notification::NotificationCenter* noti
     notificationCenter->AddObserver(
         {Token(CurrentStateBlock::kNotificationPrefix), Token("linux"), Token("threads"), AnyToken(), Token("syscall")},
         base::BindObject(&LinuxGraphBuilderBlock::onSyscallChange, this));
-    notificationCenter->AddObserver(
-        {Token(TraceBlock::kNotificationPrefix), Token(TraceBlock::kEndNotificationName)},
-        base::BindObject(&LinuxGraphBuilderBlock::onEnd, this));
-}
-
-void LinuxGraphBuilderBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
-{
-    _graphSink = notificationCenter->GetSink({Token(kGraphBuilderNotificationPrefix), Token(kGraphNotificationName)});
 }
 
 void LinuxGraphBuilderBlock::onTimestamp(const notification::Path& path, const value::Value* value)
 {
-    _graphBuilder.SetTimestamp(value->AsULong());
+    _graphBuilder->SetTimestamp(value->AsULong());
 }
 
 void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const value::Value* value)
@@ -121,7 +117,7 @@ void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const va
         return;
 
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
-    if (!_graphBuilder.AddGraph(tid, execName))
+    if (!_graphBuilder->AddGraph(tid, execName))
         return;
 
     quark::Quark qStatus = Q_WAIT_FOR_CPU;
@@ -130,15 +126,15 @@ void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const va
     if (status != nullptr)
         qStatus = quark::Quark(status->AsUInteger());
 
-    _graphBuilder.StartTimer(tid, qStatus);
-    _graphBuilder.StartTimer(tid, Q_DURATION);
+    _graphBuilder->StartTimer(tid, qStatus);
+    _graphBuilder->StartTimer(tid, Q_DURATION);
 
     // Check whether we are in a syscall.
     auto currentSycall = _currentState->GetAttributeValue(
         {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_SYSCALL});
     if (currentSycall != nullptr)
     {
-        _graphBuilder.SetProperty(tid, Q_NODE_TYPE, value::MakeValue(currentSycall->AsString()));
+        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(currentSycall->AsString()));
     }
 }
 
@@ -149,8 +145,8 @@ void LinuxGraphBuilderBlock::onSchedProcessFork(const notification::Path& path, 
     auto parent_tid = event->getEventField("parent_tid")->AsUInteger();
     auto child_tid = event->getEventField("child_tid")->AsUInteger();
 
-    _graphBuilder.AddChildTask(parent_tid, child_tid);
-    _graphBuilder.StartTimer(child_tid, Q_DURATION);
+    _graphBuilder->AddChildTask(parent_tid, child_tid);
+    _graphBuilder->StartTimer(child_tid, Q_DURATION);
 }
 
 void LinuxGraphBuilderBlock::onSchedProcessExit(const notification::Path& path, const value::Value* value)
@@ -158,7 +154,7 @@ void LinuxGraphBuilderBlock::onSchedProcessExit(const notification::Path& path, 
     auto event = reinterpret_cast<const trace::EventValue*>(value);
 
     auto tid = event->getEventField("tid")->AsUInteger();
-    _graphBuilder.EndTask(tid);
+    _graphBuilder->EndTask(tid);
 }
 
 void LinuxGraphBuilderBlock::onStatusChange(const notification::Path& path, const value::Value* value)
@@ -169,12 +165,12 @@ void LinuxGraphBuilderBlock::onStatusChange(const notification::Path& path, cons
     auto previousStatus = _currentState->GetAttributeValue(
         {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_STATUS});
     if (previousStatus != nullptr)
-        _graphBuilder.StopTimer(tid, quark::Quark(previousStatus->AsUInteger()));
+        _graphBuilder->StopTimer(tid, quark::Quark(previousStatus->AsUInteger()));
 
     // Start timer for next status.
     auto nextStatus = value->GetField(CurrentStateBlock::kAttributeValueField);
     if (nextStatus != nullptr)
-        _graphBuilder.StartTimer(tid, quark::Quark(nextStatus->AsUInteger()));
+        _graphBuilder->StartTimer(tid, quark::Quark(nextStatus->AsUInteger()));
 }
 
 void LinuxGraphBuilderBlock::onSyscallChange(const notification::Path& path, const value::Value* value)
@@ -182,25 +178,17 @@ void LinuxGraphBuilderBlock::onSyscallChange(const notification::Path& path, con
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
 
     // Create a new node if the duration of the previous node is not 0.
-    auto previousNodeTime = _graphBuilder.ReadTimer(tid, Q_DURATION);
+    auto previousNodeTime = _graphBuilder->ReadTimer(tid, Q_DURATION);
     if (previousNodeTime != 0)
     {
-        _graphBuilder.AddTaskStep(tid);
+        _graphBuilder->AddTaskStep(tid);
     }
 
     // Starting a sycall.
     auto nextSyscall = value->GetField(CurrentStateBlock::kAttributeValueField);
     if (nextSyscall != nullptr)
     {
-        _graphBuilder.SetProperty(tid, Q_NODE_TYPE, value::MakeValue(nextSyscall->AsString()));
-    }
-}
-
-void LinuxGraphBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)
-{
-    for (const auto& graph : _graphBuilder)
-    {
-        _graphSink->PostNotification(reinterpret_cast<const value::Value*>(graph.get()));
+        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(nextSyscall->AsString()));
     }
 }
 

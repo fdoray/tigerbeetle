@@ -18,11 +18,33 @@
 #ifndef _TIBEE_ANALYSISBLOCKS_GRAPHBUILDERBLOCK_HPP
 #define _TIBEE_ANALYSISBLOCKS_GRAPHBUILDERBLOCK_HPP
 
+#include "analysis/timeline_graph/GraphBuilder.hpp"
+#include "block/AbstractBlock.hpp"
+#include "notification/NotificationSink.hpp"
+#include "notification/Path.hpp"
+
 namespace tibee {
 namespace analysis_blocks {
 
-extern const char kGraphBuilderNotificationPrefix[];
-extern const char kGraphNotificationName[];
+class GraphBuilderBlock : public block::AbstractBlock
+{
+public:
+    GraphBuilderBlock();
+    ~GraphBuilderBlock();
+
+private:
+    virtual void RegisterServices(block::ServiceList* serviceList) override;
+    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
+    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
+
+    void onEnd(const notification::Path& path, const value::Value* value);
+
+    // The graphs that are being built.
+    analysis::timeline_graph::GraphBuilder _graphBuilder;
+
+    // Sink to send completed graphs.
+    const notification::NotificationSink* _graphSink;
+};
 
 }  // namespace analysis_blocks
 }  // namespace tibee

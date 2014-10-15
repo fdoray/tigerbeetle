@@ -45,7 +45,6 @@ public:
     virtual void Start(const value::Value* parameters) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
-    virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
 
 private:
     void onTimestamp(const notification::Path& path, const value::Value* value);
@@ -54,16 +53,15 @@ private:
     void onSchedProcessExit(const notification::Path& path, const value::Value* value);
     void onStatusChange(const notification::Path& path, const value::Value* value);
     void onSyscallChange(const notification::Path& path, const value::Value* value);
-    void onEnd(const notification::Path& path, const value::Value* value);
 
     typedef std::unordered_set<std::string> AnalyzedExecutables;
     AnalyzedExecutables _analyzedExecutables;
 
-    //  The graphs that are being built.
-    analysis::timeline_graph::GraphBuilder _graphBuilder;
-
     // Current state.
     state::CurrentState* _currentState;
+
+    // Graph builder.
+    analysis::timeline_graph::GraphBuilder* _graphBuilder;
 
     // Quarks.
     quark::Quark Q_LINUX;
@@ -73,9 +71,6 @@ private:
     quark::Quark Q_WAIT_FOR_CPU;
     quark::Quark Q_DURATION;
     quark::Quark Q_NODE_TYPE;
-
-    // Sink to send completed graphs.
-    const notification::NotificationSink* _graphSink;
 };
 
 }  // namespace analysis_blocks

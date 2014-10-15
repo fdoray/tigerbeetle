@@ -17,11 +17,53 @@
  */
 #include "analysis_blocks/GraphBuilderBlock.hpp"
 
+#include "base/BindObject.hpp"
+#include "base/Constants.hpp"
+#include "block/ServiceList.hpp"
+#include "notification/NotificationCenter.hpp"
+#include "notification/Token.hpp"
+#include "trace_blocks/TraceBlock.hpp"
+
 namespace tibee {
 namespace analysis_blocks {
 
-const char kGraphBuilderNotificationPrefix[] = "graphBuilder";
-const char kGraphNotificationName[] = "graph";
+using notification::Token;
+using trace_blocks::TraceBlock;
+
+GraphBuilderBlock::GraphBuilderBlock()
+{
+}
+
+GraphBuilderBlock::~GraphBuilderBlock()
+{
+}
+
+void GraphBuilderBlock::RegisterServices(block::ServiceList* serviceList)
+{
+    serviceList->AddService(kGraphBuilderServiceName, &_graphBuilder);
+}
+
+void GraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
+{
+    notificationCenter->AddObserver(
+        {Token(TraceBlock::kNotificationPrefix), Token(TraceBlock::kEndNotificationName)},
+        base::BindObject(&GraphBuilderBlock::onEnd, this));
+}
+
+void GraphBuilderBlock::GetNotificationSinks(notification::NotificationCenter* notificationCenter)
+{
+    _graphSink = notificationCenter->GetSink(
+        {Token(kGraphBuilderNotificationPrefix), Token(kGraphBuilderNotificationName)});
+}
+
+void GraphBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)
+{  
+    for (const auto& graph : _graphBuilder)
+    {
+        _graphSink->PostNotification(reinterpret_cast<const value::Value*>(graph.get()));
+    }
+}
+
 
 }  // namespace analysis_blocks
 }  // namespace tibee

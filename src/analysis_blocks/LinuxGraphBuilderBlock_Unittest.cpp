@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "analysis_blocks/GraphBuilderBlock.hpp"
 #include "analysis_blocks/LinuxGraphBuilderBlock.hpp"
 #include "block/BlockRunner.hpp"
 #include "gtest/gtest.h"
@@ -37,7 +38,7 @@ TEST(LinuxGraphBuilderBlock, LinuxGraphBuilderBlock)
     traceParams.AddField("traces", std::move(traceList));
 
     trace_blocks::TraceBlock traceBlock;
-
+    analysis_blocks::GraphBuilderBlock graphBuilderBlock;
     state_blocks::CurrentStateBlock currentStateBlock;
     state_blocks::LinuxSchedStateBlock linuxSchedStateBlock;
     LinuxGraphBuilderBlock linuxGraphBuilderBlock;
@@ -47,6 +48,7 @@ TEST(LinuxGraphBuilderBlock, LinuxGraphBuilderBlock)
 
     block::BlockRunner blockRunner;
     blockRunner.AddBlock(&traceBlock, &traceParams);
+    blockRunner.AddBlock(&graphBuilderBlock, nullptr);
     blockRunner.AddBlock(&currentStateBlock, nullptr);
     blockRunner.AddBlock(&linuxSchedStateBlock, nullptr);
     blockRunner.AddBlock(&linuxGraphBuilderBlock, &graphBuilderParams);
