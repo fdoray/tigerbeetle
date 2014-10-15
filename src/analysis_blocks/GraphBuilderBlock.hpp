@@ -37,6 +37,7 @@ private:
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
     virtual void GetNotificationSinks(notification::NotificationCenter* notificationCenter) override;
 
+    void onTimestamp(const notification::Path& path, const value::Value* value);
     void onEnd(const notification::Path& path, const value::Value* value);
 
     // The graphs that are being built.

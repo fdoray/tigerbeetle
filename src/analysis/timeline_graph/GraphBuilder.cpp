@@ -147,6 +147,18 @@ uint64_t GraphBuilder::ReadTimer(TaskId task_id, quark::Quark timer_name) {
     return elapsed_time;
 }
 
+bool GraphBuilder::IncrementProperty(TaskId task_id, quark::Quark property, uint64_t increment)
+{
+    size_t graph_index = 0;
+    Node* node = nullptr;
+    if (!GetLastNodeForTask(task_id, &graph_index, &node))
+        return false;
+
+    _graphs[graph_index]->properties.IncrementProperty(node->id(), property, increment);
+
+    return true;
+}
+
 bool GraphBuilder::SetProperty(TaskId task_id, quark::Quark property, value::Value::UP value)
 {
     size_t graph_index = 0;

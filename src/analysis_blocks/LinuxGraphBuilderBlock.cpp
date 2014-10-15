@@ -82,9 +82,6 @@ void LinuxGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList)
 void LinuxGraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(kTraceNotificationPrefix), Token(kTimestampNotificationName)},
-        base::BindObject(&LinuxGraphBuilderBlock::onTimestamp, this));
-    notificationCenter->AddObserver(
         {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateExecName)},
         base::BindObject(&LinuxGraphBuilderBlock::onExecName, this));
     notificationCenter->AddObserver(
@@ -99,11 +96,6 @@ void LinuxGraphBuilderBlock::AddObservers(notification::NotificationCenter* noti
     notificationCenter->AddObserver(
         {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
         base::BindObject(&LinuxGraphBuilderBlock::onSyscallChange, this));
-}
-
-void LinuxGraphBuilderBlock::onTimestamp(const notification::Path& path, const value::Value* value)
-{
-    _graphBuilder->SetTimestamp(value->AsULong());
 }
 
 void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const value::Value* value)

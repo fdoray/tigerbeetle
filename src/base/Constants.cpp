@@ -57,4 +57,17 @@ const char kStateSysClone[] = "sys_clone";
 const char kDuration[] = "duration";
 const char kNodeType[] = "node-type";
 
+const char kInstructions[] = "instructions";
+const char kCacheReferences[] = "cache-references";
+const char kCacheMisses[] = "cache-misses";
+const char kBranchInstructions[] = "branch-instructions";
+const char kBranches[] = "branches";
+const char kBranchMisses[] = "branch-misses";
+const char kBranchLoads[] = "branch-loads";
+const char kBranchLoadMisses[] = "branch-load-misses";
+const char kPageFault[] = "page-fault";
+const char kFaults[] = "faults";
+const char kMajorFaults[] = "major-faults";
+const char kMinorFaults[] = "minor-faults";
+
 }  // namespace tibee

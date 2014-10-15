@@ -62,6 +62,20 @@ extern const char kStateSysClone[];
 extern const char kDuration[];
 extern const char kNodeType[];
 
+// Graph: performance counters.
+extern const char kInstructions[];
+extern const char kCacheReferences[];
+extern const char kCacheMisses[];
+extern const char kBranchInstructions[];
+extern const char kBranches[];
+extern const char kBranchMisses[];
+extern const char kBranchLoads[];
+extern const char kBranchLoadMisses[];
+extern const char kPageFault[];
+extern const char kFaults[];
+extern const char kMajorFaults[];
+extern const char kMinorFaults[];
+
 }
 
 #endif // _TIBEE_BASE_CONSTANTS_HPP

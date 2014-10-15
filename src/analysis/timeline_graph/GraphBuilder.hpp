@@ -64,6 +64,7 @@ public:
     bool StopTimer(TaskId task_id, quark::Quark state);
     uint64_t ReadTimer(TaskId task_id, quark::Quark state);
 
+    bool IncrementProperty(TaskId task_id, quark::Quark property, uint64_t increment);
     bool SetProperty(TaskId task_id, quark::Quark property, value::Value::UP value);
     value::Value* GetProperty(TaskId task_id, quark::Quark property);
 

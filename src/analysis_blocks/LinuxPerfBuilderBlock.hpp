@@ -15,46 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_ANALYSISBLOCKS_LINUXGRAPHBUILDERBLOCK_HPP
-#define _TIBEE_ANALYSISBLOCKS_LINUXGRAPHBUILDERBLOCK_HPP
-
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
+#ifndef _TIBEE_ANALYSISBLOCKS_LINUXPERFBUILDERBLOCK_HPP
+#define _TIBEE_ANALYSISBLOCKS_LINUXPERFBUILDERBLOCK_HPP
 
 #include "analysis/timeline_graph/GraphBuilder.hpp"
 #include "base/BasicTypes.hpp"
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
+#include "state/AttributeKey.hpp"
 #include "state/CurrentState.hpp"
 
 namespace tibee {
 namespace analysis_blocks {
 
 /**
- * Linux graph builder block.
+ * Linux perf builder block.
  *
  * @author Francois Doray
  */
-class LinuxGraphBuilderBlock : public block::AbstractBlock
+class LinuxPerfBuilderBlock : public block::AbstractBlock
 {
 public:
-    LinuxGraphBuilderBlock();
+    LinuxPerfBuilderBlock();
 
-    virtual void Start(const value::Value* parameters) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
-    void onExecName(const notification::Path& path, const value::Value* value);
-    void onSchedProcessFork(const notification::Path& path, const value::Value* value);
-    void onSchedProcessExit(const notification::Path& path, const value::Value* value);
-    void onStatusChange(const notification::Path& path, const value::Value* value);
-    void onSyscallChange(const notification::Path& path, const value::Value* value);
+    void onEvent(const notification::Path& path, const value::Value* value);
 
-    typedef std::unordered_set<std::string> AnalyzedExecutables;
-    AnalyzedExecutables _analyzedExecutables;
+    void IncrementPerfCounter(uint32_t cpu, int32_t thread, quark::Quark counter, const value::Value* value);
 
     // Current state.
     state::CurrentState* _currentState;
@@ -63,13 +54,27 @@ private:
     analysis::timeline_graph::GraphBuilder* _graphBuilder;
 
     // Quarks.
-    quark::Quark Q_LINUX;
-    quark::Quark Q_THREADS;
-    quark::Quark Q_SYSCALL;
-    quark::Quark Q_STATUS;
-    quark::Quark Q_WAIT_FOR_CPU;
-    quark::Quark Q_DURATION;
-    quark::Quark Q_NODE_TYPE;
+    quark::Quark Q_INSTRUCTIONS;
+    quark::Quark Q_CACHE_REFERENCES;
+    quark::Quark Q_CACHE_MISSES;
+    quark::Quark Q_BRANCH_INSTRUCTIONS;
+    quark::Quark Q_BRANCHES;
+    quark::Quark Q_BRANCH_MISSES;
+    quark::Quark Q_BRANCH_LOADS;
+    quark::Quark Q_BRANCH_LOAD_MISSES;
+    quark::Quark Q_PAGE_FAULT;
+    quark::Quark Q_FAULTS;
+    quark::Quark Q_MAJOR_FAULTS;
+    quark::Quark Q_MINOR_FAULTS;
+
+    quark::Quark Q_CUR_THREAD;
+
+    // CPUs attribute.
+    state::AttributeKey _cpusAttribute;
+
+    // Last value read for each performance counter, per CPU.
+    typedef std::vector<std::unordered_map<quark::Quark, uint64_t>> PerfCounters;
+    PerfCounters _perfCounters;
 };
 
 }  // namespace analysis_blocks

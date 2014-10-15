@@ -46,6 +46,9 @@ void GraphBuilderBlock::RegisterServices(block::ServiceList* serviceList)
 void GraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
+        {Token(kTraceNotificationPrefix), Token(kTimestampNotificationName)},
+        base::BindObject(&GraphBuilderBlock::onTimestamp, this));
+    notificationCenter->AddObserver(
         {Token(kTraceNotificationPrefix), Token(kEndNotificationName)},
         base::BindObject(&GraphBuilderBlock::onEnd, this));
 }
@@ -54,6 +57,11 @@ void GraphBuilderBlock::GetNotificationSinks(notification::NotificationCenter* n
 {
     _graphSink = notificationCenter->GetSink(
         {Token(kGraphBuilderNotificationPrefix), Token(kGraphBuilderNotificationName)});
+}
+
+void GraphBuilderBlock::onTimestamp(const notification::Path& path, const value::Value* value)
+{
+    _graphBuilder.SetTimestamp(value->AsULong());
 }
 
 void GraphBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)

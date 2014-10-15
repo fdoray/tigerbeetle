@@ -5,6 +5,7 @@ Import('lib_env')
 sources = [
     'GraphBuilderBlock.cpp',
     'LinuxGraphBuilderBlock.cpp',
+    'LinuxPerfBuilderBlock.cpp',
 ]
 
 Return(['sources'])
