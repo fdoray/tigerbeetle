@@ -181,6 +181,11 @@ value::Value* GraphBuilder::GetProperty(TaskId task_id, quark::Quark property)
     return _graphs[graph_index]->properties.GetProperty(node->id(), property);
 }
 
+bool GraphBuilder::HasNodeForTaskId(TaskId task_id) const
+{
+    return _last_node_for_task_id.find(task_id) != _last_node_for_task_id.end();
+}
+
 bool GraphBuilder::GetLastNodeForTask(TaskId task_id,
                                       size_t* graph_index,
                                       Node** node) {

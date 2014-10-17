@@ -61,6 +61,8 @@ extern const char kStateSysClone[];
 // Graph.
 extern const char kDuration[];
 extern const char kNodeType[];
+extern const char kTid[];
+extern const char kArrow[];
 
 // Graph: performance counters.
 extern const char kInstructions[];

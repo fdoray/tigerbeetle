@@ -89,7 +89,6 @@ private:
     quark::Quark Q_INTERRUPTED;
     quark::Quark Q_WAIT_FOR_CPU;
     quark::Quark Q_RAISED;
-    quark::Quark Q_SYS_CLONE;
 };
 
 }

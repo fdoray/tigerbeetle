@@ -62,12 +62,18 @@ private:
     // Graph builder.
     analysis::timeline_graph::GraphBuilder* _graphBuilder;
 
+    // Set of task ids that haven't been executed yet.
+    typedef std::unordered_set<analysis::timeline_graph::GraphBuilder::TaskId> PendingTasks;
+    PendingTasks _pendingTasks;
+
     // Quarks.
     quark::Quark Q_LINUX;
     quark::Quark Q_THREADS;
     quark::Quark Q_SYSCALL;
     quark::Quark Q_STATUS;
     quark::Quark Q_WAIT_FOR_CPU;
+    quark::Quark Q_PPID;
+    quark::Quark Q_TID;
     quark::Quark Q_DURATION;
     quark::Quark Q_NODE_TYPE;
 };

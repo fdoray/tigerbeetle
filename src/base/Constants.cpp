@@ -56,6 +56,8 @@ const char kStateSysClone[] = "sys_clone";
 
 const char kDuration[] = "duration";
 const char kNodeType[] = "node-type";
+const char kTid[] = "tid";
+const char kArrow[] = "arrow";
 
 const char kInstructions[] = "instructions";
 const char kCacheReferences[] = "cache-references";

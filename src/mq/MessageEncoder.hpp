@@ -43,8 +43,14 @@ public:
         memcpy(_buffer.data() + _buffer.size() - sizeof(val), &val, sizeof(val));
     }
 
+    template<typename T>
+    void WriteAtPos(const T& val, size_t pos) {
+        memcpy(_buffer.data() + pos, &val, sizeof(val));
+    }
+
     void WriteString(const std::string& str);
 
+    size_t pos() const { return _buffer.size(); }
     size_t size() const { return _buffer.size(); }
     const char* data() const { return _buffer.data(); }
 

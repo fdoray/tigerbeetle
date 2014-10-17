@@ -75,6 +75,8 @@ void LinuxGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList)
     Q_SYSCALL = _currentState->Quark(kStateSyscall);
     Q_STATUS = _currentState->Quark(kStateStatus);
     Q_WAIT_FOR_CPU = _currentState->Quark(kStateWaitForCpu);
+    Q_PPID = _currentState->Quark(kStatePpid);
+    Q_TID = _currentState->Quark(kTid);
     Q_DURATION = _currentState->Quark(kDuration);
     Q_NODE_TYPE = _currentState->Quark(kNodeType);
 }
@@ -109,6 +111,11 @@ void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const va
         return;
 
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
+    auto ppid = _currentState->GetAttributeValue(
+        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_PPID})->AsInteger();
+    if (_graphBuilder->HasNodeForTaskId(ppid))
+        return;
+
     if (!_graphBuilder->AddGraph(tid, execName))
         return;
 
@@ -120,6 +127,8 @@ void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const va
 
     _graphBuilder->StartTimer(tid, qStatus);
     _graphBuilder->StartTimer(tid, Q_DURATION);
+
+    _graphBuilder->SetProperty(tid, Q_TID, value::MakeValue(static_cast<uint32_t>(tid)));
 
     // Check whether we are in a syscall.
     auto currentSycall = _currentState->GetAttributeValue(
@@ -137,8 +146,25 @@ void LinuxGraphBuilderBlock::onSchedProcessFork(const notification::Path& path, 
     auto parent_tid = event->getEventField("parent_tid")->AsUInteger();
     auto child_tid = event->getEventField("child_tid")->AsUInteger();
 
+    auto currentSycallValue = _currentState->GetAttributeValue(
+        {Q_LINUX, Q_THREADS, _currentState->IntQuark(parent_tid), Q_SYSCALL});
+    std::string currentSycall = kStateSysClone;
+    if (currentSycallValue != nullptr)
+        currentSycall = currentSycallValue->AsString();
+
     _graphBuilder->AddChildTask(parent_tid, child_tid);
+
     _graphBuilder->StartTimer(child_tid, Q_DURATION);
+    _graphBuilder->StartTimer(child_tid, Q_SYSCALL);
+
+    _graphBuilder->SetProperty(parent_tid, Q_NODE_TYPE, value::MakeValue(currentSycall));
+    _graphBuilder->SetProperty(parent_tid, Q_TID, value::MakeValue(static_cast<uint32_t>(parent_tid)));
+
+    _graphBuilder->SetProperty(child_tid, Q_NODE_TYPE, value::MakeValue(kArrow));
+    _graphBuilder->SetProperty(child_tid, Q_TID, value::MakeValue(static_cast<uint32_t>(child_tid)));
+    _graphBuilder->SetProperty(child_tid, Q_PPID, value::MakeValue(static_cast<uint32_t>(parent_tid)));
+
+    _pendingTasks.insert(child_tid);
 }
 
 void LinuxGraphBuilderBlock::onSchedProcessExit(const notification::Path& path, const value::Value* value)
@@ -152,6 +178,26 @@ void LinuxGraphBuilderBlock::onSchedProcessExit(const notification::Path& path, 
 void LinuxGraphBuilderBlock::onStatusChange(const notification::Path& path, const value::Value* value)
 {
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
+
+    // If this is a task that hasn't started its execution.
+    auto pending_look = _pendingTasks.find(tid);
+    if (pending_look != _pendingTasks.end())
+    {
+        // Get the current syscall, if any.
+        auto currentSycallValue = _currentState->GetAttributeValue(
+            {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_SYSCALL});
+        std::string currentSycall = kStateSysClone;
+        if (currentSycallValue != nullptr)
+            currentSycall = currentSycallValue->AsString();
+
+        // End the "arrow" node and create the next node.
+        _graphBuilder->AddTaskStep(tid);
+        _graphBuilder->SetProperty(tid, Q_TID, value::MakeValue(static_cast<uint32_t>(tid)));
+        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(currentSycall));
+
+        // Remove the task from the list of pending tasks.
+        _pendingTasks.erase(pending_look);
+    }
 
     // Stop timer for previous status.
     auto previousStatus = _currentState->GetAttributeValue(
@@ -174,6 +220,7 @@ void LinuxGraphBuilderBlock::onSyscallChange(const notification::Path& path, con
     if (previousNodeTime != 0)
     {
         _graphBuilder->AddTaskStep(tid);
+        _graphBuilder->SetProperty(tid, Q_TID, value::MakeValue(static_cast<uint32_t>(tid)));
     }
 
     // Starting a sycall.

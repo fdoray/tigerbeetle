@@ -71,6 +71,8 @@ public:
     Graphs::const_iterator begin() const { return _graphs.begin(); }
     Graphs::const_iterator end() const { return _graphs.end(); }
 
+    bool HasNodeForTaskId(TaskId task_id) const;
+
 private:
     bool GetLastNodeForTask(TaskId task_id,
                             size_t* graph_index,

@@ -80,7 +80,6 @@ void LinuxSchedStateBlock::LoadServices(const block::ServiceList& serviceList)
     Q_INTERRUPTED = State()->Quark(kStateInterrupted);
     Q_WAIT_FOR_CPU = State()->Quark(kStateWaitForCpu);
     Q_RAISED = State()->Quark(kStateRaised);
-    Q_SYS_CLONE = State()->Quark(kStateSysClone);
 }
 
 void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notificationCenter)
@@ -336,7 +335,7 @@ void LinuxSchedStateBlock::onSchedProcessFork(const trace::EventValue& event)
     }
 
     if (State()->GetAttributeValue(threadsChildTidAttribute, {Q_SYSCALL}) == nullptr) {
-        State()->SetAttribute(threadsChildTidAttribute, {Q_SYSCALL}, MakeValue(Q_SYS_CLONE));
+        State()->SetAttribute(threadsChildTidAttribute, {Q_SYSCALL}, MakeValue(kStateSysClone));
     }
 }
 
