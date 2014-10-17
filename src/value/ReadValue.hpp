@@ -36,6 +36,8 @@ namespace value
 
 inline quark::Quark ReadQuark(const value::Value* value)
 {
+    if (value == nullptr)
+        return quark::Quark(-1);
     return quark::Quark(value->AsUInteger());
 }
 

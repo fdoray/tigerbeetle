@@ -68,9 +68,14 @@ private:
     quark::Quark Q_MINOR_FAULTS;
 
     quark::Quark Q_CUR_THREAD;
+    quark::Quark Q_STATUS;
+    quark::Quark Q_INTERRUPTED;
 
     // CPUs attribute.
     state::AttributeKey _cpusAttribute;
+
+    // Threads attribute.
+    state::AttributeKey _threadsAttribute;
 
     // Last value read for each performance counter, per CPU.
     typedef std::vector<std::unordered_map<quark::Quark, uint64_t>> PerfCounters;

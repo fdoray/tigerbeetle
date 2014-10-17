@@ -79,11 +79,19 @@ void LinuxPerfBuilderBlock::LoadServices(const block::ServiceList& serviceList)
     Q_MINOR_FAULTS = _currentState->Quark(kMinorFaults);
 
     Q_CUR_THREAD = _currentState->Quark(kStateCurThread);
+    Q_STATUS = _currentState->Quark(kStateStatus);
+    Q_INTERRUPTED = _currentState->Quark(kStateInterrupted);
 
     // CPUs attribute.
     _cpusAttribute = _currentState->GetAttributeKey({
         _currentState->Quark(kStateLinux),
         _currentState->Quark(kStateCpus)
+    });
+
+    // Threads attribute.
+    _threadsAttribute = _currentState->GetAttributeKey({
+        _currentState->Quark(kStateLinux),
+        _currentState->Quark(kStateThreads)
     });
 }
 
@@ -135,10 +143,16 @@ void LinuxPerfBuilderBlock::IncrementPerfCounter(
 
     if (look_last_value != _perfCounters[cpu].end())
     {
-        // Increment the counter for the thread.
-        uint64_t increment = longValue - look_last_value->second;
-
-        _graphBuilder->IncrementProperty(thread, counter, increment);
+        // Do not increment the counter if the thread is interrupted.
+        auto qStatus = value::ReadQuark(_currentState->GetAttributeValue(
+            _threadsAttribute,
+            {_currentState->IntQuark(thread), Q_STATUS}));
+        if (qStatus != Q_INTERRUPTED)
+        {
+            // Increment the counter for the thread.
+            uint64_t increment = longValue - look_last_value->second;
+            _graphBuilder->IncrementProperty(thread, counter, increment);
+        }
     }
 
     // Remember the last value read for this counter.
