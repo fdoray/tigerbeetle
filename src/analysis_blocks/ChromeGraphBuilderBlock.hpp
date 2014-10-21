@@ -81,6 +81,8 @@ private:
 
     // Threads that belong to analyzed executables.
     std::unordered_set<uint32_t> _analyzedThreads;
+
+    std::vector<std::string> theStack;
 };
 
 }  // namespace analysis_blocks

@@ -39,6 +39,7 @@ void GraphBuilder::SetQuarks(quark::StringQuarkDatabase* quarks)
     Q_DURATION = quarks->StrQuark(kDuration);
     Q_NODE_TYPE = quarks->StrQuark(kNodeType);
     Q_START_TIME = quarks->StrQuark(kStartTime);
+    Q_STACK_DEPTH = quarks->StrQuark(kStackDepth);
 }
 
 void GraphBuilder::SetTimestamp(timestamp_t ts) {
@@ -151,6 +152,45 @@ bool GraphBuilder::EndTaskOnThread(ThreadId thread_id) {
     _timers.erase(thread_id);
 
     _last_node_for_thread_id.erase(thread_id);
+
+    return true;
+}
+
+bool GraphBuilder::PushStack(ThreadId thread_id) {
+    if (!AddStepForThreadId(thread_id))
+        return false;
+
+    auto previousNodeTypeValue = GetProperty(thread_id, Q_NODE_TYPE);
+    std::string previousNodeType;
+    if (previousNodeTypeValue != nullptr)
+        previousNodeType = previousNodeTypeValue->AsString();
+
+    int32_t previousStackDepth = static_cast<int32_t>(_stacks[thread_id].size());
+    _stacks[thread_id].push(previousNodeType);
+
+    SetProperty(thread_id, Q_STACK_DEPTH, value::MakeValue(previousStackDepth + 1));
+
+    return true;
+}
+
+bool GraphBuilder::PopStack(ThreadId thread_id) {
+    auto stack_it = _stacks.find(thread_id);
+    if (stack_it == _stacks.end())
+    {
+        return EndTaskOnThread(thread_id);
+    }
+    int32_t previousStackDepth = static_cast<int32_t>(stack_it->second.size());
+    assert(previousStackDepth > 0);
+
+    if (!AddStepForThreadId(thread_id))
+        return false;
+
+    SetProperty(thread_id, Q_STACK_DEPTH, value::MakeValue(previousStackDepth - 1));
+    SetProperty(thread_id, Q_NODE_TYPE, value::MakeValue(stack_it->second.top()));
+    stack_it->second.pop();
+
+    if (stack_it->second.empty())
+        _stacks.erase(stack_it);
 
     return true;
 }

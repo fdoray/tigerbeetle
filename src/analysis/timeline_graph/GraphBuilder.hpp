@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <stack>
 
 #include "analysis/StateTimers.hpp"
 #include "analysis/timeline_graph/TimelineGraph.hpp"
@@ -58,12 +59,16 @@ public:
     void SetQuarks(quark::StringQuarkDatabase* quarks);
 
     void SetTimestamp(timestamp_t ts);
+    timestamp_t GetTimestamp() const { return _ts; }
 
     bool AddGraph(ThreadId thread_id, const std::string& description);
     bool AddChildTask(ThreadId parent_thread_id, TaskId child_task_id);
     bool ScheduleTask(TaskId task_id, ThreadId thread_id);
     bool AddStepForThreadId(ThreadId thread_id);
     bool EndTaskOnThread(ThreadId thread_id);
+
+    bool PushStack(ThreadId thread_id);
+    bool PopStack(ThreadId thread_id);
 
     bool StartTimer(ThreadId thread_id, quark::Quark state);
     bool StopTimer(ThreadId thread_id, quark::Quark state);
@@ -98,11 +103,17 @@ private:
       NodeId node_id;
     };
 
+    // Last node for task id.
     typedef std::unordered_map<TaskId, NodeKey> TaskIdNodeKeyMap;
     TaskIdNodeKeyMap _pending_tasks;
 
+    // Last node for thread id.
     typedef std::unordered_map<ThreadId, NodeKey> ThreadIdNodeKeyMap;
     ThreadIdNodeKeyMap _last_node_for_thread_id;
+
+    // Stack per thread id.
+    typedef std::unordered_map<ThreadId, std::stack<std::string>> ThreadIdStackMap;
+    ThreadIdStackMap _stacks;
 
     // The constructed graphs.
     Graphs _graphs;
@@ -120,6 +131,7 @@ private:
     quark::Quark Q_DURATION;
     quark::Quark Q_NODE_TYPE;
     quark::Quark Q_START_TIME;
+    quark::Quark Q_STACK_DEPTH;
 };
 
 }    // namespace timeline_graph

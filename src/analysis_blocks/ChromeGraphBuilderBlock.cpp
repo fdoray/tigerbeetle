@@ -177,8 +177,10 @@ void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, co
 
     auto cpu = event->getStreamPacketContext()->GetField("cpu_id")->AsUInteger();
     auto tid = currentThreadForCpu(cpu);
-    if (tid == kInvalidThread)
+    if (tid == kInvalidThread) {
+        std::cout << "invalid tid..." << std::endl;
         return;
+    }
 
     if (phase == kPhaseComplete || phase == kPhaseBegin)
         onPhaseBegin(tid, *event);
@@ -247,16 +249,54 @@ void ChromeGraphBuilderBlock::onSchedProcessFork(const notification::Path& path,
 
 void ChromeGraphBuilderBlock::onPhaseBegin(uint32_t tid, const trace::EventValue& event)
 {
-    //_graphBuilder->AddChildTask();
+    std::string name = event.getEventField(kNameField)->AsString();
+    auto previousNameValue = _graphBuilder->GetProperty(tid, Q_NODE_TYPE);
+    std::string previousName;
+    if (previousNameValue != nullptr)
+        previousName = previousNameValue->AsString();
+
+    if (previousName == kNameScheduler)
+        _graphBuilder->AddStepForThreadId(tid);
+    else
+        _graphBuilder->PushStack(tid);
+
+    _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(name));
+
+    if (tid == 1724)
+    {
+        theStack.push_back(name);
+        std::cout << "stack " << _graphBuilder->GetTimestamp() << "                push " << name << std::endl;
+        for (int i = 0; i < theStack.size(); ++i)
+            std::cout << "    " << i << "\t" << theStack[i] << std::endl;
+        std::cout <<std::endl;
+    }
 }
 
 void ChromeGraphBuilderBlock::onPhaseEnd(uint32_t tid, const trace::EventValue& event)
 {
     std::string name = event.getEventField(kNameField)->AsString();
+    _graphBuilder->PopStack(tid);
 
-    if (name == "MessageLoop::RunTask" || name == kNameDispatchInputData)
+    if (tid == 1724)
     {
-        _graphBuilder->EndTaskOnThread(tid);
+        if (theStack.empty())
+        {
+            std::cout << "trying to pop " << name  << " but stack is empty" << std::endl;
+            std::cout << std::endl;
+        }
+        else
+        {
+        if (theStack.back() != name)
+        {
+            std::cout << "pop problem..." << std::endl;
+        }
+
+        theStack.pop_back();
+        std::cout << "stack " << _graphBuilder->GetTimestamp() << "                pop " << name << std::endl;
+        for (int i = 0; i < theStack.size(); ++i)
+            std::cout << "    " << i << "\t" << theStack[i] << std::endl;
+        std::cout <<std::endl;
+        }
     }
 }
 
@@ -276,8 +316,34 @@ void ChromeGraphBuilderBlock::onPhaseFlowEnd(uint32_t tid, const trace::EventVal
     if (category != kCategoryTopLevelFlow && category != kCategoryIpcFlow) 
         return;
 
+    //////////////////////////////////////////////////////////////////////////////////
+    // Nothing should already be on this thread.... TODO
+
+    if (tid == 1724)
+    {
+
+    if (_graphBuilder->HasNodeForThread(tid))
+    {
+        auto previousNameValue = _graphBuilder->GetProperty(tid, Q_NODE_TYPE);
+        std::string previousName;
+        if (previousNameValue != nullptr)
+            previousName = previousNameValue->AsString();
+        std::cout << _graphBuilder->GetTimestamp() << " Nothing should be scheduled on this thread... " << std::endl;
+    }
+
+
     uint64_t task_id = event.getEventField(kIdField)->AsULong();
     _graphBuilder->ScheduleTask(task_id, tid);
+    std::cout << _graphBuilder->GetTimestamp() << " schedule ";
+    if (category == kCategoryTopLevelFlow)
+        std::cout << "msg ";
+    else
+        std::cout<< "ipc ";
+    std::cout << "on thread " << tid << std::endl;
+    std::cout << std::endl;
+
+    }
+    //////////////////////////////////////////////////////////////////////////////////
 
     if (category == kCategoryTopLevelFlow)
         _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(kNameScheduler));

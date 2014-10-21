@@ -60,6 +60,7 @@ const char kNodeType[] = "node-type";
 const char kTid[] = "tid";
 const char kStartTime[] = "start-time";
 const char kArrow[] = "arrow";
+const char kStackDepth[] = "stack-depth";
 
 const char kInstructions[] = "instructions";
 const char kCacheReferences[] = "cache-references";

@@ -65,6 +65,7 @@ extern const char kNodeType[];
 extern const char kTid[];
 extern const char kStartTime[];
 extern const char kArrow[];
+extern const char kStackDepth[];
 
 // Graph: performance counters.
 extern const char kInstructions[];
