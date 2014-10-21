@@ -43,6 +43,14 @@ void GraphBuilderBlock::RegisterServices(block::ServiceList* serviceList)
     serviceList->AddService(kGraphBuilderServiceName, &_graphBuilder);
 }
 
+void GraphBuilderBlock::LoadServices(const block::ServiceList& serviceList)
+{
+    quark::StringQuarkDatabase* quarks = nullptr;
+    serviceList.QueryService(kQuarksServiceName,
+                             reinterpret_cast<void**>(&quarks));
+    _graphBuilder.SetQuarks(quarks);
+}
+
 void GraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
@@ -66,6 +74,8 @@ void GraphBuilderBlock::onTimestamp(const notification::Path& path, const value:
 
 void GraphBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)
 {  
+    _graphBuilder.Terminate();
+
     for (const auto& graph : _graphBuilder)
     {
         _graphSink->PostNotification(reinterpret_cast<const value::Value*>(graph.get()));

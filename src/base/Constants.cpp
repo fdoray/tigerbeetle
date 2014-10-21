@@ -20,7 +20,8 @@
 namespace tibee
 {
 
-extern const char kGraphBuilderServiceName[] = "graph-builder";
+const char kGraphBuilderServiceName[] = "graph-builder";
+const char kQuarksServiceName[] = "quarks";
 
 const char kGraphBuilderNotificationPrefix[] = "graph-builder";
 const char kGraphBuilderNotificationName[] = "graph";
@@ -57,6 +58,7 @@ const char kStateSysClone[] = "sys_clone";
 const char kDuration[] = "duration";
 const char kNodeType[] = "node-type";
 const char kTid[] = "tid";
+const char kStartTime[] = "start-time";
 const char kArrow[] = "arrow";
 
 const char kInstructions[] = "instructions";

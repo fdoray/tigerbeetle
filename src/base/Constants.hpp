@@ -23,6 +23,7 @@ namespace tibee
 
 // Services.
 extern const char kGraphBuilderServiceName[];
+extern const char kQuarksServiceName[];
 
 // Notifications.
 extern const char kGraphBuilderNotificationPrefix[];
@@ -62,6 +63,7 @@ extern const char kStateSysClone[];
 extern const char kDuration[];
 extern const char kNodeType[];
 extern const char kTid[];
+extern const char kStartTime[];
 extern const char kArrow[];
 
 // Graph: performance counters.

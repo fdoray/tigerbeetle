@@ -42,7 +42,6 @@ class CurrentStateBlock : public block::AbstractBlock
 {
 public:
     static const char* kCurrentStateServiceName;
-    static const char* kQuarksServiceName;
     static const char* kAttributeKeyField;
     static const char* kAttributeValueField;
     static const char* kNotificationPrefix;

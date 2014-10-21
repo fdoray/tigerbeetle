@@ -37,7 +37,6 @@ using notification::Token;
 using trace_blocks::TraceBlock;
 
 const char* CurrentStateBlock::kCurrentStateServiceName = "currentState";
-const char* CurrentStateBlock::kQuarksServiceName = "quarks";
 const char* CurrentStateBlock::kAttributeKeyField = "key";
 const char* CurrentStateBlock::kAttributeValueField = "value";
 const char* CurrentStateBlock::kNotificationPrefix = "state";
