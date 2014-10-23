@@ -72,9 +72,9 @@ bool GraphBuilder::CreateGraph(ThreadId thread, TaskId task, const std::string& 
     _threadTasks[thread] = task;
 
     // Set properties for the root task.
-    SetProperty(thread, Q_START_TIME, value::MakeValue(_ts));
+    SetProperty(thread, Q_START_TIME, MakeValue(_ts));
     StartTimer(thread, Q_DURATION);
-    SetProperty(thread, Q_TID, value::MakeValue(thread));
+    SetProperty(thread, Q_TID, MakeValue(thread));
 
     return true;
 }
@@ -95,7 +95,7 @@ bool GraphBuilder::PushStack(ThreadId thread)
     stack.top()->AddChild(new_node.id());
     stack.push(&new_node);
 
-    SetProperty(thread, Q_START_TIME, value::MakeValue(_ts));
+    SetProperty(thread, Q_START_TIME, MakeValue(_ts));
 
     return true;
 }
@@ -166,9 +166,9 @@ bool GraphBuilder::ScheduleTask(TaskId task, ThreadId thread)
 
     _threadTasks[thread] = task;
 
-    SetProperty(thread, Q_START_TIME, value::MakeValue(_ts));
+    SetProperty(thread, Q_START_TIME, MakeValue(_ts));
     StartTimer(thread, Q_DURATION);
-    SetProperty(thread, Q_TID, value::MakeValue(thread));
+    SetProperty(thread, Q_TID, MakeValue(thread));
 
     return true;
 }
@@ -205,6 +205,12 @@ uint64_t GraphBuilder::ReadTimer(ThreadId thread, quark::Quark timer_name) {
         return 0;
 
     return elapsed_time;
+}
+
+void GraphBuilder::StopAllTimers()
+{
+    for (const auto& timer : _timers)
+        ReadAndResetTimers(timer.first);
 }
 
 bool GraphBuilder::IncrementProperty(ThreadId thread, quark::Quark property, uint64_t increment)

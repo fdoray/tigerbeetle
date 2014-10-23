@@ -8,6 +8,7 @@ app_env = lib_env.Clone()
 
 sources_unittests = [
     'analysis/execution_graph/Graph_Unittest.cpp',
+    'analysis/execution_graph/GraphBuilder_Unittest.cpp',
     'analysis/execution_graph/Node_Unittest.cpp',
     'analysis/execution_graph/PreorderIterator_Unittest.cpp',
 
