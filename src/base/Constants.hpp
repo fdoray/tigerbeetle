@@ -60,11 +60,13 @@ extern const char kStateRaised[];
 extern const char kStateSysClone[];
 
 // Graph.
+extern const char kStartTime[];
 extern const char kDuration[];
 extern const char kNodeType[];
+extern const char kParentTid[];
 extern const char kTid[];
-extern const char kStartTime[];
 extern const char kArrow[];
+extern const char kArrowStart[];
 extern const char kStackDepth[];
 
 // Graph: performance counters.

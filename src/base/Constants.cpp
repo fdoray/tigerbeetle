@@ -55,11 +55,13 @@ const char kStateWaitForCpu[] = "wait-for-cpu";
 const char kStateRaised[] = "raised";
 const char kStateSysClone[] = "sys_clone";
 
+const char kStartTime[] = "start";
 const char kDuration[] = "duration";
 const char kNodeType[] = "node-type";
+const char kParentTid[] = "ptid";
 const char kTid[] = "tid";
-const char kStartTime[] = "start-time";
 const char kArrow[] = "arrow";
+const char kArrowStart[] = "arrow-start";
 const char kStackDepth[] = "stack-depth";
 
 const char kInstructions[] = "instructions";

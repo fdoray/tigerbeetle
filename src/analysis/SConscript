@@ -4,6 +4,7 @@ Import('lib_env')
 
 sources = [
     'execution_graph/Graph.cpp',
+    'execution_graph/GraphBuilder.cpp',
     'execution_graph/Node.cpp',
     'execution_graph/PreorderIterator.cpp',
     'execution_graph/Properties.cpp',
