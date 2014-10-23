@@ -3,7 +3,14 @@ import os
 Import('lib_env')
 
 sources = [
+    'execution_graph/Graph.cpp',
+    'execution_graph/Node.cpp',
+    'execution_graph/PreorderIterator.cpp',
+    'execution_graph/Properties.cpp',
+
     'StateTimers.cpp',
+
+
     'timeline_graph/GraphBuilder.cpp',
     'timeline_graph/Matcher.cpp',
     'timeline_graph/Node.cpp',

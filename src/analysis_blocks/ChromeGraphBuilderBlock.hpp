@@ -82,7 +82,8 @@ private:
     // Threads that belong to analyzed executables.
     std::unordered_set<uint32_t> _analyzedThreads;
 
-    std::vector<std::string> theStack;
+    // Counters to track lost UST events. TODO(fdoray)
+    std::unordered_map<uint64_t, uint64_t> _counters;
 };
 
 }  // namespace analysis_blocks

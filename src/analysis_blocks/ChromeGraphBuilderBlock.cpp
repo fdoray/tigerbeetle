@@ -37,6 +37,8 @@ namespace analysis_blocks {
 namespace {
 const size_t kTidPathIndex = 3;
 
+const char kChromeExecName[] = "chrome";
+
 const char kPhaseField[] = "phase";
 const char kNameField[] = "name";
 const char kCategoryField[] = "category";
@@ -71,6 +73,8 @@ const char kNameDispatchInputData[] = "ChannelReader::DispatchInputData";
 const uint32_t kInvalidThread = -1;
 }  // namespace
 
+using base::tbendl;
+using base::tbwarn;
 using notification::AnyToken;
 using notification::RegexToken;
 using notification::Token;
@@ -131,31 +135,23 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     std::string execName = attributeValue->AsString();
     
-    if (execName != "chrome")
+    if (execName != kChromeExecName)
         return;
 
     uint32_t tid = atoi(path[kTidPathIndex].token().c_str());
-    auto ppid = _currentState->GetAttributeValue(
-        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_PPID})->AsInteger();
-    if (_analyzedThreads.find(ppid) != _analyzedThreads.end())
-        return;
-    if (!_graphBuilder->AddGraph(tid, execName))
-        return;
 
-    quark::Quark qStatus = Q_WAIT_FOR_CPU;
-    auto status = _currentState->GetAttributeValue(
-        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_STATUS});
-    if (status != nullptr)
-        qStatus = quark::Quark(status->AsUInteger());
+    auto ppidValue = _currentState->GetAttributeValue(
+        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_PPID});
 
-    _graphBuilder->StartTimer(tid, qStatus);
-
-    // Check whether we are in a syscall.
-    auto currentSycall = _currentState->GetAttributeValue(
-        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_SYSCALL});
-    if (currentSycall != nullptr)
+    if (ppidValue != nullptr &&
+        _analyzedThreads.find(ppidValue->AsInteger()) != _analyzedThreads.end())
     {
-        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(currentSycall->AsString()));
+        return;
+    }
+
+    if (!_graphBuilder->AddGraph(tid, execName))
+    {
+        return;
     }
 
     _analyzedThreads.insert(tid);
@@ -164,23 +160,32 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
 void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, const value::Value* value)
 {
     auto event = reinterpret_cast<const trace::EventValue*>(value);
-    char phase = event->getEventField(kPhaseField)->AsInteger();
-    
-    if (phase != kPhaseComplete &&
-        phase != kPhaseBegin &&
-        phase != kPhaseEnd &&
-        phase != kPhaseFlowBegin &&
-        phase != kPhaseFlowEnd)
-    {
-        return;
-    }
 
     auto cpu = event->getStreamPacketContext()->GetField("cpu_id")->AsUInteger();
     auto tid = currentThreadForCpu(cpu);
+
     if (tid == kInvalidThread) {
-        std::cout << "invalid tid..." << std::endl;
+        tbwarn() << "No tid found for event on CPU " << cpu << "." << tbendl();
         return;
     }
+
+    // Sanity check.
+    auto ts = event->getEventField("ts")->AsULong();
+    if (_counters.find(tid) == _counters.end())
+    {
+        _counters[tid] = ts;
+    }
+    else
+    {
+        if (ts != (_counters[tid] + 1))
+        {
+            std::cout << "counter gap: expected " << (_counters[tid] + 1) << " but got " << ts << std::endl;
+        }
+        _counters[tid] = ts;
+    }
+
+    // Handle events.
+    char phase = event->getEventField(kPhaseField)->AsInteger();
 
     if (phase == kPhaseComplete || phase == kPhaseBegin)
         onPhaseBegin(tid, *event);
@@ -194,46 +199,10 @@ void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, co
 
 void ChromeGraphBuilderBlock::onStatusChange(const notification::Path& path, const value::Value* value)
 {
-    /*
-    // TODO: Move this to a common builder.
-
-    uint32_t tid = atoi(path[kTidPathIndex].token().c_str());
-
-    // Stop timer for previous status.
-    auto previousStatus = _currentState->GetAttributeValue(
-        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_STATUS});
-    if (previousStatus != nullptr)
-        _graphBuilder->StopTimer(tid, quark::Quark(previousStatus->AsUInteger()));
-
-    // Start timer for next status.
-    auto nextStatus = value->GetField(CurrentStateBlock::kAttributeValueField);
-    if (nextStatus != nullptr)
-        _graphBuilder->StartTimer(tid, quark::Quark(nextStatus->AsUInteger()));
-    */
 }
 
 void ChromeGraphBuilderBlock::onSyscallChange(const notification::Path& path, const value::Value* value)
 {
-    /*
-    // TODO: Move this to a common builder.
-
-    uint32_t tid = atoi(path[kTidPathIndex].token().c_str());
-
-    // Create a new node if the duration of the previous node is not 0.
-    auto previousNodeTime = _graphBuilder->ReadTimer(tid, Q_DURATION);
-    if (previousNodeTime != 0)
-    {
-        _graphBuilder->AddTaskStep(tid);
-        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, nullptr);
-    }
-
-    // Starting a sycall.
-    auto nextSyscall = value->GetField(CurrentStateBlock::kAttributeValueField);
-    if (nextSyscall != nullptr)
-    {
-        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(nextSyscall->AsString()));
-    }
-    */
 }
 
 void ChromeGraphBuilderBlock::onSchedProcessFork(const notification::Path& path, const value::Value* value)
@@ -243,6 +212,7 @@ void ChromeGraphBuilderBlock::onSchedProcessFork(const notification::Path& path,
     auto parent_tid = event->getEventField("parent_tid")->AsUInteger();
     auto child_tid = event->getEventField("child_tid")->AsUInteger();
 
+    // Keep track of the tids that belong to Chrome.
     if (_analyzedThreads.find(parent_tid) != _analyzedThreads.end())
         _analyzedThreads.insert(child_tid);
 }
@@ -261,43 +231,12 @@ void ChromeGraphBuilderBlock::onPhaseBegin(uint32_t tid, const trace::EventValue
         _graphBuilder->PushStack(tid);
 
     _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(name));
-
-    if (tid == 1724)
-    {
-        theStack.push_back(name);
-        std::cout << "stack " << _graphBuilder->GetTimestamp() << "                push " << name << std::endl;
-        for (int i = 0; i < theStack.size(); ++i)
-            std::cout << "    " << i << "\t" << theStack[i] << std::endl;
-        std::cout <<std::endl;
-    }
 }
 
 void ChromeGraphBuilderBlock::onPhaseEnd(uint32_t tid, const trace::EventValue& event)
 {
     std::string name = event.getEventField(kNameField)->AsString();
     _graphBuilder->PopStack(tid);
-
-    if (tid == 1724)
-    {
-        if (theStack.empty())
-        {
-            std::cout << "trying to pop " << name  << " but stack is empty" << std::endl;
-            std::cout << std::endl;
-        }
-        else
-        {
-        if (theStack.back() != name)
-        {
-            std::cout << "pop problem..." << std::endl;
-        }
-
-        theStack.pop_back();
-        std::cout << "stack " << _graphBuilder->GetTimestamp() << "                pop " << name << std::endl;
-        for (int i = 0; i < theStack.size(); ++i)
-            std::cout << "    " << i << "\t" << theStack[i] << std::endl;
-        std::cout <<std::endl;
-        }
-    }
 }
 
 void ChromeGraphBuilderBlock::onPhaseFlowBegin(uint32_t tid, const trace::EventValue& event)
@@ -316,34 +255,8 @@ void ChromeGraphBuilderBlock::onPhaseFlowEnd(uint32_t tid, const trace::EventVal
     if (category != kCategoryTopLevelFlow && category != kCategoryIpcFlow) 
         return;
 
-    //////////////////////////////////////////////////////////////////////////////////
-    // Nothing should already be on this thread.... TODO
-
-    if (tid == 1724)
-    {
-
-    if (_graphBuilder->HasNodeForThread(tid))
-    {
-        auto previousNameValue = _graphBuilder->GetProperty(tid, Q_NODE_TYPE);
-        std::string previousName;
-        if (previousNameValue != nullptr)
-            previousName = previousNameValue->AsString();
-        std::cout << _graphBuilder->GetTimestamp() << " Nothing should be scheduled on this thread... " << std::endl;
-    }
-
-
     uint64_t task_id = event.getEventField(kIdField)->AsULong();
     _graphBuilder->ScheduleTask(task_id, tid);
-    std::cout << _graphBuilder->GetTimestamp() << " schedule ";
-    if (category == kCategoryTopLevelFlow)
-        std::cout << "msg ";
-    else
-        std::cout<< "ipc ";
-    std::cout << "on thread " << tid << std::endl;
-    std::cout << std::endl;
-
-    }
-    //////////////////////////////////////////////////////////////////////////////////
 
     if (category == kCategoryTopLevelFlow)
         _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(kNameScheduler));

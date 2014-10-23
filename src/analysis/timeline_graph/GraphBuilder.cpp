@@ -17,6 +17,8 @@
  */
 #include "analysis/timeline_graph/GraphBuilder.hpp"
 
+#include <iostream>
+
 #include "base/Constants.hpp"
 #include "value/MakeValue.hpp"
 #include "value/Utils.hpp"
@@ -95,6 +97,10 @@ bool GraphBuilder::ScheduleTask(TaskId task_id, ThreadId thread_id) {
     if (look == _pending_tasks.end())
         return false;
 
+    // Pop everything on this thread. //////////////// TODO
+    while (PopStack(thread_id))
+        continue;
+
     const NodeKey& node_key = look->second;
     Node& arrow_node = _graphs[node_key.graph_index]->graph.GetNode(node_key.node_id);
 
@@ -150,10 +156,7 @@ bool GraphBuilder::EndTaskOnThread(ThreadId thread_id) {
     // Read and reset the timers.
     ReadAndResetTimers(thread_id);
     _timers.erase(thread_id);
-
-    _last_node_for_thread_id.erase(thread_id);
-
-    return true;
+    return (_last_node_for_thread_id.erase(thread_id) != 0);
 }
 
 bool GraphBuilder::PushStack(ThreadId thread_id) {
