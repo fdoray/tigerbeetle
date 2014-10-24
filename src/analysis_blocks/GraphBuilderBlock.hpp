@@ -18,7 +18,7 @@
 #ifndef _TIBEE_ANALYSISBLOCKS_GRAPHBUILDERBLOCK_HPP
 #define _TIBEE_ANALYSISBLOCKS_GRAPHBUILDERBLOCK_HPP
 
-#include "analysis/timeline_graph/GraphBuilder.hpp"
+#include "analysis/execution_graph/GraphBuilder.hpp"
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
@@ -42,7 +42,7 @@ private:
     void onEnd(const notification::Path& path, const value::Value* value);
 
     // The graphs that are being built.
-    analysis::timeline_graph::GraphBuilder _graphBuilder;
+    analysis::execution_graph::GraphBuilder _graphBuilder;
 
     // Sink to send completed graphs.
     const notification::NotificationSink* _graphSink;

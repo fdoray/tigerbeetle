@@ -21,7 +21,7 @@
 #include <string>
 #include <unordered_set>
 
-#include "analysis/timeline_graph/GraphBuilder.hpp"
+#include "analysis/execution_graph/GraphBuilder.hpp"
 #include "base/BasicTypes.hpp"
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
@@ -63,7 +63,7 @@ private:
     state::CurrentState* _currentState;
 
     // Graph builder.
-    analysis::timeline_graph::GraphBuilder* _graphBuilder;
+    analysis::execution_graph::GraphBuilder* _graphBuilder;
 
     // Quarks.
     quark::Quark Q_LINUX;

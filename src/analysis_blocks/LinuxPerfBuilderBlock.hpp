@@ -18,7 +18,7 @@
 #ifndef _TIBEE_ANALYSISBLOCKS_LINUXPERFBUILDERBLOCK_HPP
 #define _TIBEE_ANALYSISBLOCKS_LINUXPERFBUILDERBLOCK_HPP
 
-#include "analysis/timeline_graph/GraphBuilder.hpp"
+#include "analysis/execution_graph/GraphBuilder.hpp"
 #include "base/BasicTypes.hpp"
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
@@ -51,7 +51,7 @@ private:
     state::CurrentState* _currentState;
 
     // Graph builder.
-    analysis::timeline_graph::GraphBuilder* _graphBuilder;
+    analysis::execution_graph::GraphBuilder* _graphBuilder;
 
     // Quarks.
     quark::Quark Q_INSTRUCTIONS;

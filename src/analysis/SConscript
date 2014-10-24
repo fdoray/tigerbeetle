@@ -8,16 +8,7 @@ sources = [
     'execution_graph/Node.cpp',
     'execution_graph/PreorderIterator.cpp',
     'execution_graph/Properties.cpp',
-
     'StateTimers.cpp',
-
-
-    'timeline_graph/GraphBuilder.cpp',
-    'timeline_graph/Matcher.cpp',
-    'timeline_graph/Node.cpp',
-    'timeline_graph/PreorderIterator.cpp',
-    'timeline_graph/TimelineGraph.cpp',
-    'timeline_graph/TimelineGraphProperties.cpp',
 ]
 
 Return(['sources'])

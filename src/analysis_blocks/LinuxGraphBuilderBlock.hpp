@@ -22,7 +22,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "analysis/timeline_graph/GraphBuilder.hpp"
+#include "analysis/execution_graph/GraphBuilder.hpp"
 #include "base/BasicTypes.hpp"
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationSink.hpp"
@@ -60,10 +60,10 @@ private:
     state::CurrentState* _currentState;
 
     // Graph builder.
-    analysis::timeline_graph::GraphBuilder* _graphBuilder;
+    analysis::execution_graph::GraphBuilder* _graphBuilder;
 
     // Set of task ids that haven't been executed yet.
-    typedef std::unordered_set<analysis::timeline_graph::GraphBuilder::TaskId> PendingTasks;
+    typedef std::unordered_set<analysis::execution_graph::GraphBuilder::TaskId> PendingTasks;
     PendingTasks _pendingTasks;
 
     // Quarks.

@@ -69,8 +69,10 @@ const char kCategoryTopLevelFlow[] = "disabled-by-default-toplevel.flow";
 const char kCategoryIpcFlow[] = "disabled-by-default-ipc.flow";
 const char kNameScheduler[] = "Scheduler";
 const char kNameDispatchInputData[] = "ChannelReader::DispatchInputData";
+const char kNameRunTask[] = "MessageLoop::RunTask";
 
 const uint32_t kInvalidThread = -1;
+const analysis::execution_graph::GraphBuilder::TaskId kInitialTaskId = -1;
 }  // namespace
 
 using base::tbendl;
@@ -135,7 +137,7 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     std::string execName = attributeValue->AsString();
     
-    if (execName != kChromeExecName)
+    if (/*execName != kChromeExecName*/ execName != "tasks")
         return;
 
     uint32_t tid = atoi(path[kTidPathIndex].token().c_str());
@@ -149,7 +151,7 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     }
 
-    if (!_graphBuilder->AddGraph(tid, execName))
+    if (!_graphBuilder->CreateGraph(tid, kInitialTaskId, execName))
     {
         return;
     }
@@ -205,16 +207,7 @@ void ChromeGraphBuilderBlock::onSchedProcessFork(const notification::Path& path,
 void ChromeGraphBuilderBlock::onPhaseBegin(uint32_t tid, const trace::EventValue& event)
 {
     std::string name = event.getEventField(kNameField)->AsString();
-    auto previousNameValue = _graphBuilder->GetProperty(tid, Q_NODE_TYPE);
-    std::string previousName;
-    if (previousNameValue != nullptr)
-        previousName = previousNameValue->AsString();
-
-    if (previousName == kNameScheduler)
-        _graphBuilder->AddStepForThreadId(tid);
-    else
-        _graphBuilder->PushStack(tid);
-
+    _graphBuilder->PushStack(tid);
     _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(name));
 }
 
@@ -222,6 +215,8 @@ void ChromeGraphBuilderBlock::onPhaseEnd(uint32_t tid, const trace::EventValue& 
 {
     std::string name = event.getEventField(kNameField)->AsString();
     _graphBuilder->PopStack(tid);
+    if (name == kNameRunTask)
+        _graphBuilder->PopStack(tid);
 }
 
 void ChromeGraphBuilderBlock::onPhaseFlowBegin(uint32_t tid, const trace::EventValue& event)
@@ -231,7 +226,7 @@ void ChromeGraphBuilderBlock::onPhaseFlowBegin(uint32_t tid, const trace::EventV
         return;
 
     uint64_t task_id = event.getEventField(kIdField)->AsULong();
-    _graphBuilder->AddChildTask(tid, task_id);
+    _graphBuilder->CreateTask(tid, task_id);
 }
 
 void ChromeGraphBuilderBlock::onPhaseFlowEnd(uint32_t tid, const trace::EventValue& event)

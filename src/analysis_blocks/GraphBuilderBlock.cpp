@@ -74,7 +74,7 @@ void GraphBuilderBlock::onTimestamp(const notification::Path& path, const value:
 
 void GraphBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)
 {  
-    _graphBuilder.Terminate();
+    _graphBuilder.StopAllTimers();
 
     for (const auto& graph : _graphBuilder)
     {

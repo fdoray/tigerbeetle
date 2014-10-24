@@ -82,6 +82,9 @@ public:
     Graphs::const_iterator begin() const { return _graphs.begin(); }
     Graphs::const_iterator end() const { return _graphs.end(); }
 
+    // Accessors.
+    bool HasNodeForThread(ThreadId thread) const { return _threadTasks.find(thread) != _threadTasks.end(); }
+
 private:
     bool ReadAndResetTimers(ThreadId thread);
 

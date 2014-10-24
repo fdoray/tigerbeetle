@@ -67,6 +67,8 @@ public:
         quark::Quark property_name,
         uint64_t increment);
 
+    size_t size() const { return _properties.size(); }
+
 private:
     bool HasPropertyMap(const NodeStepKey& node_step_key) const;
 

@@ -115,7 +115,7 @@ void LinuxGraphBuilderBlock::onExecName(const notification::Path& path, const va
 
     if (_graphBuilder->HasNodeForThread(ppid))
         return;
-    if (!_graphBuilder->AddGraph(tid, execName))
+    if (!_graphBuilder->CreateGraph(tid, tid, execName))
         return;
 
     quark::Quark qStatus = Q_WAIT_FOR_CPU;
@@ -149,7 +149,7 @@ void LinuxGraphBuilderBlock::onSchedProcessFork(const notification::Path& path, 
     if (currentSycallValue != nullptr)
         currentSycall = currentSycallValue->AsString();
 
-    _graphBuilder->AddChildTask(parent_tid, child_tid);
+    _graphBuilder->CreateTask(parent_tid, child_tid);
 
     _pendingTasks.insert(child_tid);
 }
@@ -159,7 +159,8 @@ void LinuxGraphBuilderBlock::onSchedProcessExit(const notification::Path& path, 
     auto event = reinterpret_cast<const trace::EventValue*>(value);
 
     auto tid = event->getEventField("tid")->AsUInteger();
-    _graphBuilder->EndTaskOnThread(tid);
+    while (_graphBuilder->PopStack(tid))
+        continue;
 }
 
 void LinuxGraphBuilderBlock::onStatusChange(const notification::Path& path, const value::Value* value)
@@ -199,13 +200,15 @@ void LinuxGraphBuilderBlock::onStatusChange(const notification::Path& path, cons
 
 void LinuxGraphBuilderBlock::onSyscallChange(const notification::Path& path, const value::Value* value)
 {
+    // TODO(fdoray)
+    /*
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
-
+    
     // Create a new node if the duration of the previous node is not 0.
     auto previousNodeTime = _graphBuilder->ReadTimer(tid, Q_DURATION);
     if (previousNodeTime != 0)
     {
-        _graphBuilder->AddStepForThreadId(tid);
+        _graphBuilder->PushStack(tid);
         _graphBuilder->SetProperty(tid, Q_NODE_TYPE, nullptr);
     }
 
@@ -215,6 +218,7 @@ void LinuxGraphBuilderBlock::onSyscallChange(const notification::Path& path, con
     {
         _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(nextSyscall->AsString()));
     }
+    */
 }
 
 }  // namespace analysis_blocks
