@@ -50,6 +50,10 @@ public:
         const NodeStepKey& node_step_key,
         quark::Quark property_name) const;
 
+    value::Value* GetProperty(
+        const NodeStepKey& node_step_key,
+        quark::Quark property_name);
+
     const PropertyMap& GetProperties(
         const NodeStepKey& node_step_key) const;
 
@@ -64,10 +68,6 @@ public:
         uint64_t increment);
 
 private:
-    value::Value* GetProperty(
-        const NodeStepKey& node_step_key,
-        quark::Quark property_name);
-
     bool HasPropertyMap(const NodeStepKey& node_step_key) const;
 
     // Properties.

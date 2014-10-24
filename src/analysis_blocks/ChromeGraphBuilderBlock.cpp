@@ -169,21 +169,6 @@ void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, co
         return;
     }
 
-    // Sanity check.
-    auto ts = event->getEventField("ts")->AsULong();
-    if (_counters.find(tid) == _counters.end())
-    {
-        _counters[tid] = ts;
-    }
-    else
-    {
-        if (ts != (_counters[tid] + 1))
-        {
-            std::cout << "counter gap: expected " << (_counters[tid] + 1) << " but got " << ts << std::endl;
-        }
-        _counters[tid] = ts;
-    }
-
     // Handle events.
     char phase = event->getEventField(kPhaseField)->AsInteger();
 

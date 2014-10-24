@@ -96,6 +96,7 @@ bool GraphBuilder::PushStack(ThreadId thread)
     stack.push(&new_node);
 
     SetProperty(thread, Q_START_TIME, MakeValue(_ts));
+    SetProperty(thread, Q_STACK_DEPTH, MakeValue(stack.size() - 1));
 
     return true;
 }

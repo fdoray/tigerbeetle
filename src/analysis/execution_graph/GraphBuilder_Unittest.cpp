@@ -37,6 +37,7 @@ TEST(GraphBuilder, SingleTask) {
     quark::Quark Q_START_TIME = quarks.StrQuark(kStartTime);
     quark::Quark Q_DURATION = quarks.StrQuark(kDuration);
     quark::Quark Q_DUMMY = quarks.StrQuark("dummy");
+    quark::Quark Q_STACK_DEPTH = quarks.StrQuark(kStackDepth);
 
     // Build the graph.
     builder.SetTimestamp(0);
@@ -90,6 +91,7 @@ TEST(GraphBuilder, SingleTask) {
     EXPECT_EQ(0, properties.GetProperty(NodeStepKey(0, 0), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(0, 0), Q_DURATION)->AsULong());
     EXPECT_EQ("one", properties.GetProperty(NodeStepKey(0, 0), Q_DUMMY)->AsString());
+    EXPECT_EQ(nullptr, properties.GetProperty(NodeStepKey(0, 0), Q_STACK_DEPTH));
     ++it;
 
     // Node 1.
@@ -99,6 +101,7 @@ TEST(GraphBuilder, SingleTask) {
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(1, 0), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(1, 0), Q_DURATION)->AsULong());
     EXPECT_EQ("two", properties.GetProperty(NodeStepKey(1, 0), Q_DUMMY)->AsString());
+    EXPECT_EQ(1, properties.GetProperty(NodeStepKey(1, 0), Q_STACK_DEPTH)->AsUInteger());
     ++it;
 
     // Node 2.
@@ -108,6 +111,7 @@ TEST(GraphBuilder, SingleTask) {
     EXPECT_EQ(2, properties.GetProperty(NodeStepKey(2, 0), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(2, 0), Q_DURATION)->AsULong());
     EXPECT_EQ("three", properties.GetProperty(NodeStepKey(2, 0), Q_DUMMY)->AsString());
+    EXPECT_EQ(2, properties.GetProperty(NodeStepKey(2, 0), Q_STACK_DEPTH)->AsUInteger());
     ++it;
 
     // Node 1, step 1
@@ -115,6 +119,7 @@ TEST(GraphBuilder, SingleTask) {
     EXPECT_EQ(3, properties.GetProperty(NodeStepKey(1, 1), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(1, 1), Q_DURATION)->AsULong());
     EXPECT_EQ("four", properties.GetProperty(NodeStepKey(1, 1), Q_DUMMY)->AsString());
+    EXPECT_EQ(nullptr, properties.GetProperty(NodeStepKey(1, 1), Q_STACK_DEPTH));
 
     // Node 3.
     EXPECT_EQ(3, it->id());
@@ -123,6 +128,7 @@ TEST(GraphBuilder, SingleTask) {
     EXPECT_EQ(4, properties.GetProperty(NodeStepKey(3, 0), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(3, 0), Q_DURATION)->AsULong());
     EXPECT_EQ("five", properties.GetProperty(NodeStepKey(3, 0), Q_DUMMY)->AsString());
+    EXPECT_EQ(2, properties.GetProperty(NodeStepKey(3, 0), Q_STACK_DEPTH)->AsUInteger());
     ++it;
     EXPECT_EQ(it_end, it);
 
@@ -131,12 +137,14 @@ TEST(GraphBuilder, SingleTask) {
     EXPECT_EQ(5, properties.GetProperty(NodeStepKey(1, 2), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(1, 2), Q_DURATION)->AsULong());
     EXPECT_EQ("six", properties.GetProperty(NodeStepKey(1, 2), Q_DUMMY)->AsString());
+    EXPECT_EQ(nullptr, properties.GetProperty(NodeStepKey(1, 2), Q_STACK_DEPTH));
 
     // Node 0, step 1
     EXPECT_EQ("f", properties.GetProperty(NodeStepKey(0, 1), Q_NODE_TYPE)->AsString());
     EXPECT_EQ(6, properties.GetProperty(NodeStepKey(0, 1), Q_START_TIME)->AsULong());
     EXPECT_EQ(1, properties.GetProperty(NodeStepKey(0, 1), Q_DURATION)->AsULong());
     EXPECT_EQ("seven", properties.GetProperty(NodeStepKey(0, 1), Q_DUMMY)->AsString());
+    EXPECT_EQ(nullptr, properties.GetProperty(NodeStepKey(0, 1), Q_STACK_DEPTH));
 }
 
 }    // namespace execution_graph
