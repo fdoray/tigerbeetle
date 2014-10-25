@@ -63,10 +63,7 @@ void StateTimers::ReadAndResetTimers(uint64_t ts,
                                      const ReadTimerCallback& callback) {
     for (auto& timer : _timers) {
         uint64_t elapsed_time = ts - timer.second;
-        if (elapsed_time != 0)
-        {
-            callback(timer.first, elapsed_time);
-        }
+        callback(timer.first, elapsed_time);
         timer.second = ts;
     }
 }

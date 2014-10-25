@@ -17,6 +17,8 @@
  */
 #include "analysis/execution_graph/GraphBuilder.hpp"
 
+#include <iostream>
+
 #include "base/print.hpp"
 #include "base/Constants.hpp"
 #include "value/MakeValue.hpp"
@@ -138,8 +140,8 @@ bool GraphBuilder::CreateTask(ThreadId parent_thread, TaskId child_task)
 
     ReadAndResetTimers(parent_thread);
 
-    TaskId task = task_it->second;
-    size_t graph_index = _taskGraphIndex[task];
+    TaskId parent_task = task_it->second;
+    size_t graph_index = _taskGraphIndex[parent_task];
     Properties& properties = _graphs[graph_index]->properties;
 
     // Create the initial node, with info about the arrow.
@@ -147,6 +149,10 @@ bool GraphBuilder::CreateTask(ThreadId parent_thread, TaskId child_task)
 
     properties.SetProperty(NodeStepKey(new_node.id(), 0), Q_PARENT_TID, MakeValue(parent_thread));
     properties.SetProperty(NodeStepKey(new_node.id(), 0), Q_ARROW_START, MakeValue(_ts));
+
+    // Add the link from parent task.
+    _taskStacks[parent_task].top()->AddChild(new_node.id());
+    SetProperty(parent_thread, Q_START_TIME, MakeValue(_ts));
 
     _taskStacks[child_task].push(&new_node);
 
@@ -256,8 +262,7 @@ const value::Value* GraphBuilder::GetProperty(ThreadId thread, quark::Quark prop
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
-    return reinterpret_cast<const Properties*>(
-        &_graphs[graph_index]->properties)->GetProperty(key, property);
+    return _graphs[graph_index]->properties.GetProperty(key, property);
 }
 
 bool GraphBuilder::ReadAndResetTimers(ThreadId thread)
