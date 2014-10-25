@@ -19,7 +19,7 @@
 #define _TIBEE_ANALYSIS_EXECUTIONGRAPH_PREORDERITERATOR_HPP
 
 #include <iterator>
-#include <stack>
+#include <vector>
 
 #include "analysis/execution_graph/Node.hpp"
 
@@ -51,6 +51,8 @@ class PreorderIterator :
     const Node* operator->();
 
     size_t Depth() const;
+    NodeId ParentNodeId() const;
+    size_t ChildIndex() const;
 
  private:
     bool MoveToNextChild();
@@ -71,7 +73,7 @@ class PreorderIterator :
     };
 
     // Nodes that are being visited.
-    std::stack<NodeInfo> stack_;
+    std::vector<NodeInfo> stack_;
 
     // Graph that is being visited.
     const Graph* graph_;
