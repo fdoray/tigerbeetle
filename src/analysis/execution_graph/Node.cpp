@@ -17,9 +17,14 @@
  */
 #include "analysis/execution_graph/Node.hpp"
 
+#include "base/print.hpp"
+
 namespace tibee {
 namespace analysis {
 namespace execution_graph {
+
+using base::tbendl;
+using base::tberror;
 
 Node::Node(NodeId id)
     : id_(id)
@@ -32,6 +37,10 @@ Node::~Node()
 
 void Node::AddChild(NodeId child_id)
 {
+    if (child_id == id()) {
+        tberror() << "Cannot add a node as its own child." << tbendl();
+        return;
+    }
     children_.push_back(child_id);
 }
 

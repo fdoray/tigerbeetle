@@ -136,11 +136,12 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
     if (attributeValue == nullptr)
         return;
     std::string execName = attributeValue->AsString();
-    
+
     if (/*execName != kChromeExecName*/ execName != "tasks")
         return;
 
     uint32_t tid = atoi(path[kTidPathIndex].token().c_str());
+    _analyzedThreads.insert(tid);
 
     auto ppidValue = _currentState->GetAttributeValue(
         {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_PPID});
@@ -156,7 +157,14 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     }
 
-    _analyzedThreads.insert(tid);
+    // If we are in a syscall, push it on the stack.
+    auto currentSycall = _currentState->GetAttributeValue(
+        {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_SYSCALL});
+    if (currentSycall != nullptr)
+    {
+        _graphBuilder->PushStack(tid);
+        _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(currentSycall->AsString()));
+    }
 }
 
 void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, const value::Value* value)

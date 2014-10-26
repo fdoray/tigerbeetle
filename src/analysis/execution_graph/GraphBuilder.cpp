@@ -17,8 +17,6 @@
  */
 #include "analysis/execution_graph/GraphBuilder.hpp"
 
-#include <iostream>
-
 #include "base/print.hpp"
 #include "base/Constants.hpp"
 #include "value/MakeValue.hpp"
@@ -171,6 +169,8 @@ bool GraphBuilder::ScheduleTask(TaskId task, ThreadId thread)
         return false;
     }
 
+    ReadAndResetTimers(thread);
+
     _threadTasks[thread] = task;
 
     SetProperty(thread, Q_START_TIME, MakeValue(_ts));
@@ -216,8 +216,11 @@ uint64_t GraphBuilder::ReadTimer(ThreadId thread, quark::Quark timer_name) {
 
 void GraphBuilder::StopAllTimers()
 {
-    for (const auto& timer : _timers)
-        ReadAndResetTimers(timer.first);
+    while (!_threadTasks.empty()) {
+        const auto& threadTaskPair = *_threadTasks.begin();
+        while (PopStack(threadTaskPair.first))
+            continue;
+    }
 }
 
 bool GraphBuilder::IncrementProperty(ThreadId thread, quark::Quark property, uint64_t increment)

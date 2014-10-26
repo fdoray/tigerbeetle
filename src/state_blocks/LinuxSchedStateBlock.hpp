@@ -42,7 +42,7 @@ public:
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
-    void onSysEntryExecve(const trace::EventValue& event);
+    void onSchedProcessExec(const trace::EventValue& event);
     void onExitSyscall(const trace::EventValue& event);
     void onIrqHandlerEntry(const trace::EventValue& event);
     void onIrqHandlerExit(const trace::EventValue& event);
