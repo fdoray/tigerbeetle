@@ -22,9 +22,14 @@ namespace tibee
 
 const char kGraphBuilderServiceName[] = "graph-builder";
 const char kQuarksServiceName[] = "quarks";
+const char kCurrentStateServiceName[] = "current-state";
 
 const char kGraphBuilderNotificationPrefix[] = "graph-builder";
 const char kGraphBuilderNotificationName[] = "graph";
+
+const char kCurrentStateNotificationPrefix[] = "current-state";
+const char kCurrentStateAttributeValueField[] = "key";
+const char kCurrentStateAttributeKeyField[] = "value";
 
 const char kTraceNotificationPrefix[] = "event";
 const char kTimestampNotificationName[] = "ts";
@@ -76,5 +81,10 @@ const char kPageFault[] = "page-fault";
 const char kFaults[] = "faults";
 const char kMajorFaults[] = "major-faults";
 const char kMinorFaults[] = "minor-faults";
+
+const char kStateHistoryDirectory[] = "history";
+const char kHistoryTreeFilename[] = "-history-tree";
+const char kAttributeTreeFilename[] = "-attribute-tree";
+const char kQuarkDatabaseFilename[] = "-quarks";
 
 }  // namespace tibee

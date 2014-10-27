@@ -17,14 +17,13 @@
  */
 #include "analysis_blocks/LinuxSyscallBuilderBlock.hpp"
 
-#include <iostream>
 #include <stdlib.h>
 
 #include "base/BindObject.hpp"
 #include "base/Constants.hpp"
 #include "base/print.hpp"
 #include "block/ServiceList.hpp"
-#include "state_blocks/CurrentStateBlock.hpp"
+#include "notification/NotificationCenter.hpp"
 #include "trace/value/EventValue.hpp"
 #include "value/MakeValue.hpp"
 #include "value/ReadValue.hpp"
@@ -37,7 +36,6 @@ namespace
 {
 using notification::AnyToken;
 using notification::Token;
-using state_blocks::CurrentStateBlock;
 
 const size_t kTidPathIndex = 3;
 }  // namespace
@@ -51,7 +49,7 @@ void LinuxSyscallBuilderBlock::LoadServices(const block::ServiceList& serviceLis
     serviceList.QueryService(kGraphBuilderServiceName,
                              reinterpret_cast<void**>(&_graphBuilder));
 
-    serviceList.QueryService(CurrentStateBlock::kCurrentStateServiceName,
+    serviceList.QueryService(kCurrentStateServiceName,
                              reinterpret_cast<void**>(&_currentState));
 
     // Get constant quarks.
@@ -61,7 +59,7 @@ void LinuxSyscallBuilderBlock::LoadServices(const block::ServiceList& serviceLis
 void LinuxSyscallBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
+        {Token(kCurrentStateNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
         base::BindObject(&LinuxSyscallBuilderBlock::onSyscall, this));
 }
 
@@ -69,19 +67,14 @@ void LinuxSyscallBuilderBlock::onSyscall(const notification::Path& path, const v
 {
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
     
-    auto syscallValue = value->GetField(CurrentStateBlock::kAttributeValueField);
+    auto syscallValue = value->GetField(kCurrentStateAttributeValueField);
 
     if (syscallValue != nullptr)
     {
         // Starting a syscall.
         if (_graphBuilder->PushStack(tid)) {
-            std::cout << tid << " " << syscallValue->AsString() << " ok " << std::endl;
-
-            //if (tid == 16485)
-            //  std::cout << "push " << syscallValue->AsString() << std::endl;
             _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(syscallValue->AsString()));
         }
-        std::cout << tid << " " << syscallValue->AsString() << std::endl;
     }
     else
     {

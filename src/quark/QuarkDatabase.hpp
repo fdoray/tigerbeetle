@@ -47,6 +47,7 @@ class QuarkDatabase
 {
 public:
     typedef typename std::vector<const T*> KeysToValuesVector;
+    typedef typename KeysToValuesVector::const_iterator iterator;
 
     QuarkDatabase();
 
@@ -70,8 +71,8 @@ public:
     /*
      * Iterators.
      */
-    typename KeysToValuesVector::const_iterator begin() const { return keys_.begin(); }
-    typename KeysToValuesVector::const_iterator end() const { return keys_.end(); }
+    iterator begin() const { return keys_.begin(); }
+    iterator end() const { return keys_.end(); }
 
     /*
      * Number of elements.

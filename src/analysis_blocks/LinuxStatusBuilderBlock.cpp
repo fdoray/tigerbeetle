@@ -23,7 +23,7 @@
 #include "base/Constants.hpp"
 #include "base/print.hpp"
 #include "block/ServiceList.hpp"
-#include "state_blocks/CurrentStateBlock.hpp"
+#include "notification/NotificationCenter.hpp"
 #include "trace/value/EventValue.hpp"
 #include "value/MakeValue.hpp"
 #include "value/ReadValue.hpp"
@@ -36,7 +36,6 @@ namespace
 {
 using notification::AnyToken;
 using notification::Token;
-using state_blocks::CurrentStateBlock;
 
 const size_t kTidPathIndex = 3;
 }  // namespace
@@ -50,7 +49,7 @@ void LinuxStatusBuilderBlock::LoadServices(const block::ServiceList& serviceList
     serviceList.QueryService(kGraphBuilderServiceName,
                              reinterpret_cast<void**>(&_graphBuilder));
 
-    serviceList.QueryService(CurrentStateBlock::kCurrentStateServiceName,
+    serviceList.QueryService(kCurrentStateServiceName,
                              reinterpret_cast<void**>(&_currentState));
 
     Q_LINUX = _currentState->Quark(kStateLinux);
@@ -61,7 +60,7 @@ void LinuxStatusBuilderBlock::LoadServices(const block::ServiceList& serviceList
 void LinuxStatusBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateStatus)},
+        {Token(kCurrentStateNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateStatus)},
         base::BindObject(&LinuxStatusBuilderBlock::onStatusChange, this));
 }
 
@@ -76,7 +75,7 @@ void LinuxStatusBuilderBlock::onStatusChange(const notification::Path& path, con
         _graphBuilder->StopTimer(tid, quark::Quark(previousStatus->AsUInteger()));
 
     // Start timer for next status.
-    auto nextStatus = value->GetField(CurrentStateBlock::kAttributeValueField);
+    auto nextStatus = value->GetField(kCurrentStateAttributeValueField);
     if (nextStatus != nullptr)
         _graphBuilder->StartTimer(tid, quark::Quark(nextStatus->AsUInteger()));
 }

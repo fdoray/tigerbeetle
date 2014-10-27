@@ -5,7 +5,6 @@ Import('lib_env')
 sources = [
     'ChromeGraphBuilderBlock.cpp',
     'GraphBuilderBlock.cpp',
-    'LinuxGraphBuilderBlock.cpp',
     'LinuxPerfBuilderBlock.cpp',
     'LinuxStatusBuilderBlock.cpp',
     'LinuxSyscallBuilderBlock.cpp',

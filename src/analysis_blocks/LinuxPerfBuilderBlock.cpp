@@ -23,7 +23,7 @@
 #include "base/Constants.hpp"
 #include "base/print.hpp"
 #include "block/ServiceList.hpp"
-#include "state_blocks/CurrentStateBlock.hpp"
+#include "notification/NotificationCenter.hpp"
 #include "trace/value/EventValue.hpp"
 #include "value/MakeValue.hpp"
 #include "value/ReadValue.hpp"
@@ -35,7 +35,6 @@ namespace analysis_blocks {
 namespace
 {
 using notification::Token;
-using state_blocks::CurrentStateBlock;
 
 const char kInstructionsField[] = "perf_cpu_instructions";
 const char kCacheReferencesField[] = "perf_cpu_cache_references";
@@ -61,7 +60,7 @@ void LinuxPerfBuilderBlock::LoadServices(const block::ServiceList& serviceList)
     serviceList.QueryService(kGraphBuilderServiceName,
                              reinterpret_cast<void**>(&_graphBuilder));
 
-    serviceList.QueryService(CurrentStateBlock::kCurrentStateServiceName,
+    serviceList.QueryService(kCurrentStateServiceName,
                              reinterpret_cast<void**>(&_currentState));
 
     // Get constant quarks.

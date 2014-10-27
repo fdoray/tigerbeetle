@@ -4,8 +4,15 @@ Import('lib_env')
 
 sources = [
     'AbstractStateBlock.cpp',
+    'AttributeTreeWriter.cpp',
     'CurrentStateBlock.cpp',
     'LinuxSchedStateBlock.cpp',
+    'QuarkDatabaseWriter.cpp',
+    'StateHistoryBlock.cpp',
 ]
+
+libs = ['delorean']
+
+lib_env.Append(LIBS=libs)
 
 Return(['sources'])

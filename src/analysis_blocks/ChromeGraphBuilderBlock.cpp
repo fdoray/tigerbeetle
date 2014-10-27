@@ -24,7 +24,7 @@
 #include "base/Constants.hpp"
 #include "base/print.hpp"
 #include "block/ServiceList.hpp"
-#include "state_blocks/CurrentStateBlock.hpp"
+#include "notification/NotificationCenter.hpp"
 #include "trace/value/EventValue.hpp"
 #include "trace_blocks/TraceBlock.hpp"
 #include "value/MakeValue.hpp"
@@ -80,7 +80,6 @@ using base::tbwarn;
 using notification::AnyToken;
 using notification::RegexToken;
 using notification::Token;
-using state_blocks::CurrentStateBlock;
 using trace_blocks::TraceBlock;
 
 ChromeGraphBuilderBlock::ChromeGraphBuilderBlock()
@@ -92,7 +91,7 @@ void ChromeGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList
     serviceList.QueryService(kGraphBuilderServiceName,
                              reinterpret_cast<void**>(&_graphBuilder));
 
-    serviceList.QueryService(CurrentStateBlock::kCurrentStateServiceName,
+    serviceList.QueryService(kCurrentStateServiceName,
                              reinterpret_cast<void**>(&_currentState));
 
     // Get constant quarks.
@@ -114,16 +113,16 @@ void ChromeGraphBuilderBlock::LoadServices(const block::ServiceList& serviceList
 void ChromeGraphBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateExecName)},
+        {Token(kCurrentStateNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateExecName)},
         base::BindObject(&ChromeGraphBuilderBlock::onExecName, this));
     notificationCenter->AddObserver(
         {Token(kTraceNotificationPrefix), Token("lttng-ust"), Token("chrome:tracing")},
         base::BindObject(&ChromeGraphBuilderBlock::onChromeTracing, this));
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateStatus)},
+        {Token(kCurrentStateNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateStatus)},
         base::BindObject(&ChromeGraphBuilderBlock::onStatusChange, this));
     notificationCenter->AddObserver(
-        {Token(CurrentStateBlock::kNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
+        {Token(kCurrentStateNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
         base::BindObject(&ChromeGraphBuilderBlock::onSyscallChange, this));
     notificationCenter->AddObserver(
         {Token(kTraceNotificationPrefix), Token("lttng-kernel"), Token("sched_process_fork")},
@@ -132,7 +131,7 @@ void ChromeGraphBuilderBlock::AddObservers(notification::NotificationCenter* not
 
 void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const value::Value* value)
 {
-    auto attributeValue = value->GetField(CurrentStateBlock::kAttributeValueField);
+    auto attributeValue = value->GetField(kCurrentStateAttributeValueField);
     if (attributeValue == nullptr)
         return;
     std::string execName = attributeValue->AsString();

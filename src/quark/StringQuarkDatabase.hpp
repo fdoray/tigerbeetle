@@ -55,6 +55,18 @@ public:
      */
     const std::string& String(const Quark& quark) const;
 
+    /*
+     * Number of elements.
+     */
+    size_t size() const { return _quarks.size(); }
+
+    /*
+     * Iterators.
+     */
+    QuarkDatabase<std::string>::iterator begin() const { return _quarks.begin(); }
+    QuarkDatabase<std::string>::iterator end() const { return _quarks.end(); }
+
+
 private:
     QuarkDatabase<std::string> _quarks;
 };

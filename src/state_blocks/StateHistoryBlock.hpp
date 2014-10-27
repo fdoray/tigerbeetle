@@ -15,18 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATEBLOCKS_CURRENTSTATEBLOCK_HPP
-#define _TIBEE_STATEBLOCKS_CURRENTSTATEBLOCK_HPP
+#ifndef _TIBEE_STATEBLOCKS_STATEHISTORYBLOCK_HPP
+#define _TIBEE_STATEBLOCKS_STATEHISTORYBLOCK_HPP
 
+#include <delorean/interval/AbstractInterval.hpp>
+#include <delorean/HistoryFileSink.hpp>
+#include <memory>
 #include <vector>
 
 #include "block/AbstractBlock.hpp"
 #include "notification/NotificationCenter.hpp"
 #include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
-#include "quark/StringQuarkDatabase.hpp"
 #include "state/CurrentState.hpp"
-#include "value/Value.hpp"
 
 namespace tibee
 {
@@ -34,33 +35,39 @@ namespace state_blocks
 {
 
 /**
- * A block that keeps track of the current state.
+ * A block that writes a state history.
  *
  * @author Francois Doray
  */
-class CurrentStateBlock : public block::AbstractBlock
+class StateHistoryBlock : public block::AbstractBlock
 {
 public:
-    CurrentStateBlock();
+    StateHistoryBlock();
 
-    virtual void RegisterServices(block::ServiceList* serviceList) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
-    void onTimestamp(const notification::Path& path, const value::Value* value);
-    void onStateChange(state::AttributeKey attribute, const value::Value* value);
+    void InitTranslators();
+    void onStateChange(const notification::Path& path, const value::Value* value);
+    void onEnd(const notification::Path& path, const value::Value* value);
 
-    quark::StringQuarkDatabase::UP _quarks;
-    state::CurrentState::UP _currentState;
+    // Prefix of the name of generated files.
+    std::string _filenamePrefix;
 
-    typedef std::vector<const notification::NotificationSink*> Sinks;
-    Sinks _sinks;
+    // Current state.
+    state::CurrentState* _currentState;
 
-    notification::NotificationCenter* _notificationCenter;
+    // Interval history sink.
+    std::unique_ptr<delo::HistoryFileSink> _intervalFileSink;
+
+    // (value + ts -> delorean interval) translators
+    typedef std::function<delo::AbstractInterval* (uint32_t, const value::Value*, timestamp_t, timestamp_t)> Translator;
+    std::array<Translator, 16> _translators;
+    Translator _nullTranslator;
 };
 
 }
 }
 
-#endif // _TIBEE_TRACEBLOCKS_TRACEBLOCK_HPP
+#endif // _TIBEE_STATEBLOCKS_STATEHISTORYBLOCK_HPP

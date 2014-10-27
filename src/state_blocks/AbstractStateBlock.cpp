@@ -20,7 +20,6 @@
 #include "base/Constants.hpp"
 #include "block/ServiceList.hpp"
 #include "notification/NotificationCenter.hpp"
-#include "state_blocks/CurrentStateBlock.hpp"
 #include "trace_blocks/TraceBlock.hpp"
 
 namespace tibee
@@ -37,7 +36,7 @@ AbstractStateBlock::AbstractStateBlock() :
 
 void AbstractStateBlock::LoadServices(const block::ServiceList& serviceList)
 {
-    serviceList.QueryService(CurrentStateBlock::kCurrentStateServiceName,
+    serviceList.QueryService(kCurrentStateServiceName,
                              reinterpret_cast<void**>(&_currentState));    
 }
 

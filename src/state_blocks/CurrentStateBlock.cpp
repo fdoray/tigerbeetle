@@ -36,11 +36,6 @@ namespace state_blocks
 using notification::Token;
 using trace_blocks::TraceBlock;
 
-const char* CurrentStateBlock::kCurrentStateServiceName = "currentState";
-const char* CurrentStateBlock::kAttributeKeyField = "key";
-const char* CurrentStateBlock::kAttributeValueField = "value";
-const char* CurrentStateBlock::kNotificationPrefix = "state";
-
 CurrentStateBlock::CurrentStateBlock()
     : _notificationCenter(nullptr)
 {
@@ -90,7 +85,7 @@ void CurrentStateBlock::onStateChange(state::AttributeKey attribute, const value
     {
         state::AttributeTree::Path path;
         _currentState->GetAttributePath(attribute, &path);
-        notification::Path notificationPath {notification::Token { kNotificationPrefix } };
+        notification::Path notificationPath {notification::Token { kCurrentStateNotificationPrefix } };
         for (const auto& quark : path)
             notificationPath.push_back(notification::Token { _currentState->String(quark) });
 
@@ -99,12 +94,12 @@ void CurrentStateBlock::onStateChange(state::AttributeKey attribute, const value
 
     // Post notification.
     value::StructValue::UP notification {new value::StructValue};
-    notification->AddField<value::UIntValue>(kAttributeKeyField, attribute.get());
+    notification->AddField<value::UIntValue>(kCurrentStateAttributeKeyField, attribute.get());
 
     if (value != nullptr)
-        notification->AddField(kAttributeValueField, value->Copy());
+        notification->AddField(kCurrentStateAttributeValueField, value->Copy());
     else
-        notification->AddField(kAttributeValueField, nullptr);
+        notification->AddField(kCurrentStateAttributeValueField, nullptr);
 
     _sinks[attribute.get()]->PostNotification(notification.get());
 }

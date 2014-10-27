@@ -85,6 +85,18 @@ public:
 
     void GetAttributePath(AttributeKey attribute, AttributeTree::Path* path) const;
 
+    // Accessors.
+    AttributeTree::Iterator attribute_children_begin(AttributeKey attribute) const {
+        return _attributeTree.node_children_begin(attribute);
+    }
+    AttributeTree::Iterator attribute_children_end(AttributeKey attribute) const {
+        return _attributeTree.node_children_end(attribute);
+    }
+    size_t NumAttributes() const {
+        return _attributeTree.size();
+    }
+    const quark::StringQuarkDatabase& GetQuarks() const { return *_quarks; }
+
 private:
     struct AttributeValue {
         AttributeValue();

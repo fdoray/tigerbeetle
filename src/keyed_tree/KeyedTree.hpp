@@ -24,7 +24,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
-
+#include <iostream>
 #include "keyed_tree/NodeKey.hpp"
 
 namespace tibee
@@ -105,6 +105,8 @@ public:
 
     Iterator node_children_begin(NodeKey key) const;
     Iterator node_children_end(NodeKey key) const;
+
+    size_t size() const { return _nodes.size(); }
 
 private:
     Node* CreateNode(Node* root, const Path& subPath);
