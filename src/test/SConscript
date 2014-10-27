@@ -12,7 +12,7 @@ sources_unittests = [
     'analysis/execution_graph/Matcher_Unittest.cpp',
     'analysis/execution_graph/Node_Unittest.cpp',
     'analysis/execution_graph/PreorderIterator_Unittest.cpp',
-    'analysis_blocks/LinuxGraphBuilderBlock_Unittest.cpp',
+    #'analysis_blocks/LinuxGraphBuilderBlock_Unittest.cpp',
     'block/BlockRunner_Unittest.cpp',
     'keyed_tree/KeyedTree_Unittest.cpp',
     'notification/NotificationCenter_Unittest.cpp',

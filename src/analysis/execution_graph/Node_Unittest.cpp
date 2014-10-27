@@ -24,7 +24,7 @@ namespace execution_graph {
 
 TEST(Node, Node)
 {
-    const NodeId kTestId = 4;
+    const NodeId kTestId = 10;
 
     Node node(kTestId);
     EXPECT_EQ(kTestId, node.id());
