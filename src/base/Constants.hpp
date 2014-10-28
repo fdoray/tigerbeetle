@@ -25,6 +25,7 @@ namespace tibee
 extern const char kGraphBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
+extern const char kHistoryServiceName[];
 
 // Notifications.
 extern const char kGraphBuilderNotificationPrefix[];
@@ -93,6 +94,7 @@ extern const char kStateHistoryDirectory[];
 extern const char kHistoryTreeFilename[];
 extern const char kAttributeTreeFilename[];
 extern const char kQuarkDatabaseFilename[];
+extern const char kThreadStatusFilename[];
 
 }
 

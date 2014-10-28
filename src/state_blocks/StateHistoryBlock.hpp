@@ -21,6 +21,7 @@
 #include <delorean/interval/AbstractInterval.hpp>
 #include <delorean/HistoryFileSink.hpp>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "block/AbstractBlock.hpp"
@@ -44,8 +45,11 @@ class StateHistoryBlock : public block::AbstractBlock
 public:
     StateHistoryBlock();
 
+    virtual void RegisterServices(block::ServiceList* serviceList) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
+
+    std::string GetFilenamePrefix() const { return _filenamePrefix; }
 
 private:
     void InitTranslators();
@@ -57,6 +61,22 @@ private:
 
     // Current state.
     state::CurrentState* _currentState;
+
+    // Keeps track of the status of threads.
+    enum ThreadStatus {
+        kUsermode = 0,
+        kSyscall,
+        kInterrupted,
+        kWaitCpu,
+        kWaitBlocked,
+        kUnknown,
+    };
+    struct ThreadStatusInterval {
+        timestamp_t start;
+        timestamp_t end;
+        ThreadStatus status;
+    };
+    std::unordered_map<uint32_t, std::vector<ThreadStatusInterval>> _threadStatus;
 
     // Interval history sink.
     std::unique_ptr<delo::HistoryFileSink> _intervalFileSink;

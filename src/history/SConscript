@@ -1,0 +1,12 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'AttributeTreeReader.cpp',
+    'HistoryReader.cpp',
+    'QuarkDatabaseReader.cpp',
+    'ThreadStatusReader.cpp',
+]
+
+Return(['sources'])
