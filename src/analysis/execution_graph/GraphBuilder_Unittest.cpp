@@ -41,7 +41,7 @@ TEST(GraphBuilder, SingleTask) {
 
     // Build the graph.
     builder.SetTimestamp(0);
-    builder.CreateGraph(1, 1, "MyGraph");
+    builder.CreateGraph(1, "MyGraph");
     builder.SetProperty(1, Q_NODE_TYPE, MakeValue("*"));
     builder.SetProperty(1, Q_DUMMY, MakeValue("one"));
     

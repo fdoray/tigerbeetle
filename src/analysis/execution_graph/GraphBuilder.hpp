@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <stack>
 
 #include "analysis/StateTimers.hpp"
@@ -61,7 +62,7 @@ public:
     void SetTimestamp(timestamp_t ts);
 
     // Graph structure.
-    bool CreateGraph(ThreadId thread, TaskId task, const std::string& description);
+    bool CreateGraph(ThreadId thread, const std::string& description);
     bool PushStack(ThreadId thread);
     bool PopStack(ThreadId thread);
     bool CreateTask(ThreadId parent_thread, TaskId child_task);
@@ -98,17 +99,23 @@ private:
     typedef std::unordered_map<ThreadId, StateTimers> ThreadIdToStateTimers;
     ThreadIdToStateTimers _timers;
 
-    // Stacks for active tasks.
+    // Stacks for pending tasks.
     typedef std::unordered_map<TaskId, std::stack<Node*>> TaskStacks;
-    TaskStacks _taskStacks;
+    TaskStacks _pendingTasks;
+
+    // Stacks for scheduled tasks.
+    TaskStacks _scheduledTasks;
 
     // Tasks scheduled on threads.
-    typedef std::unordered_map<ThreadId, TaskId> ThreadTasks;
+    typedef std::unordered_map<ThreadId, std::stack<TaskId>> ThreadTasks;
     ThreadTasks _threadTasks;
 
     // Map of task id to graph index.
     typedef std::unordered_map<TaskId, size_t> TaskGraphIndex;
     TaskGraphIndex _taskGraphIndex;
+
+    // Internal task counter.
+    TaskId _taskCounter;
 
     // Quarks.
     quark::Quark Q_PARENT_TID;
