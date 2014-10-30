@@ -135,7 +135,7 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     std::string execName = attributeValue->AsString();
 
-    if (execName != kChromeExecName /* execName != "tasks" */)
+    if (/* execName != kChromeExecName */ execName != "tasks")
         return;
 
     uint32_t tid = atoi(path[kTidPathIndex].token().c_str());

@@ -126,8 +126,9 @@ bool GraphBuilder::PopStack(ThreadId thread)
         _taskGraphIndex.erase(task);
 
         task_it->second.pop();
-        if (task_it->second.empty())
+        if (task_it->second.empty()) {
             _threadTasks.erase(task_it);
+        }
     }
     else
     {
@@ -227,9 +228,6 @@ void GraphBuilder::StopAllTimers()
         auto& threadTaskStackPair = *_threadTasks.begin();
         while (PopStack(threadTaskStackPair.first))
             continue;
-        threadTaskStackPair.second.pop();
-        if (threadTaskStackPair.second.empty())
-            _threadTasks.erase(threadTaskStackPair.first);
     }
 }
 
