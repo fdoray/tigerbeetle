@@ -135,7 +135,7 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     std::string execName = attributeValue->AsString();
 
-    if (/* execName != kChromeExecName */ execName != "tasks")
+    if (execName != kChromeExecName /* execName != "tasks" */)
         return;
 
     uint32_t tid = atoi(path[kTidPathIndex].token().c_str());
@@ -214,8 +214,9 @@ void ChromeGraphBuilderBlock::onPhaseBegin(uint32_t tid, const trace::EventValue
 {
     std::string name = event.getEventField(kNameField)->AsString();
     std::string category = event.getEventField(kCategoryField)->AsString();
-    if (category != kCategoryTopLevel)
+    if (category != kCategoryTopLevel) {
         _graphBuilder->PushStack(tid);
+    }
     _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(name));
 }
 

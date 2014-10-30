@@ -156,28 +156,36 @@ uint64_t MatchInternal(const NodeInfoVector& graph_a_traversal,
     if (graph_a_traversal[pos_a].depth > graph_b_traversal[pos_b].depth)
         next_pos_a = graph_a_traversal[pos_a].next_depth_drop;
     NodePair skip_a_next_match;
-    uint64_t skip_a_cost =
-        ((next_pos_a - pos_a) * skip_cost) +
-        MatchInternal(graph_a_traversal, graph_b_traversal,
-                      match_cost_func,
-                      skip_cost,
-                      next_pos_a, pos_b,
-                      &skip_a_next_match,
-                      cache);
+    uint64_t skip_a_cost = kHugeCost;
+
+    if (match_cost != 0) {
+        skip_a_cost =
+            ((next_pos_a - pos_a) * skip_cost) +
+            MatchInternal(graph_a_traversal, graph_b_traversal,
+                          match_cost_func,
+                          skip_cost,
+                          next_pos_a, pos_b,
+                          &skip_a_next_match,
+                          cache);
+    }
 
     // Skip nodes from graph b.
     size_t next_pos_b = pos_b + 1;
     if (graph_b_traversal[pos_b].depth > graph_a_traversal[pos_a].depth)
         next_pos_b = graph_b_traversal[pos_b].next_depth_drop;
     NodePair skip_b_next_match;
-    uint64_t skip_b_cost =
-        ((next_pos_b - pos_b) * skip_cost) +
-        MatchInternal(graph_a_traversal, graph_b_traversal,
-                      match_cost_func,
-                      skip_cost,
-                      pos_a, next_pos_b,
-                      &skip_b_next_match,
-                      cache);
+    uint64_t skip_b_cost = kHugeCost;
+
+    if (match_cost != 0) {
+        skip_b_cost =
+            ((next_pos_b - pos_b) * skip_cost) +
+            MatchInternal(graph_a_traversal, graph_b_traversal,
+                          match_cost_func,
+                          skip_cost,
+                          pos_a, next_pos_b,
+                          &skip_b_next_match,
+                          cache);
+    }
 
     // Determine the operation with minimum cost.
     uint64_t min_cost = std::min({match_cost, skip_a_cost, skip_b_cost});
