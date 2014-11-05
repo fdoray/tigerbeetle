@@ -110,6 +110,10 @@ private:
     typedef std::unordered_map<ThreadId, std::stack<TaskId>> ThreadTasks;
     ThreadTasks _threadTasks;
 
+    // Stack depth per thread.
+    typedef std::unordered_map<ThreadId, uint32_t> StackDepthMap;
+    StackDepthMap _stackDepthMap;
+
     // Map of task id to graph index.
     typedef std::unordered_map<TaskId, size_t> TaskGraphIndex;
     TaskGraphIndex _taskGraphIndex;

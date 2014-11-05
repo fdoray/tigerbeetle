@@ -120,6 +120,10 @@ uint64_t MatchInternal(const NodeInfoVector& graph_a_traversal,
         return (graph_a_traversal.size() - pos_a) * skip_cost;
     }
 
+    int64_t diff = static_cast<int64_t>(pos_a) - static_cast<int64_t>(pos_b);
+    if (std::max(diff, -diff) > 6000)
+        return kHugeCost;
+
     // Look if the match is in the cache.
     NodePair current_pair(graph_a_traversal[pos_a].node_id,
                           graph_b_traversal[pos_b].node_id);

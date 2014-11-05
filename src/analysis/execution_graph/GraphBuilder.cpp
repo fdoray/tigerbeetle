@@ -28,6 +28,15 @@ namespace tibee {
 namespace analysis {
 namespace execution_graph {
 
+namespace {
+
+void VoidResetProperties(quark::Quark property_name,
+                         uint64_t increment) {
+    // Do nothing.
+}
+
+}  // namespace
+
 using base::tbendl;
 using base::tberror;
 using value::MakeValue;
@@ -81,6 +90,9 @@ bool GraphBuilder::CreateGraph(ThreadId thread, const std::string& description)
     StartTimer(thread, Q_DURATION);
     SetProperty(thread, Q_TID, MakeValue(thread));
 
+    // Initial stack depth.
+    _stackDepthMap[thread] = 0;
+
     return true;
 }
 
@@ -100,8 +112,12 @@ bool GraphBuilder::PushStack(ThreadId thread)
     stack.top()->AddChild(new_node.id());
     stack.push(&new_node);
 
+    auto stackDepthIt = _stackDepthMap.find(thread);
+    ++(stackDepthIt->second);
+
+    // Write properties.
     SetProperty(thread, Q_START_TIME, MakeValue(_ts));
-    SetProperty(thread, Q_STACK_DEPTH, MakeValue(stack.size() - 1));
+    SetProperty(thread, Q_STACK_DEPTH, MakeValue(stackDepthIt->second));
 
     return true;
 }
@@ -133,6 +149,17 @@ bool GraphBuilder::PopStack(ThreadId thread)
     else
     {
         SetProperty(thread, Q_START_TIME, MakeValue(_ts));
+    }
+
+    // Stack depth.
+    auto stackDepthIt = _stackDepthMap.find(thread);
+    if (stackDepthIt == _stackDepthMap.end()) {
+        tberror() << "Pop stack with no existing stack depth..." << tbendl();
+    } else {
+        if (stackDepthIt->second == 0)
+            _stackDepthMap.erase(stackDepthIt);
+        else
+            --(stackDepthIt->second);
     }
 
     return true;
@@ -184,15 +211,29 @@ bool GraphBuilder::ScheduleTask(TaskId task, ThreadId thread)
 
     ReadAndResetTimers(thread);
 
+    if (!_threadTasks[thread].empty()) {
+        tberror() << "double sched on " << thread << tbendl();
+    }
+
     _threadTasks[thread].push(_taskCounter);
     _scheduledTasks[_taskCounter] = pendingStackIt->second;
     ++_taskCounter;
 
     _pendingTasks.erase(pendingStackIt);
 
+    // Update stack depth.
+    auto stackDepthIt = _stackDepthMap.find(thread);
+    if (stackDepthIt == _stackDepthMap.end()) {
+        _stackDepthMap[thread] = 0;
+    } else {
+        ++(stackDepthIt->second);
+    }
+
+    // Set properties.
     SetProperty(thread, Q_START_TIME, MakeValue(_ts));
     StartTimer(thread, Q_DURATION);
     SetProperty(thread, Q_TID, MakeValue(thread));
+    SetProperty(thread, Q_STACK_DEPTH, MakeValue(_stackDepthMap[thread]));
 
     return true;
 }
@@ -281,8 +322,14 @@ bool GraphBuilder::ReadAndResetTimers(ThreadId thread)
     using namespace std::placeholders; 
 
     auto task_it = _threadTasks.find(thread);
-    if (task_it == _threadTasks.end())
-        return nullptr;
+    if (task_it == _threadTasks.end()) {
+        auto timer_it = _timers.find(thread);
+        timer_it->second.ReadAndResetTimers(
+            _ts,
+            &VoidResetProperties);
+
+        return false;
+    }
 
     TaskId task = task_it->second.top();
     auto stack_it = _scheduledTasks.find(task);

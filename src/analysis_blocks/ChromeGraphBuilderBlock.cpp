@@ -155,6 +155,7 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         return;
     }
 
+    /*
     // If we are in a syscall, push it on the stack.
     auto currentSycall = _currentState->GetAttributeValue(
         {Q_LINUX, Q_THREADS, _currentState->IntQuark(tid), Q_SYSCALL});
@@ -163,6 +164,7 @@ void ChromeGraphBuilderBlock::onExecName(const notification::Path& path, const v
         _graphBuilder->PushStack(tid);
         _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(currentSycall->AsString()));
     }
+    */
 }
 
 void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, const value::Value* value)
@@ -175,6 +177,19 @@ void ChromeGraphBuilderBlock::onChromeTracing(const notification::Path& path, co
     if (tid == kInvalidThread) {
         tbwarn() << "No tid found for event on CPU " << cpu << "." << tbendl();
         return;
+    }
+
+    uint64_t counter = event->getEventField("ts")->AsULong();
+    auto counter_it = _counters.find(tid);
+    if (counter_it == _counters.end()) {
+        _counters[tid] = counter;
+        if (counter != 0)
+            tbwarn() << "Counter doesn't start at 0 but at " << counter << " on thread " << tid << "." << tbendl();
+    } else {
+        if (counter != counter_it->second + 1) {
+            tbwarn() << "Expected " << (counter_it->second + 1) << " on thread " << tid << " but got " << counter << tbendl();
+        }
+        counter_it->second = counter;
     }
 
     // Handle events.
@@ -216,6 +231,8 @@ void ChromeGraphBuilderBlock::onPhaseBegin(uint32_t tid, const trace::EventValue
     std::string category = event.getEventField(kCategoryField)->AsString();
     if (category != kCategoryTopLevel) {
         _graphBuilder->PushStack(tid);
+    } else {
+        name = std::string("Sched: ") + event.getEventField("arg_2_value")->AsString();
     }
     _graphBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(name));
 }
@@ -223,6 +240,11 @@ void ChromeGraphBuilderBlock::onPhaseBegin(uint32_t tid, const trace::EventValue
 void ChromeGraphBuilderBlock::onPhaseEnd(uint32_t tid, const trace::EventValue& event)
 {
     std::string name = event.getEventField(kNameField)->AsString();
+    std::string category = event.getEventField(kCategoryField)->AsString();
+    if (category == kCategoryTopLevel) {
+        name = std::string("Sched: ") + event.getEventField("arg_2_value")->AsString();
+    }
+
     _graphBuilder->PopStack(tid);
 }
 

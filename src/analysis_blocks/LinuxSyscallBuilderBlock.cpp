@@ -65,6 +65,7 @@ void LinuxSyscallBuilderBlock::AddObservers(notification::NotificationCenter* no
 
 void LinuxSyscallBuilderBlock::onSyscall(const notification::Path& path, const value::Value* value)
 {
+    /*
     uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
     
     auto syscallValue = value->GetField(kCurrentStateAttributeValueField);
@@ -81,6 +82,7 @@ void LinuxSyscallBuilderBlock::onSyscall(const notification::Path& path, const v
         // Ending a syscall.
         _graphBuilder->PopStack(tid);
     }
+    */
 }
 
 }  // namespace analysis_blocks
