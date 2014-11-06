@@ -324,9 +324,11 @@ bool GraphBuilder::ReadAndResetTimers(ThreadId thread)
     auto task_it = _threadTasks.find(thread);
     if (task_it == _threadTasks.end()) {
         auto timer_it = _timers.find(thread);
-        timer_it->second.ReadAndResetTimers(
-            _ts,
-            &VoidResetProperties);
+        if (timer_it != _timers.end()) {
+            timer_it->second.ReadAndResetTimers(
+                _ts,
+                &VoidResetProperties);
+        }
 
         return false;
     }
