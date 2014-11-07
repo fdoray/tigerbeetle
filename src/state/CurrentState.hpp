@@ -85,6 +85,9 @@ public:
 
     void GetAttributePath(AttributeKey attribute, AttributeTree::Path* path) const;
 
+    // Utils.
+    uint32_t CurrentThreadForCpu(uint32_t cpu);
+
     // Accessors.
     AttributeTree::Iterator attribute_children_begin(AttributeKey attribute) const {
         return _attributeTree.node_children_begin(attribute);
@@ -119,6 +122,10 @@ private:
 
     // Callback invoked when an attribute changes.
     OnAttributeChangeCallback _onAttributeChangeCallback;
+
+    // Shortcut for utility methods.
+    state::AttributeKey _cpusAttribute;
+    quark::Quark Q_CUR_THREAD;
 };
 
 }

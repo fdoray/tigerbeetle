@@ -20,13 +20,13 @@
 namespace tibee
 {
 
-const char kGraphBuilderServiceName[] = "graph-builder";
+const char kExecutionBuilderServiceName[] = "graph-builder";
 const char kQuarksServiceName[] = "quarks";
 const char kCurrentStateServiceName[] = "current-state";
 const char kHistoryServiceName[] = "history";
 
-const char kGraphBuilderNotificationPrefix[] = "graph-builder";
-const char kGraphBuilderNotificationName[] = "graph";
+const char kExecutionBuilderNotificationPrefix[] = "graph-builder";
+const char kExecutionBuilderNotificationName[] = "graph";
 
 const char kCurrentStateNotificationPrefix[] = "current-state";
 const char kCurrentStateAttributeValueField[] = "key";

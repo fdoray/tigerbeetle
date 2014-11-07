@@ -18,18 +18,20 @@
 #ifndef _TIBEE_BASE_CONSTANTS_HPP
 #define _TIBEE_BASE_CONSTANTS_HPP
 
+#include <stdint.h>
+
 namespace tibee
 {
 
 // Services.
-extern const char kGraphBuilderServiceName[];
+extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
 extern const char kHistoryServiceName[];
 
 // Notifications.
-extern const char kGraphBuilderNotificationPrefix[];
-extern const char kGraphBuilderNotificationName[];
+extern const char kExecutionBuilderNotificationPrefix[];
+extern const char kExecutionBuilderNotificationName[];
 
 extern const char kCurrentStateNotificationPrefix[];
 extern const char kCurrentStateAttributeValueField[];
@@ -95,6 +97,9 @@ extern const char kHistoryTreeFilename[];
 extern const char kAttributeTreeFilename[];
 extern const char kQuarkDatabaseFilename[];
 extern const char kThreadStatusFilename[];
+
+// Invalid.
+const uint32_t kInvalidThread = -1;
 
 }
 

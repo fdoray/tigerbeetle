@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "base/Constants.hpp"
 #include "state/CurrentState.hpp"
 #include "value/Utils.hpp"
 
@@ -30,6 +31,9 @@ CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback,
     _onAttributeChangeCallback(onAttributeChangeCallback)
 {
     assert(_quarks != nullptr);
+
+    Q_CUR_THREAD = Quark(kStateCurThread);
+    _cpusAttribute = GetAttributeKey({Quark(kStateLinux), Quark(kStateCpus)});
 }
 
 CurrentState::~CurrentState()
@@ -156,6 +160,14 @@ timestamp_t CurrentState::GetAttributeLastChange(const AttributePath& path)
 void CurrentState::GetAttributePath(AttributeKey attribute, AttributeTree::Path* path) const
 {
     _attributeTree.GetNodePath(attribute, path);
+}
+
+uint32_t CurrentState::CurrentThreadForCpu(uint32_t cpu)
+{
+    auto threadValue = GetAttributeValue(_cpusAttribute, {IntQuark(cpu), Q_CUR_THREAD});
+    if (threadValue == nullptr)
+        return kInvalidThread;
+    return threadValue->AsInteger();
 }
 
 CurrentState::AttributeValue::AttributeValue() :

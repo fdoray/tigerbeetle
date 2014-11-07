@@ -9,11 +9,13 @@ env.Append(CPPPATH=['#/src'])
 
 lib_env = env.Clone();
 
-analysis = SConscript(os.path.join('analysis', 'SConscript'), exports=['lib_env'])
-analysis_blocks = SConscript(os.path.join('analysis_blocks', 'SConscript'), exports=['lib_env'])
 base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
+builder_blocks = SConscript(os.path.join('builder_blocks', 'SConscript'), exports=['lib_env'])
 block = SConscript(os.path.join('block', 'SConscript'), exports=['lib_env'])
+execution= SConscript(os.path.join('execution', 'SConscript'), exports=['lib_env'])
+execution_blocks = SConscript(os.path.join('execution_blocks', 'SConscript'), exports=['lib_env'])
 history = SConscript(os.path.join('history', 'SConscript'), exports=['lib_env'])
+metric_blocks = SConscript(os.path.join('metric_blocks', 'SConscript'), exports=['lib_env'])
 mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
 notification = SConscript(os.path.join('notification', 'SConscript'), exports=['lib_env'])
 quark = SConscript(os.path.join('quark', 'SConscript'), exports=['lib_env'])
@@ -25,11 +27,13 @@ trace_blocks = SConscript(os.path.join('trace_blocks', 'SConscript'), exports=['
 value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
 
 subs = [
-    ('analysis', analysis),
-    ('analysis_blocks', analysis_blocks),
     ('base', base),
+    ('builder_blocks', builder_blocks),
     ('block', block),
+    ('execution', execution),
+    ('execution_blocks', execution_blocks),
     ('history', history),
+    ('metric_blocks', metric_blocks),
     ('mq', mq),
     ('notification', notification),
     ('quark', quark),

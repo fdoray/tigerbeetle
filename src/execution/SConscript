@@ -1,0 +1,15 @@
+import os
+
+Import('lib_env')
+
+sources = [
+    'ExecutionBuilder.cpp',
+    'Graph.cpp',
+    'Matcher.cpp',
+    'Node.cpp',
+    'PreorderIterator.cpp',
+    'Properties.cpp',
+    'StateTimers.cpp',
+]
+
+Return(['sources'])

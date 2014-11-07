@@ -7,12 +7,12 @@ target = 'unittests'
 app_env = lib_env.Clone()
 
 sources_unittests = [
-    'analysis/execution_graph/Graph_Unittest.cpp',
-    'analysis/execution_graph/GraphBuilder_Unittest.cpp',
-    'analysis/execution_graph/Matcher_Unittest.cpp',
-    'analysis/execution_graph/Node_Unittest.cpp',
-    'analysis/execution_graph/PreorderIterator_Unittest.cpp',
     'block/BlockRunner_Unittest.cpp',
+    'execution/Graph_Unittest.cpp',
+    'execution/ExecutionBuilder_Unittest.cpp',
+    'execution/Matcher_Unittest.cpp',
+    'execution/Node_Unittest.cpp',
+    'execution/PreorderIterator_Unittest.cpp',
     'keyed_tree/KeyedTree_Unittest.cpp',
     'notification/NotificationCenter_Unittest.cpp',
     'state/CurrentState_Unittest.cpp',
