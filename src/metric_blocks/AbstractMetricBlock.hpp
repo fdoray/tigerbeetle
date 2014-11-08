@@ -15,32 +15,44 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
-#define _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
+#ifndef _TIBEE_METRICBLOCKS_ABSTRACTMETRICBLOCK_HPP
+#define _TIBEE_METRICBLOCKS_ABSTRACTMETRICBLOCK_HPP
 
-#include "builder_blocks/AbstractBuilderBlock.hpp"
-#include "notification/Path.hpp"
+#include "block/AbstractBlock.hpp"
+#include "execution/ExecutionBuilder.hpp"
+#include "state/CurrentState.hpp"
 
 namespace tibee {
-namespace builder_blocks {
+namespace metric_blocks {
 
 /**
- * Linux system calls builder block.
+ * Abstract metric block.
  *
  * @author Francois Doray
  */
-class LinuxSyscallBuilderBlock : public AbstractBuilderBlock
+class AbstractMetricBlock : public block::AbstractBlock
 {
 public:
-    LinuxSyscallBuilderBlock();
+    AbstractMetricBlock();
 
-    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
+    virtual void LoadServices(const block::ServiceList& serviceList) override;
+
+protected:
+    // Current state.
+    state::CurrentState* State() const { return _currentState; }
+
+    // Execution builder.
+    execution::ExecutionBuilder* Builder() const { return _executionBuilder; }
 
 private:
-    void onSyscall(const notification::Path& path, const value::Value* value);
+    // Current state.
+    state::CurrentState* _currentState;
+
+    // Graph builder.
+    execution::ExecutionBuilder* _executionBuilder;
 };
 
-}  // namespace builder_blocks
+}  // namespace metric_blocks
 }  // namespace tibee
 
-#endif // _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
+#endif // _TIBEE_METRICBLOCKS_ABSTRACTMETRICBLOCK_HPP

@@ -15,32 +15,47 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
-#define _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
+#ifndef _TIBEE_BUILDERBLOCKS_ABSTRACTBUILDERBLOCK_HPP
+#define _TIBEE_BUILDERBLOCKS_ABSTRACTBUILDERBLOCK_HPP
 
-#include "builder_blocks/AbstractBuilderBlock.hpp"
-#include "notification/Path.hpp"
+#include "execution/ExecutionBuilder.hpp"
+#include "block/AbstractBlock.hpp"
+#include "state/CurrentState.hpp"
 
 namespace tibee {
 namespace builder_blocks {
 
 /**
- * Linux system calls builder block.
+ * Abstract builder block.
  *
  * @author Francois Doray
  */
-class LinuxSyscallBuilderBlock : public AbstractBuilderBlock
+class AbstractBuilderBlock : public block::AbstractBlock
 {
 public:
-    LinuxSyscallBuilderBlock();
+    AbstractBuilderBlock();
 
-    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
+    virtual void LoadServices(const block::ServiceList& serviceList) override;
+
+protected:
+    // Current state.
+    state::CurrentState* State() const { return _currentState; }
+
+    // Execution builder.
+    execution::ExecutionBuilder* Builder() const { return _executionBuilder; }
+
+    // Constant quarks.
+    quark::Quark Q_NODE_TYPE;
 
 private:
-    void onSyscall(const notification::Path& path, const value::Value* value);
+    // Current state.
+    state::CurrentState* _currentState;
+
+    // Execution builder.
+    execution::ExecutionBuilder* _executionBuilder;
 };
 
 }  // namespace builder_blocks
 }  // namespace tibee
 
-#endif // _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
+#endif // _TIBEE_BUILDERBLOCKS_ABSTRACTBUILDERBLOCK_HPP

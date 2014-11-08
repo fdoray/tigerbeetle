@@ -15,32 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
-#define _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP
+#include "metric_blocks/AbstractMetricBlock.hpp"
 
-#include "builder_blocks/AbstractBuilderBlock.hpp"
-#include "notification/Path.hpp"
+#include "base/Constants.hpp"
+#include "block/ServiceList.hpp"
 
 namespace tibee {
-namespace builder_blocks {
+namespace metric_blocks {
 
-/**
- * Linux system calls builder block.
- *
- * @author Francois Doray
- */
-class LinuxSyscallBuilderBlock : public AbstractBuilderBlock
+AbstractMetricBlock::AbstractMetricBlock()
 {
-public:
-    LinuxSyscallBuilderBlock();
+}
 
-    virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
+void AbstractMetricBlock::LoadServices(const block::ServiceList& serviceList)
+{
+    serviceList.QueryService(kExecutionBuilderServiceName,
+                             reinterpret_cast<void**>(&_executionBuilder));
 
-private:
-    void onSyscall(const notification::Path& path, const value::Value* value);
-};
+    serviceList.QueryService(kCurrentStateServiceName,
+                             reinterpret_cast<void**>(&_currentState));
+}
 
-}  // namespace builder_blocks
+}  // namespace metric_blocks
 }  // namespace tibee
-
-#endif // _TIBEE_BUILDERBLOCKS_LINUXSYSCALLBUILDERBLOCK_HPP

@@ -18,13 +18,10 @@
 #ifndef _TIBEE_METRICBLOCKS_LINUXPERFMETRICBLOCK_HPP
 #define _TIBEE_METRICBLOCKS_LINUXPERFMETRICBLOCK_HPP
 
-#include "base/BasicTypes.hpp"
 #include "block/AbstractBlock.hpp"
-#include "execution/ExecutionBuilder.hpp"
-#include "notification/NotificationSink.hpp"
+#include "metric_blocks/AbstractMetricBlock.hpp"
 #include "notification/Path.hpp"
 #include "state/AttributeKey.hpp"
-#include "state/CurrentState.hpp"
 
 namespace tibee {
 namespace metric_blocks {
@@ -34,7 +31,7 @@ namespace metric_blocks {
  *
  * @author Francois Doray
  */
-class LinuxPerfMetricBlock : public block::AbstractBlock
+class LinuxPerfMetricBlock : public AbstractMetricBlock
 {
 public:
     LinuxPerfMetricBlock();
@@ -46,12 +43,6 @@ private:
     void onEvent(const notification::Path& path, const value::Value* value);
 
     void IncrementPerfCounter(uint32_t cpu, int32_t thread, quark::Quark counter, const value::Value* value);
-
-    // Current state.
-    state::CurrentState* _currentState;
-
-    // Graph builder.
-    execution::ExecutionBuilder* _executionBuilder;
 
     // Quarks.
     quark::Quark Q_INSTRUCTIONS;

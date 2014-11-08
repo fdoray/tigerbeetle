@@ -3,6 +3,7 @@ import os
 Import('lib_env')
 
 sources = [
+    'AbstractMetricBlock.cpp',
     'LinuxPerfMetricBlock.cpp',
     'LinuxStatusMetricBlock.cpp',
 ]

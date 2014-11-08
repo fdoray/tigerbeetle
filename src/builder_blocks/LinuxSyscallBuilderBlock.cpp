@@ -44,18 +44,6 @@ LinuxSyscallBuilderBlock::LinuxSyscallBuilderBlock()
 {
 }
 
-void LinuxSyscallBuilderBlock::LoadServices(const block::ServiceList& serviceList)
-{
-    serviceList.QueryService(kExecutionBuilderServiceName,
-                             reinterpret_cast<void**>(&_executionBuilder));
-
-    serviceList.QueryService(kCurrentStateServiceName,
-                             reinterpret_cast<void**>(&_currentState));
-
-    // Get constant quarks.
-    Q_NODE_TYPE = _currentState->Quark(kNodeType);
-}
-
 void LinuxSyscallBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
     notificationCenter->AddObserver(
@@ -72,14 +60,14 @@ void LinuxSyscallBuilderBlock::onSyscall(const notification::Path& path, const v
     if (syscallValue != nullptr)
     {
         // Starting a syscall.
-        if (_executionBuilder->PushStack(tid)) {
-            _executionBuilder->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(syscallValue->AsString()));
+        if (Builder()->PushStack(tid)) {
+            Builder()->SetProperty(tid, Q_NODE_TYPE, value::MakeValue(syscallValue->AsString()));
         }
     }
     else
     {
         // Ending a syscall.
-        _executionBuilder->PopStack(tid);
+        Builder()->PopStack(tid);
     }
 }
 

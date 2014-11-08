@@ -57,40 +57,36 @@ LinuxPerfMetricBlock::LinuxPerfMetricBlock()
 
 void LinuxPerfMetricBlock::LoadServices(const block::ServiceList& serviceList)
 {
-    serviceList.QueryService(kExecutionBuilderServiceName,
-                             reinterpret_cast<void**>(&_executionBuilder));
-
-    serviceList.QueryService(kCurrentStateServiceName,
-                             reinterpret_cast<void**>(&_currentState));
+    AbstractMetricBlock::LoadServices(serviceList);
 
     // Get constant quarks.
-    Q_INSTRUCTIONS = _currentState->Quark(kInstructions);
-    Q_CACHE_REFERENCES = _currentState->Quark(kCacheReferences);
-    Q_CACHE_MISSES = _currentState->Quark(kCacheMisses);
-    Q_BRANCH_INSTRUCTIONS = _currentState->Quark(kBranchInstructions);
-    Q_BRANCHES = _currentState->Quark(kBranches);
-    Q_BRANCH_MISSES = _currentState->Quark(kBranchMisses);
-    Q_BRANCH_LOADS = _currentState->Quark(kBranchLoads);
-    Q_BRANCH_LOAD_MISSES = _currentState->Quark(kBranchLoadMisses);
-    Q_PAGE_FAULT = _currentState->Quark(kPageFault);
-    Q_FAULTS = _currentState->Quark(kFaults);
-    Q_MAJOR_FAULTS = _currentState->Quark(kMajorFaults);
-    Q_MINOR_FAULTS = _currentState->Quark(kMinorFaults);
+    Q_INSTRUCTIONS = State()->Quark(kInstructions);
+    Q_CACHE_REFERENCES = State()->Quark(kCacheReferences);
+    Q_CACHE_MISSES = State()->Quark(kCacheMisses);
+    Q_BRANCH_INSTRUCTIONS = State()->Quark(kBranchInstructions);
+    Q_BRANCHES = State()->Quark(kBranches);
+    Q_BRANCH_MISSES = State()->Quark(kBranchMisses);
+    Q_BRANCH_LOADS = State()->Quark(kBranchLoads);
+    Q_BRANCH_LOAD_MISSES = State()->Quark(kBranchLoadMisses);
+    Q_PAGE_FAULT = State()->Quark(kPageFault);
+    Q_FAULTS = State()->Quark(kFaults);
+    Q_MAJOR_FAULTS = State()->Quark(kMajorFaults);
+    Q_MINOR_FAULTS = State()->Quark(kMinorFaults);
 
-    Q_CUR_THREAD = _currentState->Quark(kStateCurThread);
-    Q_STATUS = _currentState->Quark(kStateStatus);
-    Q_INTERRUPTED = _currentState->Quark(kStateInterrupted);
+    Q_CUR_THREAD = State()->Quark(kStateCurThread);
+    Q_STATUS = State()->Quark(kStateStatus);
+    Q_INTERRUPTED = State()->Quark(kStateInterrupted);
 
     // CPUs attribute.
-    _cpusAttribute = _currentState->GetAttributeKey({
-        _currentState->Quark(kStateLinux),
-        _currentState->Quark(kStateCpus)
+    _cpusAttribute = State()->GetAttributeKey({
+        State()->Quark(kStateLinux),
+        State()->Quark(kStateCpus)
     });
 
     // Threads attribute.
-    _threadsAttribute = _currentState->GetAttributeKey({
-        _currentState->Quark(kStateLinux),
-        _currentState->Quark(kStateThreads)
+    _threadsAttribute = State()->GetAttributeKey({
+        State()->Quark(kStateLinux),
+        State()->Quark(kStateThreads)
     });
 }
 
@@ -107,9 +103,9 @@ void LinuxPerfMetricBlock::onEvent(const notification::Path& path, const value::
     auto cpu = event->getStreamPacketContext()->GetField("cpu_id")->AsUInteger();
     auto context = value::StructValueBase::Cast(event->getStreamEventContext());
 
-    auto threadValue = _currentState->GetAttributeValue(
+    auto threadValue = State()->GetAttributeValue(
         _cpusAttribute,
-        {_currentState->IntQuark(cpu), Q_CUR_THREAD});
+        {State()->IntQuark(cpu), Q_CUR_THREAD});
     if (threadValue == nullptr)
         return;
     auto thread = threadValue->AsInteger();
@@ -143,14 +139,14 @@ void LinuxPerfMetricBlock::IncrementPerfCounter(
     if (look_last_value != _perfCounters[cpu].end())
     {
         // Do not increment the counter if the thread is interrupted.
-        auto qStatus = value::ReadQuark(_currentState->GetAttributeValue(
+        auto qStatus = value::ReadQuark(State()->GetAttributeValue(
             _threadsAttribute,
-            {_currentState->IntQuark(thread), Q_STATUS}));
+            {State()->IntQuark(thread), Q_STATUS}));
         if (qStatus != Q_INTERRUPTED)
         {
             // Increment the counter for the thread.
             uint64_t increment = longValue - look_last_value->second;
-            _executionBuilder->IncrementProperty(thread, counter, increment);
+            Builder()->IncrementProperty(thread, counter, increment);
         }
     }
 
