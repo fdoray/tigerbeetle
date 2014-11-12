@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "execution/Properties.hpp"
+#include "execution/NodeProperties.hpp"
 
 #include "base/print.hpp"
 #include "value/MakeValue.hpp"
@@ -23,14 +23,14 @@
 namespace tibee {
 namespace execution {
 
-Properties::Properties()
+NodeProperties::NodeProperties()
 {
 }
 
-Properties::~Properties() {
+NodeProperties::~NodeProperties() {
 }
 
-const value::Value* Properties::GetProperty(
+const value::Value* NodeProperties::GetProperty(
     const NodeStepKey& node_step_key,
     quark::Quark property_name) const
 {
@@ -47,7 +47,7 @@ const value::Value* Properties::GetProperty(
     return look->second.get();
 }
 
-value::Value* Properties::GetProperty(
+value::Value* NodeProperties::GetProperty(
     const NodeStepKey& node_step_key,
     quark::Quark property_name)
 {
@@ -64,14 +64,14 @@ value::Value* Properties::GetProperty(
     return look->second.get();
 }
 
-const Properties::PropertyMap& Properties::GetProperties(
+const NodeProperties::PropertyMap& NodeProperties::GetProperties(
     const NodeStepKey& node_step_key) const
 {
     assert(HasPropertyMap(node_step_key));
     return *_properties[node_step_key.node_id()][node_step_key.step_index()];
 }
 
-void Properties::SetProperty(
+void NodeProperties::SetProperty(
     const NodeStepKey& node_step_key,
     quark::Quark property_name,
     value::Value::UP property_value)
@@ -89,7 +89,7 @@ void Properties::SetProperty(
         std::move(property_value); 
 }
 
-void Properties::IncrementProperty(
+void NodeProperties::IncrementProperty(
     const NodeStepKey& node_step_key,
     quark::Quark property_name,
     uint64_t increment)
@@ -112,7 +112,7 @@ void Properties::IncrementProperty(
     }
 }
 
-bool Properties::HasPropertyMap(const NodeStepKey& node_step_key) const
+bool NodeProperties::HasPropertyMap(const NodeStepKey& node_step_key) const
 {
     if (node_step_key.node_id() >= _properties.size() ||
         node_step_key.step_index() >= _properties[node_step_key.node_id()].size() ||

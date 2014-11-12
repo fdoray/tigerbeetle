@@ -7,8 +7,8 @@ sources = [
     'Graph.cpp',
     'Matcher.cpp',
     'Node.cpp',
+    'NodeProperties.cpp',
     'PreorderIterator.cpp',
-    'Properties.cpp',
     'StateTimers.cpp',
 ]
 

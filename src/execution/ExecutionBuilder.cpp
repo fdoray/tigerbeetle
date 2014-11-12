@@ -174,13 +174,13 @@ bool ExecutionBuilder::CreateTask(ThreadId parent_thread, TaskId child_task)
 
     TaskId parent_task = task_it->second.top();
     size_t graph_index = _taskGraphIndex[parent_task];
-    Properties& properties = _executions[graph_index]->properties;
+    NodeProperties& nodeProperties = _executions[graph_index]->nodeProperties;
 
     // Create the initial node, with info about the arrow.
     Node& new_node = _executions[graph_index]->graph.CreateNode();
 
-    properties.SetProperty(NodeStepKey(new_node.id(), 0), Q_PARENT_TID, MakeValue(parent_thread));
-    properties.SetProperty(NodeStepKey(new_node.id(), 0), Q_ARROW_START, MakeValue(_ts));
+    nodeProperties.SetProperty(NodeStepKey(new_node.id(), 0), Q_PARENT_TID, MakeValue(parent_thread));
+    nodeProperties.SetProperty(NodeStepKey(new_node.id(), 0), Q_ARROW_START, MakeValue(_ts));
 
     // Add the link from parent task.
     _scheduledTasks[parent_task].top()->AddChild(new_node.id());
@@ -281,7 +281,7 @@ bool ExecutionBuilder::IncrementProperty(ThreadId thread, quark::Quark property,
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
-    _executions[graph_index]->properties.IncrementProperty(
+    _executions[graph_index]->nodeProperties.IncrementProperty(
         key, property, increment);
 
     return true;
@@ -297,7 +297,7 @@ bool ExecutionBuilder::SetProperty(ThreadId thread, quark::Quark property, value
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
-    _executions[graph_index]->properties.SetProperty(
+    _executions[graph_index]->nodeProperties.SetProperty(
         key, property, std::move(value));
 
     return true;
@@ -313,7 +313,7 @@ const value::Value* ExecutionBuilder::GetProperty(ThreadId thread, quark::Quark 
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
-    return _executions[graph_index]->properties.GetProperty(key, property);
+    return _executions[graph_index]->nodeProperties.GetProperty(key, property);
 }
 
 bool ExecutionBuilder::ReadAndResetTimers(ThreadId thread)
@@ -353,8 +353,8 @@ bool ExecutionBuilder::ReadAndResetTimers(ThreadId thread)
     auto timer_it = _timers.find(thread);
     timer_it->second.ReadAndResetTimers(
         _ts,
-        std::bind(&Properties::IncrementProperty,
-                  &_executions[graph_index]->properties,
+        std::bind(&NodeProperties::IncrementProperty,
+                  &_executions[graph_index]->nodeProperties,
                   key,
                   _1,
                   _2));

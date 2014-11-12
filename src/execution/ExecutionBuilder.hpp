@@ -25,7 +25,7 @@
 
 #include "execution/StateTimers.hpp"
 #include "execution/Graph.hpp"
-#include "execution/Properties.hpp"
+#include "execution/NodeProperties.hpp"
 #include "base/BasicTypes.hpp"
 #include "quark/StringQuarkDatabase.hpp"
 #include "value/Value.hpp"
@@ -49,7 +49,7 @@ public:
         typedef std::unique_ptr<Execution> UP;
         std::string description;
         Graph graph;
-        Properties properties;
+        NodeProperties nodeProperties;
     };
     typedef std::vector<Execution::UP> Executions;
 
@@ -73,7 +73,7 @@ public:
     uint64_t ReadTimer(ThreadId thread, quark::Quark state);
     void StopAllTimers();
 
-    // Properties.
+    // Node properties.
     bool IncrementProperty(ThreadId thread, quark::Quark property, uint64_t increment);
     bool SetProperty(ThreadId thread, quark::Quark property, value::Value::UP value);
     const value::Value* GetProperty(ThreadId thread, quark::Quark property);

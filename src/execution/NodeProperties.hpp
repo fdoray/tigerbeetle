@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_EXECUTION_PROPERTIES_HPP
-#define _TIBEE_EXECUTION_PROPERTIES_HPP
+#ifndef _TIBEE_EXECUTION_NODEPROPERTIES_HPP
+#define _TIBEE_EXECUTION_NODEPROPERTIES_HPP
 
 #include <boost/noncopyable.hpp>
 #include <memory>
@@ -36,14 +36,14 @@ namespace execution {
  *
  * @author Francois Doray
  */
-class Properties
+class NodeProperties
     : public boost::noncopyable
 {
 public:
     typedef std::unordered_map<quark::Quark, value::Value::UP> PropertyMap;
 
-    Properties();
-    ~Properties();
+    NodeProperties();
+    ~NodeProperties();
 
     const value::Value* GetProperty(
         const NodeStepKey& node_step_key,
@@ -80,4 +80,4 @@ private:
 }  // namespace execution
 }  // namespace tibee
 
-#endif // _TIBEE_EXECUTION_PROPERTIES_HPP
+#endif // _TIBEE_EXECUTION_NODEPROPERTIES_HPP
