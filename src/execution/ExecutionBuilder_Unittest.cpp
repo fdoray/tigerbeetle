@@ -56,8 +56,6 @@ TEST(ExecutionBuilder, SingleTask) {
 
     builder.SetTimestamp(3);
     builder.PopStack(1);
-    builder.SetProperty(1, Q_NODE_TYPE, MakeValue("c"));
-    builder.SetProperty(1, Q_DUMMY, MakeValue("four"));
 
     builder.SetTimestamp(4);
     builder.PushStack(1);
@@ -66,13 +64,9 @@ TEST(ExecutionBuilder, SingleTask) {
 
     builder.SetTimestamp(5);
     builder.PopStack(1);
-    builder.SetProperty(1, Q_NODE_TYPE, MakeValue("e"));
-    builder.SetProperty(1, Q_DUMMY, MakeValue("six"));
 
     builder.SetTimestamp(6);
     builder.PopStack(1);
-    builder.SetProperty(1, Q_NODE_TYPE, MakeValue("f"));
-    builder.SetProperty(1, Q_DUMMY, MakeValue("seven"));
 
     builder.SetTimestamp(7);
     builder.StopAllTimers();
@@ -88,7 +82,7 @@ TEST(ExecutionBuilder, SingleTask) {
     EXPECT_EQ(0, it.Depth());
     EXPECT_EQ("*", nodeProperties.GetProperty(NodeStepKey(0, 0), Q_NODE_TYPE)->AsString());
     EXPECT_EQ(0, nodeProperties.GetProperty(NodeStepKey(0, 0), Q_START_TIME)->AsULong());
-    EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(0, 0), Q_DURATION)->AsULong());
+    EXPECT_EQ(2, nodeProperties.GetProperty(NodeStepKey(0, 0), Q_DURATION)->AsULong());
     EXPECT_EQ("one", nodeProperties.GetProperty(NodeStepKey(0, 0), Q_DUMMY)->AsString());
     EXPECT_EQ(nullptr, nodeProperties.GetProperty(NodeStepKey(0, 0), Q_STACK_DEPTH));
     ++it;
@@ -98,7 +92,7 @@ TEST(ExecutionBuilder, SingleTask) {
     EXPECT_EQ(1, it.Depth());
     EXPECT_EQ("a", nodeProperties.GetProperty(NodeStepKey(1, 0), Q_NODE_TYPE)->AsString());
     EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(1, 0), Q_START_TIME)->AsULong());
-    EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(1, 0), Q_DURATION)->AsULong());
+    EXPECT_EQ(3, nodeProperties.GetProperty(NodeStepKey(1, 0), Q_DURATION)->AsULong());
     EXPECT_EQ("two", nodeProperties.GetProperty(NodeStepKey(1, 0), Q_DUMMY)->AsString());
     EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(1, 0), Q_STACK_DEPTH)->AsUInteger());
     ++it;
@@ -113,13 +107,6 @@ TEST(ExecutionBuilder, SingleTask) {
     EXPECT_EQ(2, nodeProperties.GetProperty(NodeStepKey(2, 0), Q_STACK_DEPTH)->AsUInteger());
     ++it;
 
-    // Node 1, step 1
-    EXPECT_EQ("c", nodeProperties.GetProperty(NodeStepKey(1, 1), Q_NODE_TYPE)->AsString());
-    EXPECT_EQ(3, nodeProperties.GetProperty(NodeStepKey(1, 1), Q_START_TIME)->AsULong());
-    EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(1, 1), Q_DURATION)->AsULong());
-    EXPECT_EQ("four", nodeProperties.GetProperty(NodeStepKey(1, 1), Q_DUMMY)->AsString());
-    EXPECT_EQ(nullptr, nodeProperties.GetProperty(NodeStepKey(1, 1), Q_STACK_DEPTH));
-
     // Node 3.
     EXPECT_EQ(3, it->id());
     EXPECT_EQ(2, it.Depth());
@@ -130,20 +117,6 @@ TEST(ExecutionBuilder, SingleTask) {
     EXPECT_EQ(2, nodeProperties.GetProperty(NodeStepKey(3, 0), Q_STACK_DEPTH)->AsUInteger());
     ++it;
     EXPECT_EQ(it_end, it);
-
-    // Node 1, step 2
-    EXPECT_EQ("e", nodeProperties.GetProperty(NodeStepKey(1, 2), Q_NODE_TYPE)->AsString());
-    EXPECT_EQ(5, nodeProperties.GetProperty(NodeStepKey(1, 2), Q_START_TIME)->AsULong());
-    EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(1, 2), Q_DURATION)->AsULong());
-    EXPECT_EQ("six", nodeProperties.GetProperty(NodeStepKey(1, 2), Q_DUMMY)->AsString());
-    EXPECT_EQ(nullptr, nodeProperties.GetProperty(NodeStepKey(1, 2), Q_STACK_DEPTH));
-
-    // Node 0, step 1
-    EXPECT_EQ("f", nodeProperties.GetProperty(NodeStepKey(0, 1), Q_NODE_TYPE)->AsString());
-    EXPECT_EQ(6, nodeProperties.GetProperty(NodeStepKey(0, 1), Q_START_TIME)->AsULong());
-    EXPECT_EQ(1, nodeProperties.GetProperty(NodeStepKey(0, 1), Q_DURATION)->AsULong());
-    EXPECT_EQ("seven", nodeProperties.GetProperty(NodeStepKey(0, 1), Q_DUMMY)->AsString());
-    EXPECT_EQ(nullptr, nodeProperties.GetProperty(NodeStepKey(0, 1), Q_STACK_DEPTH));
 }
 
 }    // namespace execution
