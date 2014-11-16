@@ -37,7 +37,7 @@ public:
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
 private:
-    void onSyscall(const notification::Path& path, const value::Value* value);
+    void onSyscall(uint32_t tid, const notification::Path& path, const value::Value* value);
 };
 
 }  // namespace builder_blocks

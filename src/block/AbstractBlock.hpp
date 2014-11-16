@@ -19,6 +19,8 @@
 #define _TIBEE_BLOCK_ABSTRACTBLOCK_HPP
 
 #include "block/BlockInterface.hpp"
+#include "notification/Path.hpp"
+#include "trace/value/EventValue.hpp"
 
 namespace tibee
 {
@@ -44,6 +46,21 @@ public:
 
     virtual void Execute() override;
     virtual void Stop() override;
+
+    typedef std::function<void (const trace::EventValue&)> EventHandler;
+    typedef std::function<void (uint32_t tid, const notification::Path& path, const value::Value* value)> ThreadStateHandler;
+
+protected:
+    void AddKernelObserver(notification::NotificationCenter* notificationCenter,
+                           const notification::Token& token,
+                           EventHandler eventHandler);
+    void AddUstObserver(notification::NotificationCenter* notificationCenter,
+                        const notification::Token& token,
+                        EventHandler eventHandler);
+    
+    void AddThreadStateObserver(notification::NotificationCenter* notificationCenter,
+                                const notification::Token& token,
+                                ThreadStateHandler threadStateHandler);
 };
 
 }

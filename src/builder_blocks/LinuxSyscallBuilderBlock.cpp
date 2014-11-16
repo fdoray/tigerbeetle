@@ -46,15 +46,11 @@ LinuxSyscallBuilderBlock::LinuxSyscallBuilderBlock()
 
 void LinuxSyscallBuilderBlock::AddObservers(notification::NotificationCenter* notificationCenter)
 {
-    notificationCenter->AddObserver(
-        {Token(kCurrentStateNotificationPrefix), Token(kStateLinux), Token(kStateThreads), AnyToken(), Token(kStateSyscall)},
-        base::BindObject(&LinuxSyscallBuilderBlock::onSyscall, this));
+    AddThreadStateObserver(notificationCenter, Token(kStateSyscall), base::BindObject(&LinuxSyscallBuilderBlock::onSyscall, this));
 }
 
-void LinuxSyscallBuilderBlock::onSyscall(const notification::Path& path, const value::Value* value)
-{
-    uint64_t tid = atoi(path[kTidPathIndex].token().c_str());
-    
+void LinuxSyscallBuilderBlock::onSyscall(uint32_t tid, const notification::Path& path, const value::Value* value)
+{    
     auto syscallValue = value->GetField(kCurrentStateAttributeValueField);
 
     if (syscallValue != nullptr)

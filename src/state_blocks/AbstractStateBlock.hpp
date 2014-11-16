@@ -48,14 +48,6 @@ public:
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) = 0;
 
 protected:
-    typedef std::function<void (const trace::EventValue&)> EventHandler;
-    void AddKernelObserver(notification::NotificationCenter* notificationCenter,
-                           notification::Token token,
-                           EventHandler eventHandler);
-    void AddUstObserver(notification::NotificationCenter* notificationCenter,
-                        notification::Token token,
-                        EventHandler eventHandler);
-
     state::CurrentState* State() const { return _currentState; }
 
 private:

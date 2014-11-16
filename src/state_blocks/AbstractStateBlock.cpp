@@ -40,51 +40,5 @@ void AbstractStateBlock::LoadServices(const block::ServiceList& serviceList)
                              reinterpret_cast<void**>(&_currentState));    
 }
 
-
-void AbstractStateBlock::AddKernelObserver(
-    notification::NotificationCenter* notificationCenter,
-    notification::Token token,
-    EventHandler eventHandler)
-{
-    namespace pl = std::placeholders;
-
-    notification::Path path {Token(kTraceNotificationPrefix),
-                             Token("lttng-kernel"),
-                             token};
-    notification::Callback func =
-        std::bind(&AbstractStateBlock::onEvent,
-                  this,
-                  pl::_2,
-                  eventHandler);
-    notificationCenter->AddObserver(path, func);
-}
-
-void AbstractStateBlock::AddUstObserver(
-    notification::NotificationCenter* notificationCenter,
-    notification::Token token,
-    EventHandler eventHandler)
-{
-    namespace pl = std::placeholders;
-
-    notification::Path path {Token(kTraceNotificationPrefix),
-                             Token("lttng-ust"),
-                             token};
-    notification::Callback func =
-        std::bind(&AbstractStateBlock::onEvent,
-                  this,
-                  pl::_2,
-                  eventHandler);
-    notificationCenter->AddObserver(path, func);
-}
-
-void AbstractStateBlock::onEvent(
-    const value::Value* event,
-    EventHandler handler)
-{
-    if (event == nullptr)
-        return;
-    handler(*reinterpret_cast<const trace::EventValue*>(event));
-}
-
 }
 }
