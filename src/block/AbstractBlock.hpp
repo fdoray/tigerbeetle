@@ -61,6 +61,7 @@ protected:
     void AddThreadStateObserver(notification::NotificationCenter* notificationCenter,
                                 const notification::Token& token,
                                 ThreadStateHandler threadStateHandler);
+
 };
 
 }

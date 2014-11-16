@@ -112,6 +112,7 @@ class Value {
   virtual bool IsInteger() const = 0;
   virtual bool IsSigned() const = 0;
   virtual bool IsFloating() const = 0;
+  virtual bool IsString() const = 0;
   // @}
 
   // These methods allow the convenient retrieval of a basic value.
@@ -229,6 +230,7 @@ class ScalarValue : public Value {
   virtual bool IsInteger() const override;
   virtual bool IsSigned() const override;
   virtual bool IsFloating() const override;
+  virtual bool IsString() const override;
 
   virtual Value::UP Copy() const override;
 
@@ -298,6 +300,7 @@ class AggregateValue : public Value {
   virtual bool IsInteger() const override;
   virtual bool IsSigned() const override;
   virtual bool IsFloating() const override;
+  virtual bool IsString() const override;
   // @}
 };
 

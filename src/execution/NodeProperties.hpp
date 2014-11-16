@@ -66,10 +66,11 @@ public:
         quark::Quark property_name,
         uint64_t increment);
 
+    bool HasPropertyMap(const NodeStepKey& node_step_key) const;
+
     size_t size() const { return _properties.size(); }
 
 private:
-    bool HasPropertyMap(const NodeStepKey& node_step_key) const;
 
     // Properties.
     typedef std::vector<std::unique_ptr<PropertyMap>> StepsPropertyMap;

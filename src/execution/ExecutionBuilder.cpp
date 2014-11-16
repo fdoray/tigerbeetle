@@ -122,7 +122,7 @@ bool ExecutionBuilder::PushStack(ThreadId thread)
 }
 
 bool ExecutionBuilder::PopStack(ThreadId thread)
-{
+{   
     auto task_it = _threadTasks.find(thread);
     if (task_it == _threadTasks.end())
         return false;
@@ -144,10 +144,6 @@ bool ExecutionBuilder::PopStack(ThreadId thread)
         if (task_it->second.empty()) {
             _threadTasks.erase(task_it);
         }
-    }
-    else
-    {
-        SetProperty(thread, Q_START_TIME, MakeValue(_ts));
     }
 
     // Stack depth.
@@ -174,6 +170,7 @@ bool ExecutionBuilder::CreateTask(ThreadId parent_thread, TaskId child_task)
 
     TaskId parent_task = task_it->second.top();
     size_t graph_index = _taskGraphIndex[parent_task];
+    _pendingTasksGraphIndex[child_task] = graph_index;
     NodeProperties& nodeProperties = _executions[graph_index]->nodeProperties;
 
     // Create the initial node, with info about the arrow.
@@ -184,7 +181,6 @@ bool ExecutionBuilder::CreateTask(ThreadId parent_thread, TaskId child_task)
 
     // Add the link from parent task.
     _scheduledTasks[parent_task].top()->AddChild(new_node.id());
-    SetProperty(parent_thread, Q_START_TIME, MakeValue(_ts));
 
     std::stack<Node*> taskStack;
     taskStack.push(&new_node);
@@ -199,6 +195,7 @@ bool ExecutionBuilder::ScheduleTask(TaskId task, ThreadId thread)
     if (pendingStackIt == _pendingTasks.end()) {
         return false;
     }
+
     size_t stack_size = pendingStackIt->second.size();
     if (stack_size != 1) {
         tberror() << "Tried to schedule a task " << task <<
@@ -216,6 +213,11 @@ bool ExecutionBuilder::ScheduleTask(TaskId task, ThreadId thread)
 
     _threadTasks[thread].push(_taskCounter);
     _scheduledTasks[_taskCounter] = pendingStackIt->second;
+
+    auto pendingTaskGraphIndexIt = _pendingTasksGraphIndex.find(task);
+    _taskGraphIndex[_taskCounter] = pendingTaskGraphIndexIt->second;
+    _pendingTasksGraphIndex.erase(pendingTaskGraphIndexIt);
+
     ++_taskCounter;
 
     _pendingTasks.erase(pendingStackIt);
@@ -280,7 +282,7 @@ bool ExecutionBuilder::IncrementProperty(ThreadId thread, quark::Quark property,
     auto& stack = _scheduledTasks.find(task)->second;
     size_t graph_index = _taskGraphIndex[task];
 
-    NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
+    NodeStepKey key(stack.top()->id(), 0);
     _executions[graph_index]->nodeProperties.IncrementProperty(
         key, property, increment);
 
@@ -296,7 +298,7 @@ bool ExecutionBuilder::SetProperty(ThreadId thread, quark::Quark property, value
     auto& stack = _scheduledTasks.find(task)->second;
     size_t graph_index = _taskGraphIndex[task];
 
-    NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
+    NodeStepKey key(stack.top()->id(), 0);
     _executions[graph_index]->nodeProperties.SetProperty(
         key, property, std::move(value));
 
@@ -312,7 +314,7 @@ const value::Value* ExecutionBuilder::GetProperty(ThreadId thread, quark::Quark 
     auto& stack = _scheduledTasks.find(task)->second;
     size_t graph_index = _taskGraphIndex[task];
 
-    NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
+    NodeStepKey key(stack.top()->id(), 0);
     return _executions[graph_index]->nodeProperties.GetProperty(key, property);
 }
 
@@ -348,7 +350,7 @@ bool ExecutionBuilder::ReadAndResetTimers(ThreadId thread)
         tberror() << "Found an empty stack on thread " << thread << "." << tbendl();
         return false;
     }
-    NodeStepKey key(stack.top()->id(), stack.top()->NumChildren());
+    NodeStepKey key(stack.top()->id(), 0);
 
     auto timer_it = _timers.find(thread);
     timer_it->second.ReadAndResetTimers(

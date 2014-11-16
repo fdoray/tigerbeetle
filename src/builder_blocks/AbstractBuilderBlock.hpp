@@ -44,6 +44,9 @@ protected:
     // Execution builder.
     execution::ExecutionBuilder* Builder() const { return _executionBuilder; }
 
+    // Thread for an event.
+    uint32_t ThreadForEvent(const trace::EventValue& event) const;
+
     // Constant quarks.
     quark::Quark Q_NODE_TYPE;
 

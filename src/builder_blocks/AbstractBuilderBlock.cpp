@@ -39,5 +39,12 @@ void AbstractBuilderBlock::LoadServices(const block::ServiceList& serviceList)
     Q_NODE_TYPE = _currentState->Quark(kNodeType);
 }
 
+uint32_t AbstractBuilderBlock::ThreadForEvent(const trace::EventValue& event) const
+{
+    auto cpu = event.getStreamPacketContext()->GetField("cpu_id")->AsUInteger();
+    auto thread = State()->CurrentThreadForCpu(cpu);
+    return thread;
+}
+
 }  // namespace builder_blocks
 }  // namespace tibee

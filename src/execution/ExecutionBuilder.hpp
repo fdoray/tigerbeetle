@@ -116,6 +116,7 @@ private:
     // Map of task id to graph index.
     typedef std::unordered_map<TaskId, size_t> TaskGraphIndex;
     TaskGraphIndex _taskGraphIndex;
+    TaskGraphIndex _pendingTasksGraphIndex;
 
     // Internal task counter.
     TaskId _taskCounter;

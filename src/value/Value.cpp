@@ -412,6 +412,11 @@ bool ScalarValue<T, TYPE>::IsFloating() const {
 }
 
 template<class T, int TYPE>
+bool ScalarValue<T, TYPE>::IsString() const {
+  return GetType() == VALUE_STRING || GetType() == VALUE_WSTRING;
+}
+
+template<class T, int TYPE>
 bool ScalarValue<T, TYPE>::Equals(const Value* value) const {
   if (value == nullptr)
     return false;
@@ -508,6 +513,11 @@ bool AggregateValue<TYPE>::IsSigned() const {
 
 template<int TYPE>
 bool AggregateValue<TYPE>::IsFloating() const {
+  return false;
+}
+
+template<int TYPE>
+bool AggregateValue<TYPE>::IsString() const {
   return false;
 }
 
