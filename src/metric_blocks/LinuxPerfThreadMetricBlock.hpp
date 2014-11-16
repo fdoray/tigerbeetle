@@ -27,14 +27,14 @@ namespace tibee {
 namespace metric_blocks {
 
 /**
- * Linux perf metric block.
+ * Linux perf thread metric block.
  *
  * @author Francois Doray
  */
-class LinuxPerfMetricBlock : public AbstractMetricBlock
+class LinuxPerfThreadMetricBlock : public AbstractMetricBlock
 {
 public:
-    LinuxPerfMetricBlock();
+    LinuxPerfThreadMetricBlock();
 
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
@@ -42,7 +42,7 @@ public:
 private:
     void onEvent(const notification::Path& path, const value::Value* value);
 
-    void IncrementPerfCounter(uint32_t cpu, int32_t thread, quark::Quark counter, const value::Value* value);
+    void IncrementPerfCounter(uint32_t thread, quark::Quark counter, const value::Value* value);
 
     // Quarks.
     quark::Quark Q_INSTRUCTIONS;
@@ -68,8 +68,8 @@ private:
     // Threads attribute.
     state::AttributeKey _threadsAttribute;
 
-    // Last value read for each performance counter, per CPU.
-    typedef std::vector<std::unordered_map<quark::Quark, uint64_t>> PerfCounters;
+    // Last value read for each performance counter, per thread.
+    typedef std::unordered_map<uint32_t, std::unordered_map<quark::Quark, uint64_t>> PerfCounters;
     PerfCounters _perfCounters;
 };
 

@@ -4,7 +4,7 @@ Import('lib_env')
 
 sources = [
     'AbstractMetricBlock.cpp',
-    'LinuxPerfMetricBlock.cpp',
+    'LinuxPerfThreadMetricBlock.cpp',
     'LinuxStatusMetricBlock.cpp',
 ]
 
