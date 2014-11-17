@@ -62,6 +62,7 @@ const char kStateRaised[] = "raised";
 const char kStateSysClone[] = "sys_clone";
 
 const char kStartTime[] = "start";
+const char kEndTime[] = "end";
 const char kDuration[] = "duration";
 const char kNodeType[] = "node-type";
 const char kParentTid[] = "ptid";

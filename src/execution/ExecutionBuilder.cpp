@@ -54,6 +54,7 @@ void ExecutionBuilder::SetQuarks(quark::StringQuarkDatabase* quarks)
     Q_DURATION = quarks->StrQuark(kDuration);
     Q_NODE_TYPE = quarks->StrQuark(kNodeType);
     Q_START_TIME = quarks->StrQuark(kStartTime);
+    Q_END_TIME = quarks->StrQuark(kEndTime);
     Q_STACK_DEPTH = quarks->StrQuark(kStackDepth);
     Q_ARROW_START = quarks->StrQuark(kArrowStart);
 }
@@ -128,6 +129,7 @@ bool ExecutionBuilder::PopStack(ThreadId thread)
         return false;
 
     ReadAndResetTimers(thread);
+    SetProperty(thread, Q_END_TIME, MakeValue(_ts));
 
     TaskId task = task_it->second.top();
     auto stack_it = _scheduledTasks.find(task);
@@ -264,7 +266,7 @@ uint64_t ExecutionBuilder::ReadTimer(ThreadId thread, quark::Quark timer_name) {
     return elapsed_time;
 }
 
-void ExecutionBuilder::StopAllTimers()
+void ExecutionBuilder::EndAllTasks()
 {
     while (!_threadTasks.empty()) {
         auto& threadTaskStackPair = *_threadTasks.begin();

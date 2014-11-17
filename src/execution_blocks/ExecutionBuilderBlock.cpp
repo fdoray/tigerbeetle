@@ -74,7 +74,7 @@ void ExecutionBuilderBlock::onTimestamp(const notification::Path& path, const va
 
 void ExecutionBuilderBlock::onEnd(const notification::Path& path, const value::Value* value)
 {  
-    _executionBuilder.StopAllTimers();
+    _executionBuilder.EndAllTasks();
 
     for (const auto& execution : _executionBuilder)
     {

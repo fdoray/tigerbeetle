@@ -71,7 +71,7 @@ public:
     bool StartTimer(ThreadId thread, quark::Quark state);
     bool StopTimer(ThreadId thread, quark::Quark state);
     uint64_t ReadTimer(ThreadId thread, quark::Quark state);
-    void StopAllTimers();
+    void EndAllTasks();
 
     // Node properties.
     bool IncrementProperty(ThreadId thread, quark::Quark property, uint64_t increment);
@@ -127,6 +127,7 @@ private:
     quark::Quark Q_DURATION;
     quark::Quark Q_NODE_TYPE;
     quark::Quark Q_START_TIME;
+    quark::Quark Q_END_TIME;
     quark::Quark Q_STACK_DEPTH;
     quark::Quark Q_ARROW_START;
 };

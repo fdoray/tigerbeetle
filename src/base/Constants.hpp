@@ -69,6 +69,7 @@ extern const char kStateSysClone[];
 
 // Graph.
 extern const char kStartTime[];
+extern const char kEndTime[];
 extern const char kDuration[];
 extern const char kNodeType[];
 extern const char kParentTid[];

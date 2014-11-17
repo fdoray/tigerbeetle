@@ -69,7 +69,7 @@ TEST(ExecutionBuilder, SingleTask) {
     builder.PopStack(1);
 
     builder.SetTimestamp(7);
-    builder.StopAllTimers();
+    builder.EndAllTasks();
 
     // Check the result.
     const auto& graph = (*builder.begin())->graph;
