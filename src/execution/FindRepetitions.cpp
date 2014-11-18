@@ -64,7 +64,7 @@ void FindRepetitions(
         }
 
         // Excellent! We found many repetitions.
-        repetitions->push_back(Repetition(i - chunk_size, num_repetitions));
+        repetitions->push_back(Repetition(i - chunk_size, num_repetitions, chunk_size));
 
         // Skip to the end of the repetitions.
         i = (i - chunk_size) + num_repetitions * chunk_size - 1;

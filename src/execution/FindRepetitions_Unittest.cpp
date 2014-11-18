@@ -23,37 +23,43 @@ namespace execution {
 
 TEST(FindRepetitions, Single)
 {
+    const size_t kChunkSize = 2;
+
     std::vector<std::string> seq = {"a", "b", "c", "a", "b", "a", "b", "a", "b", "a", "b", "b", "e"};
     std::vector<Repetition> repetitions;
-    FindRepetitions(seq, 2, &repetitions);
+    FindRepetitions(seq, kChunkSize, &repetitions);
 
     std::vector<Repetition> expected_repetitions = {
-        Repetition(3, 4)};
+        Repetition(3, 4, kChunkSize)};
 
     EXPECT_EQ(expected_repetitions, repetitions);
 }
 
 TEST(FindRepetitions, Multiple)
 {
+    const size_t kChunkSize = 2;
+
     std::vector<std::string> seq = {"a", "b", "a", "b", "c", "d", "e", "f", "e", "f", "e", "f"};
     std::vector<Repetition> repetitions;
-    FindRepetitions(seq, 2, &repetitions);
+    FindRepetitions(seq, kChunkSize, &repetitions);
 
     std::vector<Repetition> expected_repetitions = {
-        Repetition(0, 2),
-        Repetition(6, 3)};
+        Repetition(0, 2, kChunkSize),
+        Repetition(6, 3, kChunkSize)};
 
     EXPECT_EQ(expected_repetitions, repetitions);
 }
 
 TEST(FindRepetitions, Long)
 {
+    const size_t kChunkSize = 4;
+
     std::vector<std::string> seq = {"a", "b", "c", "d", "a", "b", "c", "d", "a", "b", "c", "d", "e"};
     std::vector<Repetition> repetitions;
-    FindRepetitions(seq, 4, &repetitions);
+    FindRepetitions(seq, kChunkSize, &repetitions);
 
     std::vector<Repetition> expected_repetitions = {
-        Repetition(0, 3)};
+        Repetition(0, 3, kChunkSize)};
 
     EXPECT_EQ(expected_repetitions, repetitions);
 }

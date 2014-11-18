@@ -29,12 +29,15 @@ namespace execution {
 typedef std::unordered_map<size_t, size_t> RepetitionsMap;
 
 struct Repetition {
-    Repetition(size_t start_index, size_t num_repetitions)
-        : start_index(start_index), num_repetitions(num_repetitions) {}
+    Repetition(size_t start_index, size_t num_repetitions, size_t chunk_size)
+        : start_index(start_index), num_repetitions(num_repetitions), chunk_size(chunk_size) {}
     size_t start_index;
     size_t num_repetitions;
+    size_t chunk_size;
     bool operator==(const Repetition& other) const {
-        return start_index == other.start_index && num_repetitions == other.num_repetitions;
+        return start_index == other.start_index && 
+            num_repetitions == other.num_repetitions &&
+            chunk_size == other.chunk_size;
     }
 };
 
