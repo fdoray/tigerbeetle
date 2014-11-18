@@ -4,7 +4,9 @@ Import('lib_env')
 
 sources = [
     'ExecutionBuilder.cpp',
+    'FindRepetitions.cpp',
     'Graph.cpp',
+    'HierarchyMatcher.cpp',
     'Matcher.cpp',
     'Node.cpp',
     'NodeProperties.cpp',

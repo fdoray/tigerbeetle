@@ -54,6 +54,14 @@ class NodePair {
         return pair_ != other.pair_;
     }
 
+    bool operator<(const NodePair& other) const {
+        if (node_id_a() < other.node_id_a())
+            return true;
+        if (node_id_a() > other.node_id_a())
+            return false;
+        return node_id_b() < other.node_id_b();
+    }
+
  private:
     std::pair<NodeId, NodeId> pair_;
 };

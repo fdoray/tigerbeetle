@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.    If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_EXECUTION_MATCHER_HPP
-#define _TIBEE_EXECUTION_MATCHER_HPP
+#ifndef _TIBEE_EXECUTION_HIERARCHYMATCHER_HPP
+#define _TIBEE_EXECUTION_HIERARCHYMATCHER_HPP
 
 #include "execution/Graph.hpp"
 #include "execution/MatcherCommon.hpp"
@@ -24,13 +24,15 @@
 namespace tibee {
 namespace execution {
 
-uint64_t MatchGraphs(const Graph& graph_a,
-                     const Graph& graph_b,
-                     const MatchNodesCostFunc& match_cost_func,
-                     uint64_t skip_cost,
-                     MatchVector* matching_nodes);
+uint64_t MatchGraphsHierarchical(
+    const Graph& graph_a,
+    const Graph& graph_b,
+    const MatchNodesCostFunc& match_cost_func,
+    const UniqueIdentifierFunc& unique_id_func,
+    uint64_t skip_cost,
+    MatchVector* matching_nodes);
 
 }  // namespace execution
 }  // namespace tibee
 
-#endif    // _TIBEE_EXECUTION_MATCHER_HPP
+#endif    // _TIBEE_EXECUTION_HIERARCHYMATCHER_HPP

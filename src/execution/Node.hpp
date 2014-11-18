@@ -38,6 +38,7 @@ class Node
 {
 public:
     typedef std::vector<NodeId> ChildrenVector;
+    typedef ChildrenVector::const_iterator ChildrenIterator;
 
     Node(NodeId id);
     ~Node();
@@ -49,8 +50,8 @@ public:
     size_t NumChildren() const { return children_.size(); }
     NodeId GetChild(size_t index) const { return children_[index]; }
 
-    ChildrenVector::const_iterator begin() const { return children_.begin(); }
-    ChildrenVector::const_iterator end() const { return children_.end(); }
+    ChildrenIterator begin() const { return children_.begin(); }
+    ChildrenIterator end() const { return children_.end(); }
 
 private:
     // Identifier of this node.

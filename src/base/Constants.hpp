@@ -23,6 +23,9 @@
 namespace tibee
 {
 
+// A huge cost.
+const uint64_t kHugeCost = -1;
+
 // Services.
 extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
