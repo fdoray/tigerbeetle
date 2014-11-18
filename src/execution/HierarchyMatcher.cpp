@@ -71,6 +71,9 @@ typedef std::unordered_map<NodePair, SubtreeCost> MatchCache;
 // Context for the dynamic programming algorithm.
 struct DynamicProgrammingContext
 {
+    Node::ChildrenIterator sub_begin_left; ///////// TO REMOVE
+    Node::ChildrenIterator sub_begin_right;
+
     Node::ChildrenIterator sub_end_left;
     Node::ChildrenIterator sub_end_right;
     Node::ChildrenIterator begin_left;
@@ -240,8 +243,25 @@ private:
                                const RepetitionsMap& repetitions_b,
                                MatchVectorHierarchical* match_vector)
     {
+        std::cout << "MATCH SUBSEQUENCES" << std::endl;
+        for (size_t i = 0; i < std::max(abs(std::distance(sub_begin_left, sub_end_left)),
+                                        abs(std::distance(sub_begin_right, sub_end_right))); ++i)
+        {
+            std::string a;
+            if (i < std::distance(sub_begin_left, sub_end_left))
+                a = uids_a[std::distance(begin_left, sub_begin_left + i)];
+            std::string b;
+            if (i < std::distance(sub_begin_right, sub_end_right))
+                b = uids_b[std::distance(begin_right, sub_begin_right + i)];
+
+            std::cout << i << " " << a << "\t\t\t" << b << std::endl;
+        }
+
         // Create a context for the dynamic programming algorithm.
         DynamicProgrammingContext context;
+        context.sub_begin_left = sub_begin_left;   // A SUPPRIMER
+        context.sub_begin_right = sub_begin_right;
+
         context.sub_end_left = sub_end_left;
         context.sub_end_right = sub_end_right;
         context.begin_left = begin_left;
@@ -251,11 +271,22 @@ private:
         context.repetitions_a = &repetitions_a;
         context.repetitions_b = &repetitions_b;
 
+        /*
+        std::cout << "repetitions a" << std::endl;
+        for (const auto& rep_a : repetitions_a) {
+            std::cout << rep_a.first << " > " << rep_a.second << std::endl;
+        }
+        std::cout << "repetitions b" << std::endl;
+        for (const auto& rep_b : repetitions_b) {
+            std::cout << rep_b.first << " > " << rep_b.second << std::endl;
+        }
+        */
+
         // Apply the dynamic programming algorithm.
         NodePair first_match;
         uint64_t cost = MatchSubsequencesRecursive(
             sub_begin_left, sub_begin_right,
-            &context, &first_match);
+            &context, 0, &first_match);
 
         // Retrieve the matching nodes.
         const NodePair* current_match = &first_match;
@@ -275,8 +306,15 @@ private:
     uint64_t MatchSubsequencesRecursive(Node::ChildrenIterator cur_left,
                                         Node::ChildrenIterator cur_right,
                                         DynamicProgrammingContext* context,
+                                        size_t num_skips,
                                         NodePair* next_match)
     {
+        if (num_skips > 25) 
+            return kHugeCost;
+
+        std::cout << "try " << std::distance(context->sub_begin_left, cur_left) << " with " << 
+            std::distance(context->sub_begin_right, cur_right) << "    -    " << num_skips << std::endl; 
+
         // Reached the end of a sequence: skip all nodes from the other sequence.
         if (cur_left >= context->sub_end_left)
             return std::distance(cur_right, context->sub_end_right) * _skip_cost;
@@ -301,13 +339,16 @@ private:
         size_t offset_b = static_cast<size_t>(std::distance(context->begin_right, cur_right));
         auto repetitions_a_it = context->repetitions_a->find(offset_a);
         auto repetitions_b_it = context->repetitions_b->find(offset_b);
+        bool a_is_repetition = repetitions_a_it != context->repetitions_a->end();
+        bool b_is_repetition = repetitions_b_it != context->repetitions_b->end();
 
-        if (repetitions_a_it != context->repetitions_a->end() &&
-            repetitions_b_it != context->repetitions_b->end() &&
+        if (a_is_repetition && b_is_repetition &&
             std::equal(context->uids_a->begin() + offset_a,
                        context->uids_a->begin() + offset_a + kChunkSize,
                        context->uids_b->begin() + offset_b))
         {
+            std::cout << "repetitions" << std::endl;
+
             // Found repetitions of the same chunk.
             // TODO: For now, matching the 2 subsequences is free.
 
@@ -316,7 +357,7 @@ private:
             uint64_t cost_repetition = MatchSubsequencesRecursive(
                 cur_left + (repetitions_a_it->second * kChunkSize),
                 cur_right + (repetitions_b_it->second * kChunkSize),
-                context,
+                context, 0,
                 &next_match_repetition);
 
             // Match the repeated nodes.
@@ -348,9 +389,12 @@ private:
         }
 
         // Match as much identical nodes as possible.
+        // Empty uids cannot be matched by themselves. They must be matched with their previous node.
         uint64_t match_cost = _match_cost_func(current_pair.node_id_a(), current_pair.node_id_b());
+        if (a_is_repetition || b_is_repetition)
+            match_cost = kHugeCost;
 
-        if (match_cost == 0)
+        if (match_cost == 0 && !context->uids_a->at(offset_a).empty())
         {
             *next_match = current_pair;
 
@@ -379,7 +423,7 @@ private:
 
             uint64_t after_match_cost = MatchSubsequencesRecursive(
                 cur_after_eq_left, cur_after_eq_right,
-                context, &after_match_pair);
+                context, 0, &after_match_pair);
 
             for (size_t i = 0; i < num_extra_match + 1; ++i) {
                 NodePair cacheNextPair;
@@ -401,19 +445,30 @@ private:
 
         NodePair match_next_match;
         if (match_cost != kHugeCost)
-            match_cost += MatchSubsequencesRecursive(cur_left + 1, cur_right + 1, context, &match_next_match);
+        {
+            size_t new_num_skips = 0;
+            if (context->uids_a->at(offset_a).empty())
+                new_num_skips = num_skips;
+
+            match_cost += MatchSubsequencesRecursive(
+                cur_left + 1, cur_right + 1, context, new_num_skips, &match_next_match);
+        }
 
         // Skip a node from graph a.
         NodePair skip_a_next_match;
-        uint64_t skip_a_cost =_skip_cost + MatchSubsequencesRecursive(
+        uint64_t skip_a_cost = MatchSubsequencesRecursive(
             cur_left + 1, cur_right,
-            context, &skip_a_next_match);
+            context, num_skips + 1, &skip_a_next_match);
+        if (skip_a_cost != kHugeCost)
+            skip_a_cost += _skip_cost;
 
         // Skip a node from graph b.
         NodePair skip_b_next_match;
-        uint64_t skip_b_cost = _skip_cost + MatchSubsequencesRecursive(
+        uint64_t skip_b_cost = MatchSubsequencesRecursive(
             cur_left, cur_right + 1,
-            context, &skip_b_next_match);
+            context, num_skips + 1, &skip_b_next_match);
+        if (skip_b_cost != kHugeCost)
+            skip_b_cost += _skip_cost;
 
         // Determine the operation with minimum cost.
         uint64_t min_cost = std::min({match_cost, skip_a_cost, skip_b_cost});
