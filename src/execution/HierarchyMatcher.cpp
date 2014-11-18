@@ -137,7 +137,7 @@ private:
         UniqueIdMap left_map;
         FillUniqueIdMap(begin_left, end_left, GraphPosition::LEFT_GRAPH, &left_map);
         UniqueIdMap right_map;
-        FillUniqueIdMap(begin_left, end_left, GraphPosition::RIGHT_GRAPH, &right_map);
+        FillUniqueIdMap(begin_right, end_right, GraphPosition::RIGHT_GRAPH, &right_map);
 
         std::vector<size_t> magic_matched_left;
         std::vector<size_t> magic_matched_right;
@@ -243,20 +243,6 @@ private:
                                const RepetitionsMap& repetitions_b,
                                MatchVectorHierarchical* match_vector)
     {
-        std::cout << "MATCH SUBSEQUENCES" << std::endl;
-        for (size_t i = 0; i < std::max(abs(std::distance(sub_begin_left, sub_end_left)),
-                                        abs(std::distance(sub_begin_right, sub_end_right))); ++i)
-        {
-            std::string a;
-            if (i < std::distance(sub_begin_left, sub_end_left))
-                a = uids_a[std::distance(begin_left, sub_begin_left + i)];
-            std::string b;
-            if (i < std::distance(sub_begin_right, sub_end_right))
-                b = uids_b[std::distance(begin_right, sub_begin_right + i)];
-
-            std::cout << i << " " << a << "\t\t\t" << b << std::endl;
-        }
-
         // Create a context for the dynamic programming algorithm.
         DynamicProgrammingContext context;
         context.sub_begin_left = sub_begin_left;   // A SUPPRIMER
@@ -270,17 +256,6 @@ private:
         context.uids_b = &uids_b;
         context.repetitions_a = &repetitions_a;
         context.repetitions_b = &repetitions_b;
-
-        /*
-        std::cout << "repetitions a" << std::endl;
-        for (const auto& rep_a : repetitions_a) {
-            std::cout << rep_a.first << " > " << rep_a.second << std::endl;
-        }
-        std::cout << "repetitions b" << std::endl;
-        for (const auto& rep_b : repetitions_b) {
-            std::cout << rep_b.first << " > " << rep_b.second << std::endl;
-        }
-        */
 
         // Apply the dynamic programming algorithm.
         NodePair first_match;
@@ -311,9 +286,6 @@ private:
     {
         if (num_skips > 25) 
             return kHugeCost;
-
-        std::cout << "try " << std::distance(context->sub_begin_left, cur_left) << " with " << 
-            std::distance(context->sub_begin_right, cur_right) << "    -    " << num_skips << std::endl; 
 
         // Reached the end of a sequence: skip all nodes from the other sequence.
         if (cur_left >= context->sub_end_left)
@@ -347,8 +319,6 @@ private:
                        context->uids_a->begin() + offset_a + kChunkSize,
                        context->uids_b->begin() + offset_b))
         {
-            std::cout << "repetitions" << std::endl;
-
             // Found repetitions of the same chunk.
             // TODO: For now, matching the 2 subsequences is free.
 
