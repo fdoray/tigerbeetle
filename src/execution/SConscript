@@ -4,6 +4,7 @@ Import('lib_env')
 
 sources = [
     'CanonizeSequence.cpp',
+    'DynamicMatching.cpp',
     'ExecutionBuilder.cpp',
     'FindRepetitions.cpp',
     'Graph.cpp',

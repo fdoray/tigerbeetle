@@ -31,9 +31,9 @@ namespace execution {
 namespace
 {
 
-using execution::Node;
+const size_t kChunkSize = 2;
 
-const size_t kChunkSize = 4;
+using execution::Node;
 
 // Keeps track of the nodes that have a given unique id.
 typedef std::unordered_map<std::string, std::vector<size_t>> UniqueIdMap;
