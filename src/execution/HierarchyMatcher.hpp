@@ -27,8 +27,7 @@ namespace execution {
 uint64_t MatchGraphsHierarchical(
     const Graph& graph_a,
     const Graph& graph_b,
-    const MatchNodesCostFunc& match_cost_func,
-    const UniqueIdentifierFunc& unique_id_func,
+    const UniqueIdentifierFunc& uid_func,
     uint64_t skip_cost,
     MatchVector* matching_nodes);
 

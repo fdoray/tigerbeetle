@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.    If not, see <http://www.gnu.org/licenses/>.
  */
-#include <fstream>
-#include <string>
+#include <algorithm>
 
-#include "base/Constants.hpp"
-#include "execution/HierarchyMatcher.hpp"
 #include "gtest/gtest.h"
+#include "execution/CanonizeSequence.hpp"
+#include "execution/HierarchyMatcher.hpp"
+#include "execution/Graph.hpp"
 
 namespace tibee {
 namespace execution {
@@ -28,351 +28,216 @@ namespace execution {
 namespace
 {
 
-namespace pl = std::placeholders;
+const size_t kSkipCost = 2;
 
-const uint64_t kSkipCost = 2;
-
-uint64_t StrMatchCostFunc(
-    const Graph& graph_a,
-    const Graph& graph_b,
-    const std::vector<std::string>& str_a,
-    const std::vector<std::string>& str_b,
-    NodeId a,
-    NodeId b)
-{
-    return str_a[a] == str_b[b] ? 0 : kHugeCost;
-}
-
-std::string UniqueIdentifier(
-    const Graph& graph_a,
-    const Graph& graph_b,
-    const std::vector<std::string>& str_a,
-    const std::vector<std::string>& str_b,
+UID UniqueIdentifier(
+    const UIDSequence& uids_a,
+    const UIDSequence& uids_b,
     NodeId node_id,
     GraphPosition position)
 {
     if (position == GraphPosition::LEFT_GRAPH)
-      return str_a[node_id];
-    return str_b[node_id];
+      return uids_a[node_id];
+    return uids_b[node_id];
 }
 
-void ExpectMatchStr(const Graph& a,
-                    const Graph& b,
-                    const std::vector<std::string>& str_a,
-                    const std::vector<std::string>& str_b,
-                    uint64_t expected_cost,
-                    const std::vector<NodePair>& expected_nodes)
+void ExpectMatch(const UIDSequence& uids_a, const UIDSequence& uids_b,
+                 const MatchVector& expected_match, uint64_t expected_cost)
 {
-    // Match |graph_a| with |graph_b|.
-    std::vector<NodePair> actual_nodes;
-    EXPECT_EQ(expected_cost, MatchGraphsHierarchical(
+    namespace pl = std::placeholders;
+
+    Graph a;
+    Graph b;
+
+    auto& root_a = a.CreateNode();
+    auto& root_b = b.CreateNode();
+
+    for (size_t i = 1; i < uids_a.size(); ++i)
+    {
+        auto& new_node = a.CreateNode();
+        root_a.AddChild(new_node.id());
+    }
+
+    for (size_t i = 1; i < uids_b.size(); ++i)
+    {
+        auto& new_node = b.CreateNode();
+        root_b.AddChild(new_node.id());
+    }
+
+    // Match the sequences.
+    MatchVector match;
+    uint64_t cost = MatchGraphsHierarchical(
         a, b,
-        std::bind(StrMatchCostFunc,
-                  std::ref(a),
-                  std::ref(b),
-                  std::ref(str_a),
-                  std::ref(str_b),
-                  pl::_1,
-                  pl::_2),
         std::bind(UniqueIdentifier,
-                  std::ref(a),
-                  std::ref(b),
-                  std::ref(str_a),
-                  std::ref(str_b),
+                  std::ref(uids_a),
+                  std::ref(uids_b),
                   pl::_1,
                   pl::_2),
         kSkipCost,
-        &actual_nodes));
+        &match);
+
+    // Sort the matches.
+    MatchVector expected_match_sorted(expected_match.begin(), expected_match.end());
+
+    std::sort(expected_match_sorted.begin(), expected_match_sorted.end());
+    std::sort(match.begin(), match.end());
 
     // Check the result.
-    std::vector<NodePair> expected_nodes_sorted(expected_nodes.begin(), expected_nodes.end());
-    std::sort(expected_nodes_sorted.begin(), expected_nodes_sorted.end());
-    std::sort(actual_nodes.begin(), actual_nodes.end());
-
-    EXPECT_EQ(expected_nodes_sorted, actual_nodes);
+    EXPECT_EQ(expected_cost, cost);
+    EXPECT_EQ(expected_match_sorted, match);
 }
 
-}
+}  // namespace
 
-TEST(HierarchyMatcher, EmptyGraphs)
+TEST(HierarchyMatching, Empty)
 {
-    Graph a;
-    Graph b;
+    UIDSequence a = {"*"};
+    UIDSequence b = {"*"};
 
-    ExpectMatchStr(a, b, {}, {}, 0, {});
+    ExpectMatch(a, b, {}, 0);
 }
 
-TEST(HierarchyMatcher, OneNodeGraphs) {
-    Graph a;
-    Graph b;
-    Graph c;
+TEST(HierarchyMatching, Identical)
+{
+    UIDSequence a = {"*", "a", "b", "c"};
+    UIDSequence b = {"*", "a", "b", "c"};
 
-    a.CreateNode();
-    b.CreateNode();
-
-    std::vector<std::string> strA = {"a"};
-    std::vector<std::string> strB = {"a"};
-    std::vector<std::string> strC = {};
-
-    ExpectMatchStr(a, b, strA, strB, 0, {{0, 0}});
-    ExpectMatchStr(a, c, strA, strC, kSkipCost, {});
-    ExpectMatchStr(c, a, strC, strA, kSkipCost, {});
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 3}},
+        0);
 }
 
-TEST(HierarchyMatcher, OneLevelHierarchyNoRepetitions) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, IdenticalWithRepetition)
+{
+    UIDSequence a = {"*", "a", "b", "c", "b", "c", "b", "c", "d"};
+    UIDSequence b = {"*", "a", "b", "c", "b", "c", "b", "c", "d"};
 
-    Node& root_a = a.CreateNode();
-    for (size_t i = 0; i < 3; ++i) {
-        Node& node = a.CreateNode();
-        root_a.AddChild(node.id());
-    }
-
-    Node& root_b = b.CreateNode();
-    for (size_t i = 0; i < 3; ++i) {
-        Node& node = b.CreateNode();
-        root_b.AddChild(node.id());
-    }
-
-    std::vector<std::string> strA = {"a", "b", "c", "d"};
-    std::vector<std::string> strB = {"a", "b", "c", "d"};
-
-    ExpectMatchStr(
-        a, b, strA, strB, 0,
-        {{0, 0}, {1, 1}, {2, 2}, {3, 3}});
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}},
+        0);
 }
 
-TEST(HierarchyMatcher, OneLevelHierarchyNotUnique) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, IdenticalWithRepetitionAtEnd)
+{
+    UIDSequence a = {"*", "a", "b", "c", "b", "c", "b", "c"};
+    UIDSequence b = {"*", "a", "b", "c", "b", "c", "b", "c"};
 
-    Node& root_a = a.CreateNode();
-    for (size_t i = 0; i < 5; ++i) {
-        Node& node = a.CreateNode();
-        root_a.AddChild(node.id());
-    }
-
-    Node& root_b = b.CreateNode();
-    for (size_t i = 0; i < 5; ++i) {
-        Node& node = b.CreateNode();
-        root_b.AddChild(node.id());
-    }
-
-    std::vector<std::string> strA = {"a", "b", "c", "c", "d", "c"};
-    std::vector<std::string> strB = {"a", "b", "c", "c", "d", "c"};
-
-    ExpectMatchStr(
-        a, b, strA, strB, 0,
-        {{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}});
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
+        0);
 }
 
-TEST(HierarchyMatcher, OneLevelHierarchySimpleDifferences) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, IdenticalWithRepetitionAtBeginning)
+{
+    UIDSequence a = {"*", "b", "c", "b", "c", "b", "c", "a"};
+    UIDSequence b = {"*", "b", "c", "b", "c", "b", "c", "a"};
 
-    Node& root_a = a.CreateNode();
-    for (size_t i = 0; i < 10; ++i) {
-        Node& node = a.CreateNode();
-        root_a.AddChild(node.id());
-    }
-
-    Node& root_b = b.CreateNode();
-    for (size_t i = 0; i < 10; ++i) {
-        Node& node = b.CreateNode();
-        root_b.AddChild(node.id());
-    }
-
-    std::vector<std::string> strA = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"};
-    std::vector<std::string> strB = {"a", "b", "c", "e", "f", "g", "h", "h", "i", "j", "k"};
-
-    ExpectMatchStr(
-        a, b, strA, strB, 2 * kSkipCost,
-        {{0, 0}, {1, 1}, {2, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 8}, {9, 9}, {10, 10}});
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
+        0);
 }
 
-TEST(HierarchyMatcher, OneLevelHierarchySimpleDifferencesNotUnique) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, InsertionAtBeginning)
+{
+    UIDSequence a = {"*", "a", "b", "c"};
+    UIDSequence b = {"*", "z", "a", "b", "c"};
 
-    Node& root_a = a.CreateNode();
-    for (size_t i = 0; i < 10; ++i) {
-        Node& node = a.CreateNode();
-        root_a.AddChild(node.id());
-    }
-
-    Node& root_b = b.CreateNode();
-    for (size_t i = 0; i < 6; ++i) {
-        Node& node = b.CreateNode();
-        root_b.AddChild(node.id());
-    }
-    std::vector<std::string> strA = {"a", "b", "c", "c", "d", "d", "e", "e", "f", "f", "g"};
-    std::vector<std::string> strB = {"a", "b", "c", "d", "e", "f", "g"};
-
-    ExpectMatchStr(
-        a, b, strA, strB, 4 * kSkipCost,
-        {{0, 0}, {1, 1}, {2, 2}, {4, 3}, {6, 4}, {8, 5}, {10, 6}});
+    ExpectMatch(
+        a, b,
+        {{1, 2}, {2, 3}, {3, 4}},
+        1 * kSkipCost);
 }
 
-TEST(HierarchyMatcher, OneLevelHierarchyRepetitions) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, InsertionAtEnd)
+{
+    UIDSequence a = {"*", "a", "b", "c"};
+    UIDSequence b = {"*", "a", "b", "c", "z"};
 
-    Node& root_a = a.CreateNode();
-    for (size_t i = 0; i < 50000; ++i) {
-        Node& node = a.CreateNode();
-        root_a.AddChild(node.id());
-    }
-
-    Node& root_b = b.CreateNode();
-    for (size_t i = 0; i < 40000; ++i) {
-        Node& node = b.CreateNode();
-        root_b.AddChild(node.id());
-    }
-
-    std::vector<std::string> strA = {"a", "b", "c", "d"};
-
-    for (size_t i = 0; i < 12498; ++i) {
-        strA.push_back("e");
-        strA.push_back("f");
-        strA.push_back("g");
-        strA.push_back("h");
-    }
-    strA.push_back("a");
-    strA.push_back("b");
-    strA.push_back("c");
-    strA.push_back("d");
-    strA.push_back("e");
-
-    std::vector<std::string> strB = {"a", "b", "c", "d"};
-    for (size_t i = 0; i < 9998; ++i) {
-        strB.push_back("e");
-        strB.push_back("f");
-        strB.push_back("g");
-        strB.push_back("h");
-    }
-    strB.push_back("h");
-    strB.push_back("i");
-    strB.push_back("j");
-    strB.push_back("k");
-    strB.push_back("l");
-
-    std::vector<NodePair> expected_nodes;
-    for (size_t i = 0; i < 39996; ++i)
-        expected_nodes.push_back(NodePair(i, i));
-
-    ExpectMatchStr(
-        a, b, strA, strB, 10 * kSkipCost, expected_nodes);
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 3}},
+        1 * kSkipCost);
 }
 
-TEST(HierarchyMatcher, OneLevelHierarchyTwoRepetitions) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, InsertionMiddle)
+{
+    UIDSequence a = {"*", "a", "b", "c"};
+    UIDSequence b = {"*", "a", "b", "z", "c"};
 
-    Node& root_a = a.CreateNode();
-    for (size_t i = 0; i < 20000; ++i) {
-        Node& node = a.CreateNode();
-        root_a.AddChild(node.id());
-    }
-
-    Node& root_b = b.CreateNode();
-    for (size_t i = 0; i < 40000; ++i) {
-        Node& node = b.CreateNode();
-        root_b.AddChild(node.id());
-    }
-
-    std::vector<std::string> strA = {"a", "b", "c", "d"};
-
-    for (size_t i = 0; i < 2499; ++i) {
-        strA.push_back("e");
-        strA.push_back("f");
-        strA.push_back("g");
-        strA.push_back("h");
-    }
-    for (size_t i = 0; i < 2499; ++i) {
-        strA.push_back("w");
-        strA.push_back("x");
-        strA.push_back("y");
-        strA.push_back("z");
-    }
-    strA.push_back("a");
-    strA.push_back("b");
-    strA.push_back("c");
-    strA.push_back("d");
-    strA.push_back("e");
-
-    std::vector<std::string> strB = {"a", "b", "c", "d"};
-    for (size_t i = 0; i < 4999; ++i) {
-        strB.push_back("e");
-        strB.push_back("f");
-        strB.push_back("g");
-        strB.push_back("h");
-    }
-    for (size_t i = 0; i < 4999; ++i) {
-        strB.push_back("w");
-        strB.push_back("x");
-        strB.push_back("y");
-        strB.push_back("z");
-    }
-    strB.push_back("h");
-    strB.push_back("i");
-    strB.push_back("j");
-    strB.push_back("k");
-    strB.push_back("l");
-
-    std::vector<NodePair> expected_nodes;
-    for (size_t i = 0; i < 4; ++i)
-        expected_nodes.push_back(NodePair(i, i));
-    for (size_t i = 4; i < 10000; ++i)
-        expected_nodes.push_back(NodePair(i, i));
-    for (size_t i = 10000; i < 19996; ++i)
-        expected_nodes.push_back(NodePair(i, i + 10000));
-
-    ExpectMatchStr(
-        a, b, strA, strB, 10 * kSkipCost, expected_nodes);
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 4}},
+        1 * kSkipCost);
 }
 
-TEST(HierarchyMatcher, File1) {
-    Graph a;
-    Graph b;
+TEST(HierarchyMatching, InsertionRepetitionMiddle)
+{
+    UIDSequence a = {"*", "a", "b", "c"};
+    UIDSequence b = {"*", "a", "b", "z", "z", "z", "z", "z", "z", "c"};
 
-    Node& root_a = a.CreateNode();
-    Node& root_b = b.CreateNode();
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 9}},
+        1 * kSkipCost);
+}
 
-    std::vector<std::string> strA = {"root"};
-    std::vector<std::string> strB = {"root"};
+TEST(HierarchyMatching, DeletionAtBeginning)
+{
+    UIDSequence a = {"*", "z", "a", "b", "c"};
+    UIDSequence b = {"*", "a", "b", "c"};
 
-    std::string line;
+    ExpectMatch(
+        a, b,
+        {{2, 1}, {3, 2}, {4, 3}},
+        1 * kSkipCost);
+}
 
-    std::ifstream in_a("test_data/seq_left_1.txt");
-    while (std::getline(in_a, line)) {
-        auto& new_node = a.CreateNode();
-        root_a.AddChild(new_node.id());
-        strA.push_back(line);
-    }
-    in_a.close();
+TEST(HierarchyMatching, DeletionAtEnd)
+{
+    UIDSequence a = {"*", "a", "b", "c", "z"};
+    UIDSequence b = {"*", "a", "b", "c"};
 
-    std::ifstream in_b("test_data/seq_right_1.txt");
-    while (std::getline(in_b, line)) {
-        auto& new_node = b.CreateNode();
-        root_b.AddChild(new_node.id());
-        strB.push_back(line);
-    }
-    in_b.close();
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {3, 3}},
+        1 * kSkipCost);
+}
 
-    std::vector<NodePair> expected_nodes;
-    std::ifstream in_match("test_data/seq_match_1.txt");
+TEST(HierarchyMatching, DeletionMiddle)
+{
+    UIDSequence a = {"*", "a", "b", "z", "c"};
+    UIDSequence b = {"*", "a", "b", "c"};
 
-    size_t first_id = 0;
-    while (in_match >> first_id)
-    {
-        size_t second_id = 0;
-        in_match >> second_id;
-        expected_nodes.push_back(NodePair(first_id, second_id));
-    }
+    ExpectMatch(
+        a, b,
+        {{1, 1}, {2, 2}, {4, 3}},
+        1 * kSkipCost);
+}
 
-    ExpectMatchStr(
-        a, b, strA, strB, 12009 * kSkipCost, expected_nodes);
+TEST(HierarchyMatching, LongGap)
+{
+    UIDSequence a = {"*", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"};
+    UIDSequence b = {"*", "b", "c", "l"};
+
+    ExpectMatch(
+        a, b,
+        {{2, 1}, {3, 2}, {12, 3}},
+        9 * kSkipCost);
+}
+
+TEST(HierarchyMatching, TwoRepetitions)
+{
+    UIDSequence a = {"*", "a", "b", "b", "b", "b", "c", "d", "d", "d", "d"};
+    UIDSequence b = {"*", "z", "a", "z", "b", "b", "b", "b", "z", "c", "d", "d", "d", "d", "z"};
+
+    ExpectMatch(
+        a, b,
+        {{1, 2}, {2, 4}, {3, 5}, {4, 6}, {5, 7}, {6, 9}, {7, 10}, {8, 11}, {9, 12}, {10, 13}},
+        4 * kSkipCost);
 }
 
 }    // namespace execution

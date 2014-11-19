@@ -18,11 +18,15 @@
 #include "execution/HierarchyMatcher.hpp"
 
 #include <algorithm>
+#include <boost/functional/hash/hash.hpp>
 #include <iostream>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "base/Constants.hpp"
+#include "execution/CanonizeSequence.hpp"
+#include "execution/DynamicMatching.hpp"
 #include "execution/FindRepetitions.hpp"
 
 namespace tibee {
@@ -31,474 +35,248 @@ namespace execution {
 namespace
 {
 
-const size_t kChunkSize = 2;
-
-using execution::Node;
-
-// Keeps track of the nodes that have a given unique id.
-typedef std::unordered_map<std::string, std::vector<size_t>> UniqueIdMap;
-
-// Contains matching nodes.
-struct MatchVectorHierarchical {
-    MatchVector vector;
-    std::vector<MatchVectorHierarchical*> children; 
-};
-
-// Stores the minimum cost to match 2 subtrees.
-struct SubtreeCost {
-    SubtreeCost()
-        : cost(0), next_match(), is_matching(false) {
-    }
-
-    SubtreeCost(uint64_t cost, const NodePair& next_match, bool is_matching)
-        : cost(cost), next_match(next_match), is_matching(is_matching) {
-    }
-
-    // The minimum cost to match the subtrees.
-    uint64_t cost;
-
-    // The first pair of nodes that match in a preorder traversal of the subtrees,
-    // after the root.
-    NodePair next_match;
-
-    // Indicates whether the roots of the subtrees match.
-    bool is_matching;
-};
-
-// Match cache, for the dynamic programming algorithm.
-typedef std::unordered_map<NodePair, SubtreeCost> MatchCache;
-
-// Context for the dynamic programming algorithm.
-struct DynamicProgrammingContext
+struct SequenceToken
 {
-    Node::ChildrenIterator sub_begin_left; ///////// TO REMOVE
-    Node::ChildrenIterator sub_begin_right;
+    UIDSequence uids;
+    bool is_repetition;
 
-    Node::ChildrenIterator sub_end_left;
-    Node::ChildrenIterator sub_end_right;
-    Node::ChildrenIterator begin_left;
-    Node::ChildrenIterator begin_right;
-    const std::vector<std::string>* uids_a;
-    const std::vector<std::string>* uids_b;
-    const RepetitionsMap* repetitions_a;
-    const RepetitionsMap* repetitions_b;
-    MatchCache cache;
+    bool operator==(const SequenceToken& other) const {
+        return uids == other.uids && is_repetition == other.is_repetition;
+    }
 };
 
-// Hierarchical matcher.
-class HierarchicalMatcher
+}  // namespace
+}  // namespace execution
+}  // namespace tibee
+
+namespace std {
+
+template <>
+struct hash<tibee::execution::SequenceToken> {
+    size_t operator()(const tibee::execution::SequenceToken& token) const {
+        size_t seed = 0;
+        boost::hash_combine(seed, token.uids);
+        boost::hash_combine(seed, token.is_repetition);
+        return seed;
+    }
+};
+
+}    // namespace std
+
+namespace tibee {
+namespace execution {
+
+namespace
 {
-public:
-    HierarchicalMatcher(const Graph& graph_a,
-                        const Graph& graph_b,
-                        const MatchNodesCostFunc& match_cost_func,
-                        const UniqueIdentifierFunc& unique_id_func,
-                        uint64_t skip_cost)
-        : _graph_a(graph_a), _graph_b(graph_b),
-          _match_cost_func(match_cost_func),
-          _unique_id_func(unique_id_func),
-          _skip_cost(skip_cost)
+
+const size_t kNumCuts = 3;
+
+typedef std::unordered_map<SequenceToken, std::vector<size_t>> TokensMap;
+
+typedef std::pair<size_t, size_t> Range;
+typedef std::vector<Range> RangeVector;
+
+void GenerateUIDs(
+    const Node& root,
+    const UniqueIdentifierFunc& uid_func,
+    GraphPosition graph_position,
+    UIDSequence* uids)
+{
+    uids->reserve(root.NumChildren());
+    for (const auto& node : root)
+        uids->push_back(uid_func(node, graph_position));
+}
+
+void CreateSequenceTokensMap(
+    const UIDSequence& uids,
+    const CanonicalSequence& canonical,
+    const Range& range,
+    TokensMap* tokens_map)
+{
+    for (size_t i = range.first; i < range.second; ++i)
     {
+        SequenceToken token;
+        size_t numUids = 1;
+        if (canonical[i].chunk_size != 0)
+            numUids = canonical[i].chunk_size;
+
+        for (size_t j = 0; j < numUids; ++j)
+            token.uids.push_back(uids[canonical[i].pos + j]);
+
+        token.is_repetition = (canonical[i].chunk_size != 0);
+
+        (*tokens_map)[token].push_back(i);
     }
+}
 
-    uint64_t MatchGraphs(MatchVector* match_vector)
+void CutSequence(
+    const Node& a,
+    const Node& b,
+    const UIDSequence& uids_a,
+    const UIDSequence& uids_b,
+    const CanonicalSequence& canonical_a,
+    const CanonicalSequence& canonical_b,
+    const Range& range_a,
+    const Range& range_b,
+    RangeVector* ranges_a,
+    RangeVector* ranges_b,
+    MatchVector* matching_nodes)
+{
+    // Create maps with the occurences of each token.
+    TokensMap tokens_map_a;
+    CreateSequenceTokensMap(uids_a, canonical_a, range_a, &tokens_map_a);
+    TokensMap tokens_map_b;
+    CreateSequenceTokensMap(uids_b, canonical_b, range_b, &tokens_map_b);
+
+    // Find tokens that are repeated the same number of times in each sequence.
+    std::vector<size_t> repeated_tokens_a;
+    std::vector<size_t> repeated_tokens_b;
+
+    for (const auto& token : tokens_map_a)
     {
-        // Apply the matching algorithm.
-        MatchVectorHierarchical match_vector_hierarchical;
-        match_vector_hierarchical.vector.push_back(NodePair(0, 0));
-        const Node& root_a = _graph_a.GetNode(0);
-        const Node& root_b = _graph_b.GetNode(0);
-        uint64_t cost = MatchNodes(
-            0, 0, root_a.begin(), root_a.end(), root_b.begin(), root_b.end(),
-            &match_vector_hierarchical);
+        const auto& tokens_a = token.second;
+        const auto& tokens_b = tokens_map_b[token.first];
 
-        // Flatten the vectors of matching nodes.
-        FlattenMatchVectors(match_vector_hierarchical, match_vector);
+        if (tokens_a.size() != tokens_b.size())
+            continue;
 
-        return cost;
-    }
+        for (const auto& pos : tokens_a)
+            repeated_tokens_a.push_back(pos);
+        for (const auto& pos : tokens_b)
+            repeated_tokens_b.push_back(pos);
 
-private:
-    uint64_t MatchNodes(
-        NodeId a, NodeId b,
-        Node::ChildrenIterator begin_left,
-        Node::ChildrenIterator end_left,
-        Node::ChildrenIterator begin_right,
-        Node::ChildrenIterator end_right,
-        MatchVectorHierarchical* match_vector)
-    {
-        uint64_t cost = 0;
-
-        const Node& node_a = _graph_a.GetNode(a);
-        const Node& node_b = _graph_b.GetNode(b);
-
-        // Match the children of the nodes.
-        // - Magically match nodes that are repeated the same number of times in each graph.
-        UniqueIdMap left_map;
-        FillUniqueIdMap(begin_left, end_left, GraphPosition::LEFT_GRAPH, &left_map);
-        UniqueIdMap right_map;
-        FillUniqueIdMap(begin_right, end_right, GraphPosition::RIGHT_GRAPH, &right_map);
-
-        std::vector<size_t> magic_matched_left;
-        std::vector<size_t> magic_matched_right;
-        std::vector<NodePair> magic_matched;
-
-        for (const auto& left : left_map)
+        // Match the tokens.
+        for (size_t i = 0; i < tokens_a.size(); ++i)
         {
-            const auto& left_unique_vector = left.second;
-            const auto& right_unique_vector = right_map[left.first];
-            if (left_unique_vector.size() != right_unique_vector.size())
-                continue;
+            auto& canonical_token_a = canonical_a[tokens_a[i]];
+            auto& canonical_token_b = canonical_b[tokens_b[i]];
 
-            for (size_t i = 0; i < left_unique_vector.size(); ++i)
+            size_t num_match = 1;
+            if (canonical_token_a.chunk_size != 0)
             {
-                auto left_child = node_a.GetChild(left_unique_vector[i]);
-                auto right_child = node_b.GetChild(right_unique_vector[i]);
-
-                NodePair child_pair(left_child, right_child);
-                match_vector->vector.push_back(child_pair);
-
-                magic_matched_left.push_back(left_unique_vector[i]);
-                magic_matched_right.push_back(right_unique_vector[i]);
-                magic_matched.push_back(NodePair(left_unique_vector[i], right_unique_vector[i]));
-
-                // TODO: Match the children....
+                size_t num_a = canonical_token_a.chunk_size * canonical_token_a.num_repetitions;
+                size_t num_b = canonical_token_b.chunk_size * canonical_token_b.num_repetitions;
+                num_match = std::min(num_a, num_b);
             }
-        }
 
-        std::sort(magic_matched_left.begin(), magic_matched_left.end());
-        std::sort(magic_matched_right.begin(), magic_matched_right.end());
+            size_t pos_a = canonical_token_a.pos;
+            size_t pos_b = canonical_token_b.pos;
 
-        // - Find repetitions.
-        std::vector<std::string> uids_a;
-        for (auto cur_a = begin_left; cur_a != end_left; ++cur_a)
-            uids_a.push_back(_unique_id_func(*cur_a, GraphPosition::LEFT_GRAPH));
-        RepetitionsMap repetitions_a;
-        FindRepetitionsMap(uids_a, kChunkSize, &repetitions_a);
-
-        std::vector<std::string> uids_b;
-        for (auto cur_b = begin_right; cur_b != end_right; ++cur_b)
-            uids_b.push_back(_unique_id_func(*cur_b, GraphPosition::RIGHT_GRAPH));
-        RepetitionsMap repetitions_b;
-        FindRepetitionsMap(uids_b, kChunkSize, &repetitions_b);
-
-        // - Match the nodes before the first magic.
-        auto first_sub_begin_left = begin_left;
-        auto first_sub_begin_right = begin_right;
-        auto first_sub_end_left = end_left;
-        auto first_sub_end_right = end_right;
-
-        if (!magic_matched.empty()) {
-            first_sub_end_left = begin_left + magic_matched_left.front();
-            first_sub_end_right = begin_right + magic_matched_right.front();
-        }
-
-        cost += MatchSubsequences(
-            first_sub_begin_left, first_sub_end_left,
-            first_sub_begin_right, first_sub_end_right,
-            begin_left, begin_right,
-            uids_a, uids_b,
-            repetitions_a, repetitions_b,
-            match_vector);
-
-        // - Match the remaining nodes (gaps between magic).
-        for (const NodePair& child_pair : magic_matched)
-        {
-            // Find the offsets of the next magically matched nodes.
-            auto next_left = std::upper_bound(magic_matched_left.begin(), magic_matched_left.end(), child_pair.node_id_a());
-            auto next_right = std::upper_bound(magic_matched_right.begin(), magic_matched_right.end(), child_pair.node_id_b());
-
-            auto sub_begin_left = begin_left + child_pair.node_id_a() + 1;
-            auto sub_end_left = end_left;
-            if (next_left != magic_matched_left.end())
-                sub_end_left = begin_left + *next_left;
-
-            auto sub_begin_right = begin_right + child_pair.node_id_b() + 1;
-            auto sub_end_right = end_right;
-            if (next_right != magic_matched_right.end())
-                sub_end_right = begin_right + *next_right;
-
-            // Match the corresponding gaps.
-            cost += MatchSubsequences(
-                sub_begin_left, sub_end_left,
-                sub_begin_right, sub_end_right,
-                begin_left, begin_right,
-                uids_a, uids_b,
-                repetitions_a, repetitions_b,
-                match_vector);
-        }
-
-        return cost;
-    }
-
-    uint64_t MatchSubsequences(Node::ChildrenIterator sub_begin_left,
-                               Node::ChildrenIterator sub_end_left,
-                               Node::ChildrenIterator sub_begin_right,
-                               Node::ChildrenIterator sub_end_right,
-                               Node::ChildrenIterator begin_left,
-                               Node::ChildrenIterator begin_right,
-                               const std::vector<std::string>& uids_a,
-                               const std::vector<std::string>& uids_b,
-                               const RepetitionsMap& repetitions_a,
-                               const RepetitionsMap& repetitions_b,
-                               MatchVectorHierarchical* match_vector)
-    {
-        // Create a context for the dynamic programming algorithm.
-        DynamicProgrammingContext context;
-        context.sub_begin_left = sub_begin_left;   // A SUPPRIMER
-        context.sub_begin_right = sub_begin_right;
-
-        context.sub_end_left = sub_end_left;
-        context.sub_end_right = sub_end_right;
-        context.begin_left = begin_left;
-        context.begin_right = begin_right;
-        context.uids_a = &uids_a;
-        context.uids_b = &uids_b;
-        context.repetitions_a = &repetitions_a;
-        context.repetitions_b = &repetitions_b;
-
-        // Apply the dynamic programming algorithm.
-        NodePair first_match;
-        uint64_t cost = MatchSubsequencesRecursive(
-            sub_begin_left, sub_begin_right,
-            &context, 0, &first_match);
-
-        // Retrieve the matching nodes.
-        const NodePair* current_match = &first_match;
-        NodePair end_match;
-
-        while (*current_match != end_match) {
-            match_vector->vector.push_back(
-                NodePair(current_match->node_id_a(), current_match->node_id_b()));
-            current_match = &context.cache[*current_match].next_match;
-
-            // TODO: Also retrieve the children match vectors...
-        }
-
-        return cost;
-    }
-
-    uint64_t MatchSubsequencesRecursive(Node::ChildrenIterator cur_left,
-                                        Node::ChildrenIterator cur_right,
-                                        DynamicProgrammingContext* context,
-                                        size_t num_skips,
-                                        NodePair* next_match)
-    {
-        if (num_skips > 25) 
-            return kHugeCost;
-
-        // Reached the end of a sequence: skip all nodes from the other sequence.
-        if (cur_left >= context->sub_end_left)
-            return std::distance(cur_right, context->sub_end_right) * _skip_cost;
-        else if (cur_right >= context->sub_end_right)
-            return std::distance(cur_left, context->sub_end_left) * _skip_cost;
-
-        // Look if the match is in the cache.
-        NodePair current_pair(*cur_left, *cur_right);
-
-        auto look = context->cache.find(current_pair);
-        if (look != context->cache.end()) {
-            if (look->second.is_matching)
-                *next_match = current_pair;
-            else
-                *next_match = look->second.next_match;
-
-            return look->second.cost;
-        }
-
-        // Match 2 sequences of repetitions.
-        size_t offset_a = static_cast<size_t>(std::distance(context->begin_left, cur_left));
-        size_t offset_b = static_cast<size_t>(std::distance(context->begin_right, cur_right));
-        auto repetitions_a_it = context->repetitions_a->find(offset_a);
-        auto repetitions_b_it = context->repetitions_b->find(offset_b);
-        bool a_is_repetition = repetitions_a_it != context->repetitions_a->end();
-        bool b_is_repetition = repetitions_b_it != context->repetitions_b->end();
-
-        if (a_is_repetition && b_is_repetition &&
-            std::equal(context->uids_a->begin() + offset_a,
-                       context->uids_a->begin() + offset_a + kChunkSize,
-                       context->uids_b->begin() + offset_b))
-        {
-            // Found repetitions of the same chunk.
-            // TODO: For now, matching the 2 subsequences is free.
-
-            // Find the cost of matching the sequences that follow the repetitions.
-            NodePair next_match_repetition;
-            uint64_t cost_repetition = MatchSubsequencesRecursive(
-                cur_left + (repetitions_a_it->second * kChunkSize),
-                cur_right + (repetitions_b_it->second * kChunkSize),
-                context, 0,
-                &next_match_repetition);
-
-            // Match the repeated nodes.
-            size_t shortest_repetition = std::min(repetitions_a_it->second, repetitions_b_it->second);
-            for (size_t i = 0; i < shortest_repetition * kChunkSize; ++i)
+            for (size_t j = 0; j < num_match; ++j)
             {
+                matching_nodes->push_back(NodePair(
+                    a.GetChild(pos_a), b.GetChild(pos_b)));
 
-                NodePair next_match_inside_repetition;
-                if (i == (shortest_repetition * kChunkSize - 1))
-                    next_match_inside_repetition = next_match_repetition;
-                else
-                    next_match_inside_repetition = NodePair(*(cur_left + 1), *(cur_right + 1));
-
-                context->cache.insert(std::make_pair(
-                    NodePair(*cur_left, *cur_right),
-                    SubtreeCost(cost_repetition,
-                                next_match_inside_repetition,
-                                true)));
-
-                ++cur_left;
-                ++cur_right;
-
-                // TODO: Match children...
+                ++pos_a;
+                ++pos_b;
             }
-
-            *next_match = current_pair;
-
-            return cost_repetition;
         }
-
-        // Match as much identical nodes as possible.
-        // Empty uids cannot be matched by themselves. They must be matched with their previous node.
-        uint64_t match_cost = _match_cost_func(current_pair.node_id_a(), current_pair.node_id_b());
-        if (a_is_repetition || b_is_repetition)
-            match_cost = kHugeCost;
-
-        if (match_cost == 0 && !context->uids_a->at(offset_a).empty())
-        {
-            *next_match = current_pair;
-
-            auto tmp_cur_left = cur_left + 1;
-            auto tmp_cur_right = cur_right + 1;
-
-            // Determine how much more nodes we can match.
-            size_t num_extra_match = 0;
-            while (tmp_cur_left < context->sub_end_left &&
-                   tmp_cur_right < context->sub_end_right &&
-                   _match_cost_func(*tmp_cur_left, *tmp_cur_right) == 0 &&
-                   context->cache.find(NodePair(*tmp_cur_left, *tmp_cur_right)) == context->cache.end() &&
-                   context->repetitions_a->find(std::distance(context->begin_left, tmp_cur_left)) == context->repetitions_a->end() &&
-                   context->repetitions_b->find(std::distance(context->begin_right, tmp_cur_right)) == context->repetitions_b->end())
-            {
-                ++num_extra_match;
-                ++tmp_cur_left;
-                ++tmp_cur_right;
-            }
-
-            // Match the nodes that follow the sequence of equal nodes.
-            auto cur_after_eq_left = cur_left + num_extra_match + 1;
-            auto cur_after_eq_right = cur_right + num_extra_match + 1;
-
-            NodePair after_match_pair;
-
-            uint64_t after_match_cost = MatchSubsequencesRecursive(
-                cur_after_eq_left, cur_after_eq_right,
-                context, 0, &after_match_pair);
-
-            for (size_t i = 0; i < num_extra_match + 1; ++i) {
-                NodePair cacheNextPair;
-                if (i == num_extra_match)
-                    cacheNextPair = after_match_pair;
-                else
-                    cacheNextPair = NodePair(*(cur_left + 1), *(cur_right + 1));
-
-                context->cache.insert(std::make_pair(
-                    NodePair(*cur_left, *cur_right),
-                    SubtreeCost(after_match_cost, cacheNextPair, true)));
-
-                ++cur_left;
-                ++cur_right;
-            }
-
-            return after_match_cost;
-        }
-
-        NodePair match_next_match;
-        if (match_cost != kHugeCost)
-        {
-            size_t new_num_skips = 0;
-            if (context->uids_a->at(offset_a).empty())
-                new_num_skips = num_skips;
-
-            match_cost += MatchSubsequencesRecursive(
-                cur_left + 1, cur_right + 1, context, new_num_skips, &match_next_match);
-        }
-
-        // Skip a node from graph a.
-        NodePair skip_a_next_match;
-        uint64_t skip_a_cost = MatchSubsequencesRecursive(
-            cur_left + 1, cur_right,
-            context, num_skips + 1, &skip_a_next_match);
-        if (skip_a_cost != kHugeCost)
-            skip_a_cost += _skip_cost;
-
-        // Skip a node from graph b.
-        NodePair skip_b_next_match;
-        uint64_t skip_b_cost = MatchSubsequencesRecursive(
-            cur_left, cur_right + 1,
-            context, num_skips + 1, &skip_b_next_match);
-        if (skip_b_cost != kHugeCost)
-            skip_b_cost += _skip_cost;
-
-        // Determine the operation with minimum cost.
-        uint64_t min_cost = std::min({match_cost, skip_a_cost, skip_b_cost});
-
-        if (min_cost == match_cost)
-        {
-            *next_match = current_pair;
-            context->cache.insert(std::make_pair(
-                current_pair, SubtreeCost(min_cost, match_next_match, true)));
-        }
-        else
-        {
-            if (min_cost == skip_a_cost)
-                *next_match = skip_a_next_match;
-            else
-                *next_match = skip_b_next_match;
-
-            context->cache.insert(std::make_pair(
-                current_pair, SubtreeCost(min_cost, *next_match, false)));
-        }
-
-        return min_cost;
     }
 
-    void FillUniqueIdMap(Node::ChildrenIterator begin,
-                         Node::ChildrenIterator end,
-                         GraphPosition position,
-                         UniqueIdMap* map)
+    std::sort(repeated_tokens_a.begin(), repeated_tokens_a.end());
+    std::sort(repeated_tokens_b.begin(), repeated_tokens_b.end());
+
+    // Cut the sequence at tokens.
+
+    // - First range.
+    if (repeated_tokens_a.empty())
     {
-        auto cur = begin;
-        for (; cur != end; ++cur) {
-            auto unique_id = _unique_id_func(*cur, position);
-            if (unique_id.empty())
-                continue;
-            (*map)[unique_id].push_back(
-                static_cast<size_t>(std::distance(begin, cur)));
-        }
+        ranges_a->push_back({range_a.first, range_a.second});
+        ranges_b->push_back({range_b.first, range_b.second}); 
     }
-
-    void FlattenMatchVectors(const MatchVectorHierarchical& in, MatchVector* out)
+    else if (repeated_tokens_a.front() != range_a.first ||
+             repeated_tokens_b.front() != range_b.first)
     {
-        std::copy(in.vector.begin(), in.vector.end(), std::back_inserter(*out));
-        for (const auto& child : in.children)
-            FlattenMatchVectors(*child, out);
+        ranges_a->push_back({range_a.first, repeated_tokens_a.front()});
+        ranges_b->push_back({range_b.first, repeated_tokens_b.front()});
     }
 
-    const Graph& _graph_a;
-    const Graph& _graph_b;
-    const MatchNodesCostFunc& _match_cost_func;
-    const UniqueIdentifierFunc& _unique_id_func;
-    uint64_t _skip_cost;
-};
+    // - Other ranges.
+    for (size_t i = 0; i < repeated_tokens_a.size(); ++i)
+    {
+        size_t begin_a = repeated_tokens_a[i] + 1;
+        size_t begin_b = repeated_tokens_b[i] + 1;
+
+        size_t end_a = range_a.second;
+        size_t end_b = range_b.second;
+
+        if (i != repeated_tokens_a.size() - 1)
+        {
+            end_a = repeated_tokens_a[i + 1];
+            end_b = repeated_tokens_b[i + 1];
+        }
+
+        if (begin_a >= end_a && begin_b >= end_b)
+            continue;
+
+        ranges_a->push_back(Range(begin_a, end_a));
+        ranges_b->push_back(Range(begin_b, end_b));
+    }
+}
+
+uint64_t MatchRoots(
+    const Node& a, const Node& b,
+    const UniqueIdentifierFunc& uid_func,
+    uint64_t skip_cost,
+    MatchVector* matching_nodes)
+{
+    // Generate sequences of unique identifiers for the children of the roots.
+    UIDSequence uids_a;
+    GenerateUIDs(a, uid_func, GraphPosition::LEFT_GRAPH, &uids_a);
+    UIDSequence uids_b;
+    GenerateUIDs(b, uid_func, GraphPosition::RIGHT_GRAPH, &uids_b);
+
+    // Canonize the sequences of unique identifiers.
+    CanonicalSequence canonical_a;
+    CanonizeSequence(uids_a, &canonical_a);
+    CanonicalSequence canonical_b;
+    CanonizeSequence(uids_b, &canonical_b);
+
+    // Cut the sequences in smaller chunks.
+    std::unique_ptr<RangeVector> ranges_a(new RangeVector);
+    ranges_a->push_back(Range(0, canonical_a.size()));
+    std::unique_ptr<RangeVector> ranges_b(new RangeVector);
+    ranges_b->push_back(Range(0, canonical_b.size()));
+
+    for (size_t i = 0; i < kNumCuts; ++i)
+    {
+        std::unique_ptr<RangeVector> new_ranges_a(new RangeVector);
+        std::unique_ptr<RangeVector> new_ranges_b(new RangeVector);
+
+        for (size_t j = 0; j < ranges_a->size(); ++j)
+        {
+            CutSequence(
+                a, b, uids_a, uids_b, canonical_a, canonical_b,
+                ranges_a->at(j), ranges_b->at(j),
+                new_ranges_a.get(), new_ranges_b.get(),
+                matching_nodes);
+        }
+
+        ranges_a = std::move(new_ranges_a);
+        ranges_b = std::move(new_ranges_b);
+    }
+
+    // Apply the dynamic programming algorithm on the smaller ranges.
+    uint64_t cost = 0;
+
+    for (size_t i = 0; i < ranges_a->size(); ++i)
+    {
+        cost += DynamicMatching(
+            canonical_a, canonical_b, uids_a, uids_b, a, b,
+            ranges_a->at(i).first, ranges_a->at(i).second,
+            ranges_b->at(i).first, ranges_b->at(i).second,
+            skip_cost, matching_nodes);
+    }
+
+    return cost;
+}
 
 }  // namespace
 
 uint64_t MatchGraphsHierarchical(
     const Graph& graph_a,
     const Graph& graph_b,
-    const MatchNodesCostFunc& match_cost_func,
-    const UniqueIdentifierFunc& unique_id_func,
+    const UniqueIdentifierFunc& uid_func,
     uint64_t skip_cost,
     MatchVector* matching_nodes)
 {
@@ -507,8 +285,12 @@ uint64_t MatchGraphsHierarchical(
     if (graph_b.empty())
         return graph_a.size() * skip_cost;
 
-    HierarchicalMatcher matcher(graph_a, graph_b, match_cost_func, unique_id_func, skip_cost);
-    return matcher.MatchGraphs(matching_nodes);
+    // For now, only match the first level.
+    return MatchRoots(
+        graph_a.GetNode(0), graph_b.GetNode(0),
+        uid_func, skip_cost, matching_nodes);
+
+    return 0;
 }
 
 }  // namespace execution
