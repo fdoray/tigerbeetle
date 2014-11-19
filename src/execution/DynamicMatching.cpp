@@ -28,6 +28,8 @@ namespace execution {
 
 namespace {
 
+const size_t kMaxSkipDepth = 20;
+
 // Stores the minimum cost to match 2 subtrees.
 struct SubtreeCost {
     SubtreeCost()
@@ -143,6 +145,9 @@ uint64_t DynamicMatchingRecursive(
     Context* context,
     NodePair* next_match)
 {
+    if (skip_depth > kMaxSkipDepth)
+        return kHugeCost;
+
     // Reached the end of a sequence: skip all nodes from the other sequence.
     if (cur_a >= context->end_a)
         return (context->end_b - cur_b) * context->skip_cost;
