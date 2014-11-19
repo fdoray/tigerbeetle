@@ -8,6 +8,7 @@ app_env = lib_env.Clone()
 
 sources_unittests = [
     'block/BlockRunner_Unittest.cpp',
+    'execution/CanonizeSequence_Unittest.cpp',
     'execution/Graph_Unittest.cpp',
     'execution/ExecutionBuilder_Unittest.cpp',
     'execution/FindRepetitions_Unittest.cpp',

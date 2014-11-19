@@ -30,7 +30,7 @@ TEST(FindRepetitions, Single)
     FindRepetitions(seq, kChunkSize, &repetitions);
 
     std::vector<Repetition> expected_repetitions = {
-        Repetition(3, 4, kChunkSize)};
+        Repetition(3, 4)};
 
     EXPECT_EQ(expected_repetitions, repetitions);
 }
@@ -44,8 +44,8 @@ TEST(FindRepetitions, Multiple)
     FindRepetitions(seq, kChunkSize, &repetitions);
 
     std::vector<Repetition> expected_repetitions = {
-        Repetition(0, 2, kChunkSize),
-        Repetition(6, 3, kChunkSize)};
+        Repetition(0, 2),
+        Repetition(6, 3)};
 
     EXPECT_EQ(expected_repetitions, repetitions);
 }
@@ -59,7 +59,7 @@ TEST(FindRepetitions, Long)
     FindRepetitions(seq, kChunkSize, &repetitions);
 
     std::vector<Repetition> expected_repetitions = {
-        Repetition(0, 3, kChunkSize)};
+        Repetition(0, 3)};
 
     EXPECT_EQ(expected_repetitions, repetitions);
 }

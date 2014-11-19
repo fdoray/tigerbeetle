@@ -31,6 +31,9 @@ enum class GraphPosition {
     RIGHT_GRAPH
 };
 
+typedef std::string UID;
+typedef std::vector<UID> UIDSequence;
+
 typedef std::function<uint64_t (NodeId a, NodeId b)> MatchNodesCostFunc;
 
 typedef std::function<std::string (NodeId node_id, GraphPosition position)> UniqueIdentifierFunc;

@@ -15,42 +15,41 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.    If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_EXECUTION_FINDREPETITIONS_HPP
-#define _TIBEE_EXECUTION_FINDREPETITIONS_HPP
+#ifndef _TIBEE_EXECUTION_CANONIZESEQUENCE_HPP
+#define _TIBEE_EXECUTION_CANONIZESEQUENCE_HPP
 
-#include <stddef.h>
-#include <unordered_map>
 #include <vector>
 
 #include "execution/MatcherCommon.hpp"
+#include "execution/Node.hpp"
 
 namespace tibee {
 namespace execution {
 
-typedef std::unordered_map<size_t, size_t> RepetitionsMap;
+struct CanonicalNode {
+    CanonicalNode() {}
+    CanonicalNode(size_t pos, size_t chunk_size, size_t num_repetitions)
+        : pos(pos), chunk_size(chunk_size), num_repetitions(num_repetitions)
+    {}
 
-struct Repetition {
-    Repetition(size_t start_index, size_t num_repetitions)
-        : start_index(start_index), num_repetitions(num_repetitions) {}
-    size_t start_index;
+    size_t pos;
+    size_t chunk_size;
     size_t num_repetitions;
-    bool operator==(const Repetition& other) const {
-        return start_index == other.start_index && 
-            num_repetitions == other.num_repetitions ;
+
+    bool operator==(const CanonicalNode& other) const {
+        return pos == other.pos &&
+            chunk_size == other.chunk_size &&
+            num_repetitions == other.num_repetitions;
     }
 };
 
-void FindRepetitions(
-    const UIDSequence& seq,
-    size_t chunk_size,
-    std::vector<Repetition>* repetitions);
+typedef std::vector<CanonicalNode> CanonicalSequence;
 
-void FindRepetitionsMap(
-    const UIDSequence& seq,
-    size_t chunk_size,
-    RepetitionsMap* repetitions);
+void CanonizeSequence(
+    const UIDSequence& sequence,
+    CanonicalSequence* canonical_sequence);
 
 }  // namespace execution
 }  // namespace tibee
 
-#endif    // _TIBEE_EXECUTION_FINDREPETITIONS_HPP
+#endif    // _TIBEE_EXECUTION_CANONIZESEQUENCE_HPP

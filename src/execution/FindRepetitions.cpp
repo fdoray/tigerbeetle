@@ -27,7 +27,7 @@ namespace
 {
 
 bool SubsequencesEqual(
-    const std::vector<std::string>& seq,
+    const std::vector<UID>& seq,
     size_t index_a,
     size_t index_b,
     size_t size)
@@ -40,7 +40,7 @@ bool SubsequencesEqual(
 }  // namespace
 
 void FindRepetitions(
-    const std::vector<std::string>& seq,
+    const UIDSequence& seq,
     size_t chunk_size,
     std::vector<Repetition>* repetitions)
 {
@@ -64,7 +64,7 @@ void FindRepetitions(
         }
 
         // Excellent! We found many repetitions.
-        repetitions->push_back(Repetition(i - chunk_size, num_repetitions, chunk_size));
+        repetitions->push_back(Repetition(i - chunk_size, num_repetitions));
 
         // Skip to the end of the repetitions.
         i = (i - chunk_size) + num_repetitions * chunk_size - 1;
@@ -72,7 +72,7 @@ void FindRepetitions(
 }
 
 void FindRepetitionsMap(
-    const std::vector<std::string>& seq,
+    const UIDSequence& seq,
     size_t chunk_size,
     RepetitionsMap* repetitions)
 {
