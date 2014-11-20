@@ -14,7 +14,6 @@ sources_unittests = [
     'execution/ExecutionBuilder_Unittest.cpp',
     'execution/FindRepetitions_Unittest.cpp',
     'execution/HierarchyMatcher_Unittest.cpp',
-    'execution/Matcher_Unittest.cpp',
     'execution/Node_Unittest.cpp',
     'execution/PreorderIterator_Unittest.cpp',
     'keyed_tree/KeyedTree_Unittest.cpp',
