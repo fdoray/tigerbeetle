@@ -35,8 +35,7 @@ class Execution
 public:
     typedef std::unique_ptr<Execution> UP;
 
-    Execution(const std::string& description)
-        : _description(description) {}
+    Execution(const std::string& description);
 
     const std::string& description() const { return _description; }
 
@@ -46,10 +45,14 @@ public:
     NodeProperties& node_properties() { return _node_properties; }
     const NodeProperties& node_properties() const { return _node_properties; }
 
+    const value::Value* GetMetric(const std::string& name) const;
+    void SetMetric(const std::string& name, value::Value::UP value);
+
 private:
     std::string _description;
     Graph _graph;
     NodeProperties _node_properties;
+    std::unordered_map<std::string, value::Value::UP> _metrics;
 };
 
 typedef std::vector<Execution::UP> Executions;
