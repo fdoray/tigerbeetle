@@ -23,7 +23,7 @@ namespace execution {
 Execution::Execution(const std::string& description)
         : _description(description) {}
 
-const value::Value* Execution::GetMetric(const std::string& name) const
+const value::Value* Execution::GetMetric(quark::Quark name) const
 {
     auto look = _metrics.find(name);
     if (look == _metrics.end())
@@ -31,7 +31,15 @@ const value::Value* Execution::GetMetric(const std::string& name) const
     return look->second.get();
 }
 
-void Execution::SetMetric(const std::string& name, value::Value::UP value)
+value::Value* Execution::GetMetric(quark::Quark name)
+{
+    auto look = _metrics.find(name);
+    if (look == _metrics.end())
+        return nullptr;
+    return look->second.get();
+}
+
+void Execution::SetMetric(quark::Quark name, value::Value::UP value)
 {
     _metrics[name] = std::move(value);
 }

@@ -34,9 +34,11 @@ class Execution
 {
 public:
     typedef std::unique_ptr<Execution> UP;
+    typedef std::unordered_map<quark::Quark, value::Value::UP> Metrics;
 
     Execution(const std::string& description);
 
+    void set_description(const std::string& description) { _description = description; }
     const std::string& description() const { return _description; }
 
     Graph& graph() { return _graph; }
@@ -45,14 +47,22 @@ public:
     NodeProperties& node_properties() { return _node_properties; }
     const NodeProperties& node_properties() const { return _node_properties; }
 
-    const value::Value* GetMetric(const std::string& name) const;
-    void SetMetric(const std::string& name, value::Value::UP value);
+    const value::Value* GetMetric(quark::Quark name) const;
+    value::Value* GetMetric(quark::Quark name);
+    void SetMetric(quark::Quark name, value::Value::UP value);
+
+    Metrics::const_iterator metrics_begin() const {
+        return _metrics.begin();
+    }
+    Metrics::const_iterator metrics_end() const {
+        return _metrics.end();
+    }
 
 private:
     std::string _description;
     Graph _graph;
     NodeProperties _node_properties;
-    std::unordered_map<std::string, value::Value::UP> _metrics;
+    Metrics _metrics;
 };
 
 typedef std::vector<Execution::UP> Executions;
