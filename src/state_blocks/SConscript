@@ -9,6 +9,7 @@ sources = [
     'LinuxSchedStateBlock.cpp',
     'QuarkDatabaseWriter.cpp',
     'StateHistoryBlock.cpp',
+    'ThreadStatusBlock.cpp',
 ]
 
 libs = ['delorean']

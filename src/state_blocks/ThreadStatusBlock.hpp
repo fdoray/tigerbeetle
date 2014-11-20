@@ -15,18 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_STATEBLOCKS_STATEHISTORYBLOCK_HPP
-#define _TIBEE_STATEBLOCKS_STATEHISTORYBLOCK_HPP
+#ifndef _TIBEE_STATEBLOCKS_THREADSTATUSBLOCK_HPP
+#define _TIBEE_STATEBLOCKS_THREADSTATUSBLOCK_HPP
 
-#include <delorean/interval/AbstractInterval.hpp>
-#include <delorean/HistoryFileSink.hpp>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "block/AbstractBlock.hpp"
-#include "notification/NotificationCenter.hpp"
-#include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
 #include "state/CurrentState.hpp"
 
@@ -40,16 +36,18 @@ namespace state_blocks
  *
  * @author Francois Doray
  */
-class StateHistoryBlock : public block::AbstractBlock
+class ThreadStatusBlock : public block::AbstractBlock
 {
 public:
-    StateHistoryBlock();
+    ThreadStatusBlock();
 
+    virtual void RegisterServices(block::ServiceList* serviceList) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 
+    std::string GetFilenamePrefix() const { return _filenamePrefix; }
+
 private:
-    void InitTranslators();
     void onStateChange(const notification::Path& path, const value::Value* value);
     void onEnd(const notification::Path& path, const value::Value* value);
 
@@ -59,16 +57,24 @@ private:
     // Current state.
     state::CurrentState* _currentState;
 
-    // Interval history sink.
-    std::unique_ptr<delo::HistoryFileSink> _intervalFileSink;
-
-    // (value + ts -> delorean interval) translators
-    typedef std::function<delo::AbstractInterval* (uint32_t, const value::Value*, timestamp_t, timestamp_t)> Translator;
-    std::array<Translator, 16> _translators;
-    Translator _nullTranslator;
+    // Keeps track of the status of threads.
+    enum ThreadStatus {
+        kUsermode = 0,
+        kSyscall,
+        kInterrupted,
+        kWaitCpu,
+        kWaitBlocked,
+        kUnknown,
+    };
+    struct ThreadStatusInterval {
+        timestamp_t start;
+        timestamp_t end;
+        ThreadStatus status;
+    };
+    std::unordered_map<uint32_t, std::vector<ThreadStatusInterval>> _threadStatus;
 };
 
 }
 }
 
-#endif // _TIBEE_STATEBLOCKS_STATEHISTORYBLOCK_HPP
+#endif // _TIBEE_STATEBLOCKS_THREADSTATUSBLOCK_HPP

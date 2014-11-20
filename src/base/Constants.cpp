@@ -23,7 +23,7 @@ namespace tibee
 const char kExecutionBuilderServiceName[] = "graph-builder";
 const char kQuarksServiceName[] = "quarks";
 const char kCurrentStateServiceName[] = "current-state";
-const char kHistoryServiceName[] = "history";
+const char kThreadStatusServiceName[] = "thread-status";
 
 const char kExecutionBuilderNotificationPrefix[] = "graph-builder";
 const char kExecutionBuilderNotificationName[] = "graph";

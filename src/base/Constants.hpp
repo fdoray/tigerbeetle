@@ -30,7 +30,7 @@ const uint64_t kHugeCost = -1;
 extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
-extern const char kHistoryServiceName[];
+extern const char kThreadStatusServiceName[];
 
 // Notifications.
 extern const char kExecutionBuilderNotificationPrefix[];
