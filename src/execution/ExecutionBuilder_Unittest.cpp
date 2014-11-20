@@ -72,8 +72,8 @@ TEST(ExecutionBuilder, SingleTask) {
     builder.EndAllTasks();
 
     // Check the result.
-    const auto& graph = (*builder.begin())->graph;
-    const auto& nodeProperties = (*builder.begin())->nodeProperties;
+    const auto& graph = (*builder.begin())->graph();
+    const auto& nodeProperties = (*builder.begin())->node_properties();
     auto it = graph.preorder_begin();
     auto it_end = graph.preorder_end();
 

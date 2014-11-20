@@ -73,10 +73,9 @@ bool ExecutionBuilder::CreateExecution(ThreadId thread, const std::string& descr
     ReadAndResetTimers(thread);
 
     // Create the new graph with a root node.
-    auto graph_and_properties = Execution::UP {new Execution};
-    graph_and_properties->description = description;
+    auto graph_and_properties = Execution::UP {new Execution(description)};
     auto graph_index = _executions.size();
-    auto& root_node = graph_and_properties->graph.CreateNode();
+    auto& root_node = graph_and_properties->graph().CreateNode();
     _executions.push_back(std::move(graph_and_properties));
     _taskGraphIndex[_taskCounter] = graph_index;
 
@@ -107,7 +106,7 @@ bool ExecutionBuilder::PushStack(ThreadId thread)
     TaskId task = task_it->second.top();
     size_t graph_index = _taskGraphIndex[task];
 
-    Node& new_node = _executions[graph_index]->graph.CreateNode();
+    Node& new_node = _executions[graph_index]->graph().CreateNode();
     auto& stack = _scheduledTasks.find(task)->second;
     stack.top()->AddChild(new_node.id());
     stack.push(&new_node);
@@ -173,10 +172,10 @@ bool ExecutionBuilder::CreateTask(ThreadId parent_thread, TaskId child_task)
     TaskId parent_task = task_it->second.top();
     size_t graph_index = _taskGraphIndex[parent_task];
     _pendingTasksGraphIndex[child_task] = graph_index;
-    NodeProperties& nodeProperties = _executions[graph_index]->nodeProperties;
+    NodeProperties& nodeProperties = _executions[graph_index]->node_properties();
 
     // Create the initial node, with info about the arrow.
-    Node& new_node = _executions[graph_index]->graph.CreateNode();
+    Node& new_node = _executions[graph_index]->graph().CreateNode();
 
     nodeProperties.SetProperty(NodeStepKey(new_node.id(), 0), Q_PARENT_TID, MakeValue(parent_thread));
     nodeProperties.SetProperty(NodeStepKey(new_node.id(), 0), Q_ARROW_START, MakeValue(_ts));
@@ -285,7 +284,7 @@ bool ExecutionBuilder::IncrementProperty(ThreadId thread, quark::Quark property,
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), 0);
-    _executions[graph_index]->nodeProperties.IncrementProperty(
+    _executions[graph_index]->node_properties().IncrementProperty(
         key, property, increment);
 
     return true;
@@ -301,7 +300,7 @@ bool ExecutionBuilder::SetProperty(ThreadId thread, quark::Quark property, value
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), 0);
-    _executions[graph_index]->nodeProperties.SetProperty(
+    _executions[graph_index]->node_properties().SetProperty(
         key, property, std::move(value));
 
     return true;
@@ -317,7 +316,7 @@ const value::Value* ExecutionBuilder::GetProperty(ThreadId thread, quark::Quark 
     size_t graph_index = _taskGraphIndex[task];
 
     NodeStepKey key(stack.top()->id(), 0);
-    return _executions[graph_index]->nodeProperties.GetProperty(key, property);
+    return _executions[graph_index]->node_properties().GetProperty(key, property);
 }
 
 bool ExecutionBuilder::ReadAndResetTimers(ThreadId thread)
@@ -358,7 +357,7 @@ bool ExecutionBuilder::ReadAndResetTimers(ThreadId thread)
     timer_it->second.ReadAndResetTimers(
         _ts,
         std::bind(&NodeProperties::IncrementProperty,
-                  &_executions[graph_index]->nodeProperties,
+                  &_executions[graph_index]->node_properties(),
                   key,
                   _1,
                   _2));

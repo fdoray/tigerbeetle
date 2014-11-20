@@ -23,9 +23,10 @@
 #include <unordered_set>
 #include <stack>
 
-#include "execution/StateTimers.hpp"
+#include "execution/Execution.hpp"
 #include "execution/Graph.hpp"
 #include "execution/NodeProperties.hpp"
+#include "execution/StateTimers.hpp"
 #include "base/BasicTypes.hpp"
 #include "quark/StringQuarkDatabase.hpp"
 #include "value/Value.hpp"
@@ -43,15 +44,6 @@ class ExecutionBuilder
 public:
     typedef uint64_t TaskId;
     typedef uint32_t ThreadId;
-
-    struct Execution
-    {
-        typedef std::unique_ptr<Execution> UP;
-        std::string description;
-        Graph graph;
-        NodeProperties nodeProperties;
-    };
-    typedef std::vector<Execution::UP> Executions;
 
     ExecutionBuilder();
     ~ExecutionBuilder();
