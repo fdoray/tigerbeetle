@@ -41,7 +41,10 @@ public:
     const std::string& description() const { return _description; }
 
     Graph& graph() { return _graph; }
+    const Graph& graph() const { return _graph; }
+
     NodeProperties& node_properties() { return _node_properties; }
+    const NodeProperties& node_properties() const { return _node_properties; }
 
 private:
     std::string _description;
