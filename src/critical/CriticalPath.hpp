@@ -19,6 +19,7 @@
 #define _TIBEE_CRITICAL_CRITICALPATH_HPP
 
 #include <boost/noncopyable.hpp>
+#include <unordered_set>
 #include <vector>
 
 #include "base/BasicTypes.hpp"
@@ -58,6 +59,8 @@ public:
     CriticalPath();
 
     void Push(const CriticalPathSegment& segment);
+
+    bool RestrictToThreads(const std::unordered_set<uint32_t>& threads);
 
     size_t size() const {
         return _path.size();

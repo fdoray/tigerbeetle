@@ -17,10 +17,15 @@
  */
 #include "critical/CriticalPath.hpp"
 
+#include "base/print.hpp"
+
 namespace tibee
 {
 namespace critical
 {
+
+using base::tbendl;
+using base::tberror;
 
 CriticalPathSegment::CriticalPathSegment()
     : ts(0), tid(-1), type(CriticalEdgeType::kUnknown)
@@ -40,6 +45,30 @@ CriticalPath::CriticalPath()
 void CriticalPath::Push(const CriticalPathSegment& segment)
 {
     _path.push_back(segment);
+}
+
+bool CriticalPath::RestrictToThreads(const std::unordered_set<uint32_t>& threads)
+{
+    uint32_t last_tid = -1;
+
+    for (auto& segment : _path)
+    {
+        if (threads.find(segment.tid) == threads.end())
+        {
+            if (last_tid == static_cast<uint32_t>(-1))
+            {
+                tberror() << "The first segment of a critical path must be on an allowed thread." << tbendl();
+                return false;
+            }
+
+            segment.tid = last_tid;
+        }
+
+        // Keep track of last allowed tid.
+        last_tid = segment.tid;
+    }
+
+    return true;
 }
 
 }
