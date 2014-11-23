@@ -139,15 +139,14 @@ CriticalEdgeId CriticalGraph::CreateVerticalEdge(
     return id;
 }
 
-bool CriticalGraph::CriticalPath(
+bool CriticalGraph::ComputeCriticalPath(
         const CriticalNode* from,
         const CriticalNode* to,
-        std::vector<CriticalEdgeId>* path) const
+        CriticalPath* path) const
 {
     assert(from != nullptr);
     assert(to != nullptr);
     assert(path != nullptr);
-    assert(path->empty());
 
     // Topological sort.
     std::vector<const CriticalNode*> topological;
@@ -215,9 +214,15 @@ bool CriticalGraph::CriticalPath(
     while (cur != to)
     {
         const NodeDistance& distance = distances[cur];
-        path->push_back(distance.edge);
-        cur = GetEdge(distance.edge).to();
+        const CriticalEdge& edge = GetEdge(distance.edge);
 
+        if (edge.type() != CriticalEdgeType::kVertical)
+        {
+            path->Push(CriticalPathSegment(
+                edge.from()->ts(), edge.from()->tid(), edge.type()));
+        }
+
+        cur = GetEdge(distance.edge).to();
     }
 
     return true;

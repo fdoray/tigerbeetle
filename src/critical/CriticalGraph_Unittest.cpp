@@ -19,6 +19,7 @@
 
 #include "gtest/gtest.h"
 #include "critical/CriticalGraph.hpp"
+#include "critical/CriticalPath.hpp"
 
 namespace tibee {
 namespace critical {
@@ -86,49 +87,50 @@ TEST(CriticalGraph, CriticalGraph)
     graph.CreateVerticalEdge(nodes[21], nodes[20]);
 
     // Extract critical path.
-    std::vector<CriticalEdgeId> path;
-    EXPECT_TRUE(graph.CriticalPath(nodes[1], nodes[23], &path));
+    CriticalPath path;
+    EXPECT_TRUE(graph.ComputeCriticalPath(nodes[1], nodes[23], &path));
 
-    ASSERT_EQ(13, path.size());
+    ASSERT_EQ(7, path.size());
 
-    EXPECT_EQ(nodes[1], graph.GetEdge(path[0]).from());
-    EXPECT_EQ(nodes[3], graph.GetEdge(path[0]).to());
+    auto it = path.begin();
+    auto it_end = path.end();
 
-    EXPECT_EQ(nodes[3], graph.GetEdge(path[1]).from());
-    EXPECT_EQ(nodes[4], graph.GetEdge(path[1]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(0, it->ts);
+    EXPECT_EQ(3, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[4], graph.GetEdge(path[2]).from());
-    EXPECT_EQ(nodes[5], graph.GetEdge(path[2]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(1, it->ts);
+    EXPECT_EQ(4, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[5], graph.GetEdge(path[3]).from());
-    EXPECT_EQ(nodes[6], graph.GetEdge(path[3]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(2, it->ts);
+    EXPECT_EQ(6, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[6], graph.GetEdge(path[4]).from());
-    EXPECT_EQ(nodes[10], graph.GetEdge(path[4]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(4, it->ts);
+    EXPECT_EQ(4, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[10], graph.GetEdge(path[5]).from());
-    EXPECT_EQ(nodes[9], graph.GetEdge(path[5]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(5, it->ts);
+    EXPECT_EQ(3, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[9], graph.GetEdge(path[6]).from());
-    EXPECT_EQ(nodes[13], graph.GetEdge(path[6]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(6, it->ts);
+    EXPECT_EQ(4, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[13], graph.GetEdge(path[7]).from());
-    EXPECT_EQ(nodes[12], graph.GetEdge(path[7]).to());
+    ASSERT_NE(it, it_end);
+    EXPECT_EQ(8, it->ts);
+    EXPECT_EQ(1, it->tid);
+    ++it;
 
-    EXPECT_EQ(nodes[12], graph.GetEdge(path[8]).from());
-    EXPECT_EQ(nodes[16], graph.GetEdge(path[8]).to());
-
-    EXPECT_EQ(nodes[16], graph.GetEdge(path[9]).from());
-    EXPECT_EQ(nodes[17], graph.GetEdge(path[9]).to());
-
-    EXPECT_EQ(nodes[17], graph.GetEdge(path[10]).from());
-    EXPECT_EQ(nodes[21], graph.GetEdge(path[10]).to());
-
-    EXPECT_EQ(nodes[21], graph.GetEdge(path[11]).from());
-    EXPECT_EQ(nodes[20], graph.GetEdge(path[11]).to());
-
-    EXPECT_EQ(nodes[20], graph.GetEdge(path[12]).from());
-    EXPECT_EQ(nodes[23], graph.GetEdge(path[12]).to());
+    EXPECT_EQ(it, it_end);
 }
 
 

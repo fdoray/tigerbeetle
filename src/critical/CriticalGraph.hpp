@@ -24,6 +24,7 @@
 
 #include "critical/CriticalEdge.hpp"
 #include "critical/CriticalNode.hpp"
+#include "critical/CriticalPath.hpp"
 
 namespace tibee
 {
@@ -60,10 +61,10 @@ public:
         return _edges[id];
     }
 
-    bool CriticalPath(
+    bool ComputeCriticalPath(
         const CriticalNode* from,
         const CriticalNode* to,
-        std::vector<CriticalEdgeId>* path) const;
+        CriticalPath* path) const;
 
 private:
     bool TopologicalSort(
