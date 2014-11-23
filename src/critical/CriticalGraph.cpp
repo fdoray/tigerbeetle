@@ -67,7 +67,7 @@ CriticalGraph::~CriticalGraph()
 
 CriticalNode* CriticalGraph::CreateNode(timestamp_t ts, uint32_t tid)
 {
-    assert(ts > _last_ts);
+    assert(ts >= _last_ts);
     _last_ts = ts;
 
     // Create node.
