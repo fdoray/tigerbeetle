@@ -38,10 +38,10 @@ enum CriticalEdgePosition {
 };
 
 enum class CriticalEdgeType {
-    kRun,           // Run in user or system mode.
-    kBlock,         // Waiting for another thread.
-    kUnknown,       // Unknown type.
-    kVertical,      // Vertical edge.
+    kRun,             // Run in user or system mode.
+    kWaitOtherThread, // Waiting for another thread.
+    kUnknown,         // Unknown type.
+    kVertical,        // Vertical edge.
 };
 
 }

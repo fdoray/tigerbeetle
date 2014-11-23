@@ -39,7 +39,7 @@ timestamp_t CriticalEdge::Cost() const
     assert(from() != nullptr);
     assert(to() != nullptr);
 
-    if (type() == CriticalEdgeType::kBlock)
+    if (type() == CriticalEdgeType::kWaitOtherThread)
     {
         return 0;
     }

@@ -71,10 +71,10 @@ TEST(CriticalGraph, CriticalGraph)
     graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[6], nodes[10]);
     graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[8], nodes[24]);
 
-    graph.CreateHorizontalEdge(CriticalEdgeType::kBlock, nodes[15], nodes[19]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kBlock, nodes[3], nodes[12]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kBlock, nodes[7], nodes[9]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kBlock, nodes[16], nodes[20]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[15], nodes[19]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[3], nodes[12]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[7], nodes[9]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[16], nodes[20]);
 
     graph.CreateVerticalEdge(nodes[15], nodes[14]);
     graph.CreateVerticalEdge(nodes[18], nodes[19]);

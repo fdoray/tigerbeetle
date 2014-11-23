@@ -47,6 +47,7 @@ public:
 
     CriticalNode* GetNodeAfterOrEqual(timestamp_t ts, uint32_t tid);
     const CriticalNode* GetNodeAfterOrEqual(timestamp_t ts, uint32_t tid) const;
+    CriticalNode* GetLastNodeForThread(uint32_t tid);
 
     CriticalEdgeId CreateHorizontalEdge(
         CriticalEdgeType type,

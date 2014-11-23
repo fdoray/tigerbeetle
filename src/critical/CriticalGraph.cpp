@@ -116,6 +116,14 @@ const CriticalNode* CriticalGraph::GetNodeAfterOrEqual(timestamp_t ts, uint32_t 
     return *node_it;
 }
 
+CriticalNode* CriticalGraph::GetLastNodeForThread(uint32_t tid)
+{
+    auto thread_nodes_it = _tid_to_nodes.find(tid);
+    if (thread_nodes_it == _tid_to_nodes.end() || thread_nodes_it->second->empty())
+        return nullptr;
+    return thread_nodes_it->second->back();
+}
+
 CriticalEdgeId CriticalGraph::CreateHorizontalEdge(
     CriticalEdgeType type,
     CriticalNode* from,

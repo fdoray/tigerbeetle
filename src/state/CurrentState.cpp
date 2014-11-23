@@ -167,7 +167,10 @@ uint32_t CurrentState::CurrentThreadForCpu(uint32_t cpu)
     auto threadValue = GetAttributeValue(_cpusAttribute, {IntQuark(cpu), Q_CUR_THREAD});
     if (threadValue == nullptr)
         return kInvalidThread;
-    return threadValue->AsInteger();
+    auto tid = threadValue->AsInteger();
+    if (tid == 0)
+        return kInvalidThread;
+    return tid;
 }
 
 CurrentState::AttributeValue::AttributeValue() :
