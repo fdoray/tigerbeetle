@@ -12,6 +12,7 @@ lib_env = env.Clone();
 base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
 builder_blocks = SConscript(os.path.join('builder_blocks', 'SConscript'), exports=['lib_env'])
 block = SConscript(os.path.join('block', 'SConscript'), exports=['lib_env'])
+critical = SConscript(os.path.join('critical', 'SConscript'), exports=['lib_env'])
 execution= SConscript(os.path.join('execution', 'SConscript'), exports=['lib_env'])
 execution_blocks = SConscript(os.path.join('execution_blocks', 'SConscript'), exports=['lib_env'])
 history = SConscript(os.path.join('history', 'SConscript'), exports=['lib_env'])
@@ -30,6 +31,7 @@ subs = [
     ('base', base),
     ('builder_blocks', builder_blocks),
     ('block', block),
+    ('critical', critical),
     ('execution', execution),
     ('execution_blocks', execution_blocks),
     ('history', history),
