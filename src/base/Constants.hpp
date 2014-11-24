@@ -31,6 +31,7 @@ extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
 extern const char kThreadStatusServiceName[];
+extern const char kCriticalGraphServiceName[];
 
 // Notifications.
 extern const char kExecutionBuilderNotificationPrefix[];

@@ -40,6 +40,7 @@ class CriticalBlock : public block::AbstractBlock
 public:
     CriticalBlock();
 
+    virtual void RegisterServices(block::ServiceList* serviceList) override;
     virtual void LoadServices(const block::ServiceList& serviceList) override;
     virtual void AddObservers(notification::NotificationCenter* notificationCenter) override;
 

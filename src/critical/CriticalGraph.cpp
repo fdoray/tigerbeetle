@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <iostream>
 #include <queue>
 #include <unordered_set>
 
@@ -40,6 +41,13 @@ struct NodeTsComparator
     bool operator() (const CriticalNode* node, timestamp_t ts) const
     {
         return node->ts() < ts;
+    }
+};
+struct NodeTsComparatorReverse
+{
+    bool operator() (timestamp_t ts, const CriticalNode* node) const
+    {
+        return ts < node->ts();
     }
 };
 
@@ -90,29 +98,24 @@ CriticalNode* CriticalGraph::CreateNode(timestamp_t ts, uint32_t tid)
     return node_ptr;
 }
 
-CriticalNode* CriticalGraph::GetNodeAfterOrEqual(timestamp_t ts, uint32_t tid)
+const CriticalNode* CriticalGraph::GetNodeIntersecting(timestamp_t ts, uint32_t tid) const
 {
     auto thread_nodes_it = _tid_to_nodes.find(tid);
     if (thread_nodes_it == _tid_to_nodes.end())
         return nullptr;
     const auto& thread_nodes = thread_nodes_it->second;
-    NodeTsComparator comparator;
-    auto node_it = std::lower_bound(thread_nodes->begin(), thread_nodes->end(), ts, comparator);
-    if (node_it == thread_nodes->end())
-        return nullptr;
-    return *node_it;
-}
+    NodeTsComparatorReverse comparator;
+    auto node_it = std::upper_bound(thread_nodes->begin(), thread_nodes->end(), ts, comparator);
 
-const CriticalNode* CriticalGraph::GetNodeAfterOrEqual(timestamp_t ts, uint32_t tid) const
-{
-    auto thread_nodes_it = _tid_to_nodes.find(tid);
-    if (thread_nodes_it == _tid_to_nodes.end())
+    --node_it;
+
+    if (node_it == thread_nodes->end() || node_it == (thread_nodes->begin() - 1))
         return nullptr;
-    const auto& thread_nodes = thread_nodes_it->second;
-    NodeTsComparator comparator;
-    auto node_it = std::lower_bound(thread_nodes->begin(), thread_nodes->end(), ts, comparator);
-    if (node_it == thread_nodes->end())
+
+    auto edgeId = (*node_it)->edge(kCriticalEdgeOutHorizontal);
+    if (edgeId != kInvalidCriticalEdgeId && GetEdge(edgeId).to()->ts() < ts)
         return nullptr;
+
     return *node_it;
 }
 
@@ -253,28 +256,9 @@ bool CriticalGraph::TopologicalSort(
 
     // Add initial nodes.
     std::vector<const CriticalNode*> initial_nodes;
-    GetFirstNodeForEachThreadAfterOrEqual(from->ts(), &initial_nodes);
+    GetInitialNodeForEachThread(from->ts(), &initial_nodes);
     for (auto node : initial_nodes) {
-        if (node->ts() <= to->ts())
-        {
-            // Check if the node has prerequisites that are after from->ts().
-            auto horizontal_in_id = node->edge(kCriticalEdgeInHorizontal);
-            auto vertical_in_id = node->edge(kCriticalEdgeInVertical);
-            
-            if (horizontal_in_id != kInvalidCriticalEdgeId &&
-                GetEdge(horizontal_in_id).from()->ts() >= from->ts())
-            {
-                continue;
-            }
-
-            if (vertical_in_id != kInvalidCriticalEdgeId &&
-                GetEdge(vertical_in_id).from()->ts() >= from->ts())
-            {
-                continue;
-            }
-
-            queue.push(node);
-        }
+        queue.push(node);
     }
 
     // Topological sort.
@@ -328,16 +312,28 @@ bool CriticalGraph::TopologicalSort(
     return found_to;
 }
 
-void CriticalGraph::GetFirstNodeForEachThreadAfterOrEqual(
+void CriticalGraph::GetInitialNodeForEachThread(
         timestamp_t ts,
         std::vector<const CriticalNode*>* nodes) const
 {
     for (const auto& thread : _tid_to_nodes)
     {
         uint32_t tid = thread.first;
-        const CriticalNode* first_node = GetNodeAfterOrEqual(ts, tid);
-        if (first_node != nullptr)
-            nodes->push_back(first_node);
+
+        if (thread.second->empty())
+            continue;
+
+        if (thread.second->front()->ts() >= ts)
+        {
+            // The first node of the thread is after ts: add it to the
+            // initial nodes.
+            nodes->push_back(thread.second->front());
+            continue;
+        }
+
+        const CriticalNode* initial_node = GetNodeIntersecting(ts, tid);
+        if (initial_node != nullptr)
+            nodes->push_back(initial_node);
     }
 }
 

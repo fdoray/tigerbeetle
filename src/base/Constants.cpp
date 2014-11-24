@@ -24,6 +24,7 @@ const char kExecutionBuilderServiceName[] = "graph-builder";
 const char kQuarksServiceName[] = "quarks";
 const char kCurrentStateServiceName[] = "current-state";
 const char kThreadStatusServiceName[] = "thread-status";
+const char kCriticalGraphServiceName[] = "critical";
 
 const char kExecutionBuilderNotificationPrefix[] = "graph-builder";
 const char kExecutionBuilderNotificationName[] = "graph";

@@ -21,10 +21,12 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "execution/Graph.hpp"
 #include "execution/NodeProperties.hpp"
+#include "quark/Quark.hpp"
 #include "value/Value.hpp"
 
 namespace tibee {
@@ -57,6 +59,13 @@ public:
     Metrics::const_iterator metrics_end() const {
         return _metrics.end();
     }
+
+    NodeId GetLastNode(quark::Quark qEndTime) const;
+
+    // Caution: Linear time!
+    uint32_t TidForNode(quark::Quark qTid, NodeId nodeId) const;
+
+    void ExtractTids(quark::Quark qTid, std::unordered_set<uint32_t>* tids) const;
 
 private:
     std::string _description;

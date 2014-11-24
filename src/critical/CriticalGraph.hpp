@@ -45,8 +45,7 @@ public:
     
     CriticalNode* CreateNode(timestamp_t ts, uint32_t tid);
 
-    CriticalNode* GetNodeAfterOrEqual(timestamp_t ts, uint32_t tid);
-    const CriticalNode* GetNodeAfterOrEqual(timestamp_t ts, uint32_t tid) const;
+    const CriticalNode* GetNodeIntersecting(timestamp_t ts, uint32_t tid) const;
     CriticalNode* GetLastNodeForThread(uint32_t tid);
 
     CriticalEdgeId CreateHorizontalEdge(
@@ -73,7 +72,7 @@ private:
         const CriticalNode* to,
         std::vector<const CriticalNode*>* out) const;
 
-    void GetFirstNodeForEachThreadAfterOrEqual(
+    void GetInitialNodeForEachThread(
         timestamp_t ts,
         std::vector<const CriticalNode*>* nodes) const;
 

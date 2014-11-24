@@ -133,6 +133,32 @@ TEST(CriticalGraph, CriticalGraph)
     EXPECT_EQ(it, it_end);
 }
 
+TEST(CriticalGraph, GetNodeIntersecting)
+{
+    // Create the graph.
+    CriticalGraph graph;
+
+    std::vector<CriticalNode*> nodes;
+
+    nodes.push_back(graph.CreateNode(10, 1)); // 0
+    nodes.push_back(graph.CreateNode(12, 1)); // 1
+    nodes.push_back(graph.CreateNode(14, 1)); // 2
+    nodes.push_back(graph.CreateNode(16, 1)); // 3
+
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[0], nodes[1]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[1], nodes[2]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[2], nodes[3]);
+
+    EXPECT_EQ(nullptr, graph.GetNodeIntersecting(5, 1));
+    EXPECT_EQ(nodes[0], graph.GetNodeIntersecting(10, 1));
+    EXPECT_EQ(nodes[0], graph.GetNodeIntersecting(11, 1));
+    EXPECT_EQ(nodes[1], graph.GetNodeIntersecting(12, 1));
+    EXPECT_EQ(nodes[1], graph.GetNodeIntersecting(13, 1));
+    EXPECT_EQ(nodes[2], graph.GetNodeIntersecting(14, 1));
+    EXPECT_EQ(nodes[2], graph.GetNodeIntersecting(15, 1));
+    EXPECT_EQ(nodes[3], graph.GetNodeIntersecting(16, 1));
+    EXPECT_EQ(nodes[3], graph.GetNodeIntersecting(17, 1));
+}
 
 }    // namespace critical
 }    // namespace tibee

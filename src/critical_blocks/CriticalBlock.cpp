@@ -35,6 +35,11 @@ CriticalBlock::CriticalBlock()
 {
 }
 
+void CriticalBlock::RegisterServices(block::ServiceList* serviceList)
+{
+    serviceList->AddService(kCriticalGraphServiceName, &_graph);
+}
+
 void CriticalBlock::LoadServices(const block::ServiceList& serviceList)
 {
     serviceList.QueryService(kCurrentStateServiceName,
