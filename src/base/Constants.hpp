@@ -102,6 +102,7 @@ extern const char kHistoryTreeFilename[];
 extern const char kAttributeTreeFilename[];
 extern const char kQuarkDatabaseFilename[];
 extern const char kThreadStatusFilename[];
+extern const char kCriticalPathFilename[];
 
 // Invalid.
 const uint32_t kInvalidThread = -1;

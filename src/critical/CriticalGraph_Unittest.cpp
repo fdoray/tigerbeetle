@@ -30,6 +30,14 @@ TEST(CriticalGraph, CriticalGraph)
     CriticalGraph graph;
 
     std::vector<CriticalNode*> nodes;
+    std::vector<CriticalNode*> prevNodes;
+
+    prevNodes.push_back(graph.CreateNode(0, 1));
+    prevNodes.push_back(graph.CreateNode(0, 2));
+    prevNodes.push_back(graph.CreateNode(0, 3));
+    prevNodes.push_back(graph.CreateNode(0, 4));
+    prevNodes.push_back(graph.CreateNode(0, 5));
+    prevNodes.push_back(graph.CreateNode(0, 6));
 
     nodes.push_back(graph.CreateNode(0, 2)); // 0
     nodes.push_back(graph.CreateNode(0, 3)); // 1
@@ -56,6 +64,13 @@ TEST(CriticalGraph, CriticalGraph)
     nodes.push_back(graph.CreateNode(9, 2)); // 22
     nodes.push_back(graph.CreateNode(9, 3)); // 23
     nodes.push_back(graph.CreateNode(10, 5)); // 24
+
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[0], nodes[14]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[1], nodes[0]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[2], nodes[1]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[3], nodes[4]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[4], nodes[8]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[5], nodes[6]);
 
     graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[0], nodes[2]);
     graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[11], nodes[15]);

@@ -90,5 +90,6 @@ const char kHistoryTreeFilename[] = "-history-tree";
 const char kAttributeTreeFilename[] = "-attribute-tree";
 const char kQuarkDatabaseFilename[] = "-quarks";
 const char kThreadStatusFilename[] = "-thread-status";
+const char kCriticalPathFilename[] = "-critical";
 
 }  // namespace tibee
