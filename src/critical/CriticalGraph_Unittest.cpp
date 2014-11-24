@@ -103,7 +103,8 @@ TEST(CriticalGraph, CriticalGraph)
 
     // Extract critical path.
     CriticalPath path;
-    EXPECT_TRUE(graph.ComputeCriticalPath(nodes[1], nodes[23], &path));
+    std::unordered_set<uint32_t> tids({0, 1, 2, 3, 4, 5, 6});
+    EXPECT_TRUE(graph.ComputeCriticalPath(nodes[1], nodes[23], tids, &path));
 
     ASSERT_EQ(7, path.size());
 

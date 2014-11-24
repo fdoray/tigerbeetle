@@ -64,6 +64,7 @@ public:
     bool ComputeCriticalPath(
         const CriticalNode* from,
         const CriticalNode* to,
+        const std::unordered_set<uint32_t>& tids,
         CriticalPath* path) const;
 
 private:

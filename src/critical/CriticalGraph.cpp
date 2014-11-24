@@ -153,6 +153,7 @@ CriticalEdgeId CriticalGraph::CreateVerticalEdge(
 bool CriticalGraph::ComputeCriticalPath(
         const CriticalNode* from,
         const CriticalNode* to,
+        const std::unordered_set<uint32_t>& tids,
         CriticalPath* path) const
 {
     assert(from != nullptr);
@@ -189,7 +190,14 @@ bool CriticalGraph::ComputeCriticalPath(
             if (distance_look != distances.end()) {
                 horizontal_distance = distance_look->second.distance;
                 if (horizontal_distance != kHugeDistance)
+                {
+                    if (tids.find((*it)->tid()) == tids.end())
+                    {
+                        // Reduce the cost of edges that are on other threads.
+                        horizontal_distance = std::min(horizontal_distance, static_cast<size_t>(1));
+                    }
                     horizontal_distance += edge.Cost();
+                }
             }
         }
 
@@ -235,6 +243,9 @@ bool CriticalGraph::ComputeCriticalPath(
 
         cur = GetEdge(distance.edge).to();
     }
+
+    // Restrict the critical path to the autorized threads.
+    path->RestrictToThreads(tids);
 
     return true;
 }
