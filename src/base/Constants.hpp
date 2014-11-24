@@ -30,7 +30,6 @@ const uint64_t kHugeCost = -1;
 extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
-extern const char kThreadStatusServiceName[];
 extern const char kCriticalGraphServiceName[];
 
 // Notifications.
@@ -101,7 +100,7 @@ extern const char kStateHistoryDirectory[];
 extern const char kHistoryTreeFilename[];
 extern const char kAttributeTreeFilename[];
 extern const char kQuarkDatabaseFilename[];
-extern const char kThreadStatusFilename[];
+extern const char kCriticalGraphFilename[];
 extern const char kCriticalPathFilename[];
 
 // Invalid.

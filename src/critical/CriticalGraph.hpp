@@ -40,6 +40,9 @@ class CriticalGraph :
     boost::noncopyable
 {
 public:
+    typedef std::vector<CriticalNode*> OrderedNodes;
+    typedef std::unordered_map<uint32_t, std::unique_ptr<OrderedNodes>> TidToNodesMap;
+
     CriticalGraph();
     ~CriticalGraph();
     
@@ -67,6 +70,17 @@ public:
         const std::unordered_set<uint32_t>& tids,
         CriticalPath* path) const;
 
+    size_t NumThreads() const {
+        return _tid_to_nodes.size();
+    }
+
+    TidToNodesMap::const_iterator threads_begin() const {
+        return _tid_to_nodes.begin();
+    }
+    TidToNodesMap::const_iterator threads_end() const {
+        return _tid_to_nodes.end();
+    }
+
 private:
     bool TopologicalSort(
         const CriticalNode* from,
@@ -84,8 +98,6 @@ private:
     std::vector<CriticalNode::UP> _nodes;
 
     // Nodes, organized by tid and timestamp.
-    typedef std::vector<CriticalNode*> OrderedNodes;
-    typedef std::unordered_map<uint32_t, std::unique_ptr<OrderedNodes>> TidToNodesMap;
     TidToNodesMap _tid_to_nodes;
 
     // Edges.
