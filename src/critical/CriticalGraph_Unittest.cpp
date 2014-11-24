@@ -65,31 +65,31 @@ TEST(CriticalGraph, CriticalGraph)
     nodes.push_back(graph.CreateNode(9, 3)); // 23
     nodes.push_back(graph.CreateNode(10, 5)); // 24
 
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[0], nodes[14]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[1], nodes[0]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[2], nodes[1]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[3], nodes[4]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[4], nodes[8]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, prevNodes[5], nodes[6]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, prevNodes[0], nodes[14]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, prevNodes[1], nodes[0]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, prevNodes[2], nodes[1]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, prevNodes[3], nodes[4]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, prevNodes[4], nodes[8]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, prevNodes[5], nodes[6]);
 
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[0], nodes[2]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[11], nodes[15]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[14], nodes[18]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[19], nodes[22]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[1], nodes[3]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[4], nodes[5]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[5], nodes[7]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[9], nodes[13]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[12], nodes[16]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[17], nodes[21]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[20], nodes[23]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[6], nodes[10]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[8], nodes[24]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[0], nodes[2]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[11], nodes[15]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[14], nodes[18]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[19], nodes[22]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[1], nodes[3]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[4], nodes[5]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[5], nodes[7]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[9], nodes[13]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[12], nodes[16]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[17], nodes[21]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[20], nodes[23]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[6], nodes[10]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[8], nodes[24]);
 
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[15], nodes[19]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[3], nodes[12]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[7], nodes[9]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitOtherThread, nodes[16], nodes[20]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, nodes[15], nodes[19]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, nodes[3], nodes[12]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, nodes[7], nodes[9]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kWaitBlocked, nodes[16], nodes[20]);
 
     graph.CreateVerticalEdge(nodes[15], nodes[14]);
     graph.CreateVerticalEdge(nodes[18], nodes[19]);
@@ -160,9 +160,9 @@ TEST(CriticalGraph, GetNodeIntersecting)
     nodes.push_back(graph.CreateNode(14, 1)); // 2
     nodes.push_back(graph.CreateNode(16, 1)); // 3
 
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[0], nodes[1]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[1], nodes[2]);
-    graph.CreateHorizontalEdge(CriticalEdgeType::kRun, nodes[2], nodes[3]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[0], nodes[1]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[1], nodes[2]);
+    graph.CreateHorizontalEdge(CriticalEdgeType::kRunUsermode, nodes[2], nodes[3]);
 
     EXPECT_EQ(nullptr, graph.GetNodeIntersecting(5, 1));
     EXPECT_EQ(nodes[0], graph.GetNodeIntersecting(10, 1));

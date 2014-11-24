@@ -18,6 +18,7 @@
 #ifndef _TIBEE_CRITICALBLOCKS_CRITICALBLOCK_HPP
 #define _TIBEE_CRITICALBLOCKS_CRITICALBLOCK_HPP
 
+#include <stack>
 #include <unordered_map>
 
 #include "block/AbstractBlock.hpp"
@@ -46,15 +47,25 @@ public:
 
 private:
     void OnTTWU(const trace::EventValue& event);
+    void OnIrqHandlerEntry(const trace::EventValue& event);
+    void OnIrqHandlerExit(const trace::EventValue& event);
+    void OnSoftIrqEntry(const trace::EventValue& event);
+    void OnSoftIrqExit(const trace::EventValue& event);
+    void OnHrtimerExpireEntry(const trace::EventValue& event);
+    void OnHrtimerExpireExit(const trace::EventValue& event);
     void OnThreadStatus(uint32_t tid, const notification::Path& path, const value::Value* value);
 
     void OnTTWUBetweenThreads(uint32_t source_tid, uint32_t target_tid);
+    void OnWakeupFromInterrupt(critical::CriticalEdgeType type, uint32_t target_tid);
 
     // Thread for an event.
-    uint32_t ThreadForEvent(const trace::EventValue& event) const;
+    uint32_t ThreadForCPU(uint32_t cpu) const;
 
     // Critical graph.
     critical::CriticalGraph _graph;
+
+    // Stack of interrupt contexts per CPU.
+    std::unordered_map<uint32_t, std::stack<critical::CriticalEdgeType>> _context;
 
     // Last state per thread. 
     std::unordered_map<uint32_t, critical::CriticalEdgeType> _lastEdgeTypePerThread;

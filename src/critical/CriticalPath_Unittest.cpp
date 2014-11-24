@@ -27,11 +27,11 @@ namespace critical {
 TEST(CriticalPath, CriticalPath)
 {
     CriticalPath path;
-    path.Push(CriticalPathSegment(0, 1, CriticalEdgeType::kRun));
-    path.Push(CriticalPathSegment(1, 2, CriticalEdgeType::kRun));
-    path.Push(CriticalPathSegment(2, 3, CriticalEdgeType::kRun));
-    path.Push(CriticalPathSegment(3, 2, CriticalEdgeType::kRun));
-    path.Push(CriticalPathSegment(4, 1, CriticalEdgeType::kRun));
+    path.Push(CriticalPathSegment(0, 1, CriticalEdgeType::kRunUsermode));
+    path.Push(CriticalPathSegment(1, 2, CriticalEdgeType::kRunUsermode));
+    path.Push(CriticalPathSegment(2, 3, CriticalEdgeType::kRunUsermode));
+    path.Push(CriticalPathSegment(3, 2, CriticalEdgeType::kRunUsermode));
+    path.Push(CriticalPathSegment(4, 1, CriticalEdgeType::kRunUsermode));
     path.RestrictToThreads({1, 2});
 
     auto it = path.begin();
