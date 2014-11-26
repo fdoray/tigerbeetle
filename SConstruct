@@ -40,26 +40,42 @@ root_env = Environment(CCFLAGS=ccflags,
                        CPPDEFINES=cppdefines,
                        ENV=custom_env)
 
+root_env.Append(LINKFLAGS = Split('-z origin'))
+
 if 'CXX' in os.environ:
     root_env['CXX'] = os.environ['CXX']
 
 if 'LIBDELOREAN_CPPPATH' in os.environ:
     root_env.Append(CPPPATH=[os.environ['LIBDELOREAN_CPPPATH']])
+else:
+    root_env.Append(CPPPATH=['#/contrib/libdelorean/include'])
+
 
 if 'LIBDELOREAN_LIBPATH' in os.environ:
     root_env.Append(LIBPATH=[os.environ['LIBDELOREAN_LIBPATH']])
+else:
+    root_env.Append(LIBPATH=['#/contrib/libdelorean/src'])
+    root_env.Append(RPATH = [ root_env.Literal(os.path.join('\\$$ORIGIN', os.pardir, 'contrib/libdelorean/src')) ])
 
 if 'BABELTRACE_CPPPATH' in os.environ:
     root_env.Append(CPPPATH=[os.environ['BABELTRACE_CPPPATH']])
+else:
+    root_env.Append(CPPPATH=['#/contrib/babeltrace/include'])
 
 if 'BABELTRACE_LIBPATH' in os.environ:
     root_env.Append(LIBPATH=[os.environ['BABELTRACE_LIBPATH']])
+else:
+    root_env.Append(LIBPATH=['#/contrib/babeltrace/lib/.libs'])
+    root_env.Append(RPATH = [ root_env.Literal(os.path.join('\\$$ORIGIN', os.pardir, 'contrib/babeltrace/lib/.libs')) ])
 
 if 'BABELTRACE_CTF_LIBPATH' in os.environ:
     root_env.Append(LIBPATH=[os.environ['BABELTRACE_CTF_LIBPATH']])
+else:
+    root_env.Append(LIBPATH=['#/contrib/babeltrace/formats/ctf/.libs'])
+    root_env.Append(RPATH = [ root_env.Literal(os.path.join('\\$$ORIGIN', os.pardir, 'contrib/babeltrace/formats/ctf/.libs')) ])
 
-if 'LD_LIBRARY_PATH' in os.environ:
-    root_env['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
+#if 'LD_LIBRARY_PATH' in os.environ:
+    #root_env['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
 
 Export('root_env')
 
