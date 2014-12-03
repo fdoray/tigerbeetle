@@ -1,9 +1,0 @@
-import os
-
-Import('lib_env')
-
-sources = [
-    'CriticalBlock.cpp',
-]
-
-Return(['sources'])

@@ -10,18 +10,11 @@ env.Append(CPPPATH=['#/src'])
 lib_env = env.Clone();
 
 base = SConscript(os.path.join('base', 'SConscript'), exports=['lib_env'])
-builder_blocks = SConscript(os.path.join('builder_blocks', 'SConscript'), exports=['lib_env'])
 block = SConscript(os.path.join('block', 'SConscript'), exports=['lib_env'])
-critical = SConscript(os.path.join('critical', 'SConscript'), exports=['lib_env'])
-critical_blocks = SConscript(os.path.join('critical_blocks', 'SConscript'), exports=['lib_env'])
-execution= SConscript(os.path.join('execution', 'SConscript'), exports=['lib_env'])
-execution_blocks = SConscript(os.path.join('execution_blocks', 'SConscript'), exports=['lib_env'])
 history = SConscript(os.path.join('history', 'SConscript'), exports=['lib_env'])
-metric_blocks = SConscript(os.path.join('metric_blocks', 'SConscript'), exports=['lib_env'])
 mq = SConscript(os.path.join('mq', 'SConscript'), exports=['lib_env'])
 notification = SConscript(os.path.join('notification', 'SConscript'), exports=['lib_env'])
 quark = SConscript(os.path.join('quark', 'SConscript'), exports=['lib_env'])
-rpc = SConscript(os.path.join('rpc', 'SConscript'), exports=['lib_env'])
 state = SConscript(os.path.join('state', 'SConscript'), exports=['lib_env'])
 state_blocks = SConscript(os.path.join('state_blocks', 'SConscript'), exports=['lib_env'])
 trace = SConscript(os.path.join('trace', 'SConscript'), exports=['lib_env'])
@@ -30,18 +23,11 @@ value = SConscript(os.path.join('value', 'SConscript'), exports=['lib_env'])
 
 subs = [
     ('base', base),
-    ('builder_blocks', builder_blocks),
     ('block', block),
-    ('critical', critical),
-    ('critical_blocks', critical_blocks),
-    ('execution', execution),
-    ('execution_blocks', execution_blocks),
     ('history', history),
-    ('metric_blocks', metric_blocks),
     ('mq', mq),
     ('notification', notification),
     ('quark', quark),
-    ('rpc', rpc),
     ('state', state),
     ('state_blocks', state_blocks),
     ('trace', trace),

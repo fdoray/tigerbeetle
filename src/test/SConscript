@@ -8,16 +8,6 @@ app_env = lib_env.Clone()
 
 sources_unittests = [
     'block/BlockRunner_Unittest.cpp',
-    'critical/CriticalGraph_Unittest.cpp',
-    'critical/CriticalPath_Unittest.cpp',
-    'execution/CanonizeSequence_Unittest.cpp',
-    'execution/DynamicMatching_Unittest.cpp',
-    'execution/Graph_Unittest.cpp',
-    'execution/ExecutionBuilder_Unittest.cpp',
-    'execution/FindRepetitions_Unittest.cpp',
-    'execution/HierarchyMatcher_Unittest.cpp',
-    'execution/Node_Unittest.cpp',
-    'execution/PreorderIterator_Unittest.cpp',
     'keyed_tree/KeyedTree_Unittest.cpp',
     'notification/NotificationCenter_Unittest.cpp',
     'state/CurrentState_Unittest.cpp',

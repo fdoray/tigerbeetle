@@ -23,14 +23,11 @@
 namespace tibee
 {
 
-// A huge cost.
-const uint64_t kHugeCost = -1;
-
 // Services.
 extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
-extern const char kCriticalGraphServiceName[];
+
 
 // Notifications.
 extern const char kExecutionBuilderNotificationPrefix[];
@@ -69,31 +66,6 @@ extern const char kStateInterrupted[];
 extern const char kStateWaitForCpu[];
 extern const char kStateRaised[];
 extern const char kStateSysClone[];
-
-// Graph.
-extern const char kStartTime[];
-extern const char kEndTime[];
-extern const char kDuration[];
-extern const char kNodeType[];
-extern const char kParentTid[];
-extern const char kTid[];
-extern const char kArrow[];
-extern const char kArrowStart[];
-extern const char kStackDepth[];
-
-// Graph: performance counters.
-extern const char kInstructions[];
-extern const char kCacheReferences[];
-extern const char kCacheMisses[];
-extern const char kBranchInstructions[];
-extern const char kBranches[];
-extern const char kBranchMisses[];
-extern const char kBranchLoads[];
-extern const char kBranchLoadMisses[];
-extern const char kPageFault[];
-extern const char kFaults[];
-extern const char kMajorFaults[];
-extern const char kMinorFaults[];
 
 // State history.
 extern const char kStateHistoryDirectory[];

@@ -23,7 +23,6 @@ namespace tibee
 const char kExecutionBuilderServiceName[] = "graph-builder";
 const char kQuarksServiceName[] = "quarks";
 const char kCurrentStateServiceName[] = "current-state";
-const char kCriticalGraphServiceName[] = "critical";
 
 const char kExecutionBuilderNotificationPrefix[] = "graph-builder";
 const char kExecutionBuilderNotificationName[] = "graph";
@@ -60,29 +59,6 @@ const char kStateInterrupted[] = "interrupted";
 const char kStateWaitForCpu[] = "wait-for-cpu";
 const char kStateRaised[] = "raised";
 const char kStateSysClone[] = "sys_clone";
-
-const char kStartTime[] = "start";
-const char kEndTime[] = "end";
-const char kDuration[] = "duration";
-const char kNodeType[] = "node-type";
-const char kParentTid[] = "ptid";
-const char kTid[] = "tid";
-const char kArrow[] = "arrow";
-const char kArrowStart[] = "arrow-start";
-const char kStackDepth[] = "stack-depth";
-
-const char kInstructions[] = "instructions";
-const char kCacheReferences[] = "cache-references";
-const char kCacheMisses[] = "cache-misses";
-const char kBranchInstructions[] = "branch-instructions";
-const char kBranches[] = "branches";
-const char kBranchMisses[] = "branch-misses";
-const char kBranchLoads[] = "branch-loads";
-const char kBranchLoadMisses[] = "branch-load-misses";
-const char kPageFault[] = "page-fault";
-const char kFaults[] = "faults";
-const char kMajorFaults[] = "major-faults";
-const char kMinorFaults[] = "minor-faults";
 
 const char kStateHistoryDirectory[] = "history";
 const char kHistoryTreeFilename[] = "-history-tree";
