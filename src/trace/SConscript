@@ -2,7 +2,6 @@ import os
 
 Import('lib_env')
 
-lib_env.ParseConfig('pkg-config --cflags --libs yajl')
 lib_env.ParseConfig('pkg-config --cflags uuid')
 lib_env.ParseConfig('pkg-config --cflags glib-2.0')
 

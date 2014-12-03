@@ -17,9 +17,6 @@ before_install:
   # latest 0MQ
   - sudo add-apt-repository -y ppa:chris-lea/zeromq
 
-  # latest Yajl
-  - sudo add-apt-repository -y ppa:simon-marchi/myppa
-
   # update everything now
   - sudo apt-get update -qq
 
@@ -40,7 +37,6 @@ install:
   - sudo apt-get install -qq boost1.55
   - sudo apt-get install -qq libboost1.55-dev
   - sudo apt-get install -qq libzmq3-dev
-  - sudo apt-get install -qq libyajl-dev
 
 script:
   - export CXX=g++-4.8
