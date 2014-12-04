@@ -87,6 +87,7 @@ public:
 
     // Utils.
     uint32_t CurrentThreadForCpu(uint32_t cpu);
+    std::string CurrentNameForThread(uint32_t thread);
 
     // Accessors.
     AttributeTree::Iterator attribute_children_begin(AttributeKey attribute) const {
@@ -125,7 +126,9 @@ private:
 
     // Shortcut for utility methods.
     state::AttributeKey _cpusAttribute;
+    state::AttributeKey _threadsAttribute;
     quark::Quark Q_CUR_THREAD;
+    quark::Quark Q_EXEC_NAME;
 };
 
 }

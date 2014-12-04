@@ -33,7 +33,9 @@ CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback,
     assert(_quarks != nullptr);
 
     Q_CUR_THREAD = Quark(kStateCurThread);
+    Q_EXEC_NAME = Quark(kStateExecName);
     _cpusAttribute = GetAttributeKey({Quark(kStateLinux), Quark(kStateCpus)});
+    _threadsAttribute = GetAttributeKey({Quark(kStateLinux), Quark(kStateThreads)});
 }
 
 CurrentState::~CurrentState()
@@ -171,6 +173,15 @@ uint32_t CurrentState::CurrentThreadForCpu(uint32_t cpu)
     if (tid == 0)
         return kInvalidThread;
     return tid;
+}
+
+std::string CurrentState::CurrentNameForThread(uint32_t thread)
+{
+    auto execNameValue = GetAttributeValue(_threadsAttribute, {IntQuark(thread), Q_EXEC_NAME});
+    if (execNameValue == nullptr)
+        return std::string();
+
+    return execNameValue->AsString();
 }
 
 CurrentState::AttributeValue::AttributeValue() :
