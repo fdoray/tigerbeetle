@@ -70,6 +70,8 @@
 #include <string>
 #include <vector>
 
+#include "quark/Quark.hpp"
+
 namespace tibee {
 namespace value {
 
@@ -145,6 +147,11 @@ class Value {
   std::string AsString() const;
   std::wstring AsWString() const;
   // @}
+
+  quark::Quark AsQuark() const
+  {
+    return quark::Quark(AsUInteger());
+  }
 
   // Compare 2 values.
   // @param left the first value to compare.
