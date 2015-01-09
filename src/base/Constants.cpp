@@ -20,12 +20,8 @@
 namespace tibee
 {
 
-const char kExecutionBuilderServiceName[] = "graph-builder";
 const char kQuarksServiceName[] = "quarks";
 const char kCurrentStateServiceName[] = "current-state";
-
-const char kExecutionBuilderNotificationPrefix[] = "graph-builder";
-const char kExecutionBuilderNotificationName[] = "graph";
 
 const char kCurrentStateNotificationPrefix[] = "current-state";
 const char kCurrentStateAttributeValueField[] = "key";
@@ -59,12 +55,5 @@ const char kStateInterrupted[] = "interrupted";
 const char kStateWaitForCpu[] = "wait-for-cpu";
 const char kStateRaised[] = "raised";
 const char kStateSysClone[] = "sys_clone";
-
-const char kStateHistoryDirectory[] = "history";
-const char kHistoryTreeFilename[] = "-history-tree";
-const char kAttributeTreeFilename[] = "-attribute-tree";
-const char kQuarkDatabaseFilename[] = "-quarks";
-const char kCriticalGraphFilename[] = "-critical-graph";
-const char kCriticalPathFilename[] = "-critical-path";
 
 }  // namespace tibee

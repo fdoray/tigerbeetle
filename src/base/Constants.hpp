@@ -24,15 +24,11 @@ namespace tibee
 {
 
 // Services.
-extern const char kExecutionBuilderServiceName[];
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
 
 
 // Notifications.
-extern const char kExecutionBuilderNotificationPrefix[];
-extern const char kExecutionBuilderNotificationName[];
-
 extern const char kCurrentStateNotificationPrefix[];
 extern const char kCurrentStateAttributeValueField[];
 extern const char kCurrentStateAttributeKeyField[];
@@ -66,14 +62,6 @@ extern const char kStateInterrupted[];
 extern const char kStateWaitForCpu[];
 extern const char kStateRaised[];
 extern const char kStateSysClone[];
-
-// State history.
-extern const char kStateHistoryDirectory[];
-extern const char kHistoryTreeFilename[];
-extern const char kAttributeTreeFilename[];
-extern const char kQuarkDatabaseFilename[];
-extern const char kCriticalGraphFilename[];
-extern const char kCriticalPathFilename[];
 
 // Invalid.
 const uint32_t kInvalidThread = -1;
