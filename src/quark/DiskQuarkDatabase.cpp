@@ -38,6 +38,7 @@ const char kStrToQuarkSuffix[] = "-strtoquark";
 const char kQuarkToStrSuffix[] = "-quarktostr";
 const char kNextQuarkSuffix[] = "-nextquark";
 
+const int kMaxIntQuark = 65535;
 
 struct invalidquarkexception : std::exception {
     const char* what() const noexcept { return "Query with an invalid quark in disk quark database."; }
@@ -67,7 +68,15 @@ DiskQuarkDatabase::DiskQuarkDatabase(const std::string& file)
 
     std::ifstream nextQuarkFile(_filename + kNextQuarkSuffix);
     if (nextQuarkFile.good())
+    {
         nextQuarkFile >> _nextQuark;
+    }
+    else
+    {
+        // Insert int quarks.
+        for (int i = 0; i <= kMaxIntQuark; ++i)
+            StrQuark(std::to_string(i));
+    }
 }
 
 DiskQuarkDatabase::~DiskQuarkDatabase()
@@ -110,6 +119,13 @@ const Quark& DiskQuarkDatabase::StrQuark(const std::string& str)
     _quarkToStr[quark] = str;
 
     return _strToQuark[str];
+}
+
+Quark DiskQuarkDatabase::IntQuark(int value)
+{
+    if (value >= 0 && value <= kMaxIntQuark)
+        return Quark(value);
+    return StrQuark(std::to_string(value));
 }
 
 const std::string& DiskQuarkDatabase::String(const Quark& quark)

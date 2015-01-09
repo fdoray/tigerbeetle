@@ -48,6 +48,7 @@ public:
      * @returns The quark for the value.
      */
     const Quark& StrQuark(const std::string& str);
+    Quark IntQuark(int value);
 
     /*
      * Returns the value of a quark.

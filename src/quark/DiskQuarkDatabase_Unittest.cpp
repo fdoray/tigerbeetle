@@ -50,6 +50,11 @@ TEST(DiskQuarkDatabase, DiskQuarkDatabase)
     EXPECT_EQ("four", db->String(q4));
     EXPECT_EQ("five", db->String(q5));
     EXPECT_EQ("six", db->String(q6));
+
+    EXPECT_EQ("1", db->String(db->IntQuark(1)));
+    EXPECT_EQ("2", db->String(db->IntQuark(2)));
+    EXPECT_EQ(db->IntQuark(1), db->StrQuark("1"));
+    EXPECT_EQ(db->IntQuark(2), db->StrQuark("2"));
 }
 
 }  // namespace quark
