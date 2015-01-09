@@ -27,8 +27,11 @@ namespace tibee
  * This header holds basic type definitions used throughout tigerbeetle.
  */
 
-/// Trace/state timestamp
+// Timestamp
 typedef std::uint64_t   timestamp_t;
+
+// Thread id.
+typedef std::uint32_t   thread_t;
 
 }
 
