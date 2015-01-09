@@ -9,6 +9,4 @@
 __pycache__
 *~
 src/test/unittests
-test-db.tmp-nextquark
-test-db.tmp-quarktostr
-test-db.tmp-strtoquark
+.*

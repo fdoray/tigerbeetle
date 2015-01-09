@@ -27,7 +27,6 @@ namespace tibee
 extern const char kQuarksServiceName[];
 extern const char kCurrentStateServiceName[];
 
-
 // Notifications.
 extern const char kCurrentStateNotificationPrefix[];
 extern const char kCurrentStateAttributeValueField[];
@@ -65,6 +64,10 @@ extern const char kStateSysClone[];
 
 // Invalid.
 const uint32_t kInvalidThread = -1;
+
+// Files.
+extern const char kDiskQuarkDatabaseFile[]; 
+extern const char kDiskQuarkDatabaseTestFile[]; 
 
 }
 

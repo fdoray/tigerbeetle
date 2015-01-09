@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "base/Constants.hpp"
 #include "gtest/gtest.h"
-#include "quark/StringQuarkDatabase.hpp"
+#include "quark/DiskQuarkDatabase.hpp"
 #include "state/CurrentState.hpp"
 
 namespace tibee
@@ -26,7 +27,7 @@ namespace state
 
 TEST(CurrentState, Timestamp)
 {
-    quark::StringQuarkDatabase quarks;
+    quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
     CurrentState currentState(nullptr, &quarks);
     EXPECT_EQ(0, currentState.timestamp());
 
@@ -36,7 +37,7 @@ TEST(CurrentState, Timestamp)
 
 TEST(CurrentState, AttributeChanges)
 {
-    quark::StringQuarkDatabase quarks;
+    quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
     CurrentState currentState(nullptr, &quarks);
 
     AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});
@@ -66,7 +67,7 @@ TEST(CurrentState, AttributeChanges)
 
 TEST(CurrentState, NullAttribute)
 {
-    quark::StringQuarkDatabase quarks;
+    quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
     CurrentState currentState(nullptr, &quarks);
 
     AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});

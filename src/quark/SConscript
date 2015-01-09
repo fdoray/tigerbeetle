@@ -4,7 +4,6 @@ Import('lib_env')
 
 sources = [
     'DiskQuarkDatabase.cpp',
-    'StringQuarkDatabase.cpp',
 ]
 
 libs = [

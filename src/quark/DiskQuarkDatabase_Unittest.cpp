@@ -17,6 +17,7 @@
  */
 #include "gtest/gtest.h"
 
+#include "base/Constants.hpp"
 #include "quark/DiskQuarkDatabase.hpp"
 
 namespace tibee
@@ -26,9 +27,7 @@ namespace quark
 
 TEST(DiskQuarkDatabase, DiskQuarkDatabase)
 {
-    const char kFilename[] = "test-db.tmp";
-
-    DiskQuarkDatabase::UP db(new DiskQuarkDatabase(kFilename));
+    DiskQuarkDatabase::UP db(new DiskQuarkDatabase(kDiskQuarkDatabaseTestFile));
     auto q1 = db->StrQuark("one");
     auto q2 = db->StrQuark("two");
     auto q3 = db->StrQuark("three");
@@ -38,7 +37,7 @@ TEST(DiskQuarkDatabase, DiskQuarkDatabase)
     EXPECT_EQ("three", db->String(q3));
 
     db.reset(nullptr);
-    db.reset(new DiskQuarkDatabase(kFilename));
+    db.reset(new DiskQuarkDatabase(kDiskQuarkDatabaseTestFile));
 
     auto q4 = db->StrQuark("four");
     auto q5 = db->StrQuark("five");

@@ -24,7 +24,7 @@
 #include "notification/NotificationCenter.hpp"
 #include "notification/NotificationSink.hpp"
 #include "notification/Path.hpp"
-#include "quark/StringQuarkDatabase.hpp"
+#include "quark/DiskQuarkDatabase.hpp"
 #include "state/CurrentState.hpp"
 #include "value/Value.hpp"
 
@@ -51,7 +51,7 @@ private:
     void onTimestamp(const notification::Path& path, const value::Value* value);
     void onStateChange(state::AttributeKey attribute, const value::Value* value);
 
-    quark::StringQuarkDatabase::UP _quarks;
+    quark::DiskQuarkDatabase::UP _quarks;
     state::CurrentState::UP _currentState;
 
     typedef std::vector<const notification::NotificationSink*> Sinks;

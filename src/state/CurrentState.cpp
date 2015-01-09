@@ -25,7 +25,7 @@ namespace state
 {
 
 CurrentState::CurrentState(OnAttributeChangeCallback onAttributeChangeCallback,
-                           quark::StringQuarkDatabase* quarks) :
+                           quark::DiskQuarkDatabase* quarks) :
     _ts(0),
     _quarks(quarks),
     _onAttributeChangeCallback(onAttributeChangeCallback)
