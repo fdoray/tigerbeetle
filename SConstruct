@@ -74,8 +74,16 @@ else:
     root_env.Append(LIBPATH=['#/contrib/babeltrace/formats/ctf/.libs'])
     root_env.Append(RPATH = [ root_env.Literal(os.path.join('\\$$ORIGIN', os.pardir, 'contrib/babeltrace/formats/ctf/.libs')) ])
 
-#if 'LD_LIBRARY_PATH' in os.environ:
-    #root_env['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
+if 'LEVELDB_INCLUDEPATH' in os.environ:
+    root_env.Append(CPPPATH=[os.environ['LEVELDB_INCLUDEPATH']])
+else:
+    root_env.Append(CPPPATH=['#/contrib/leveldb/include'])
+
+if 'LEVELDB_LIBPATH' in os.environ:
+    root_env.Append(LIBPATH=[os.environ['LEVELDB_LIBPATH']])
+else:
+    root_env.Append(LIBPATH=['#/contrib/leveldb'])
+    root_env.Append(RPATH = [ root_env.Literal(os.path.join('\\$$ORIGIN', os.pardir, 'contrib/leveldb')) ])
 
 Export('root_env')
 

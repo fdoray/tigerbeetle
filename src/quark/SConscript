@@ -3,7 +3,14 @@ import os
 Import('lib_env')
 
 sources = [
+    'DiskQuarkDatabase.cpp',
     'StringQuarkDatabase.cpp',
 ]
+
+libs = [
+    'leveldb',
+]
+
+lib_env.Append(LIBS=libs)
 
 Return(['sources'])

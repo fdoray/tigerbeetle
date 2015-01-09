@@ -4,3 +4,6 @@
 [submodule "contrib/babeltrace"]
 	path = contrib/babeltrace
 	url = git://git.efficios.com/babeltrace.git
+[submodule "contrib/leveldb"]
+	path = contrib/leveldb
+	url = https://github.com/google/leveldb.git
