@@ -21,6 +21,8 @@ before_install:
   - sudo apt-get update -qq
 
 install:
+  - mkdir history
+
   # stuff needed by Babeltrace
   - sudo apt-get install -qq libtool
   - sudo apt-get install -qq autoconf
