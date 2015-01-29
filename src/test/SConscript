@@ -10,7 +10,7 @@ sources_unittests = [
     'block/BlockRunner_Unittest.cpp',
     'keyed_tree/KeyedTree_Unittest.cpp',
     'notification/NotificationCenter_Unittest.cpp',
-    'quark/DiskQuarkDatabase_Unittest.cpp',
+    'quark/StringQuarkDatabase_Unittest.cpp',
     'state/CurrentState_Unittest.cpp',
     'state_blocks/LinuxSchedStateBlock_Unittest.cpp',
     'trace/TraceSet_Unittest.cpp',

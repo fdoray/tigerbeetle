@@ -17,8 +17,6 @@
  */
 #include "state_blocks/CurrentStateBlock.hpp"
 
-#include <iostream>
-
 #include "base/BindObject.hpp"
 #include "base/Constants.hpp"
 #include "block/ServiceList.hpp"
@@ -41,7 +39,7 @@ CurrentStateBlock::CurrentStateBlock()
 {
     namespace pl = std::placeholders;
 
-    _quarks.reset(new quark::DiskQuarkDatabase(kDiskQuarkDatabaseFile));
+    _quarks.reset(new quark::StringQuarkDatabase);
     _currentState.reset(new state::CurrentState(
         std::bind(&CurrentStateBlock::onStateChange,
                   this, pl::_1, pl::_2),

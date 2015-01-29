@@ -23,8 +23,3 @@ popd
 pushd libdelorean
 scons
 popd
-
-# build leveldb
-pushd leveldb
-make
-popd

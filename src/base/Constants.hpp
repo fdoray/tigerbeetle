@@ -65,10 +65,6 @@ extern const char kStateSysClone[];
 // Invalid.
 const uint32_t kInvalidThread = -1;
 
-// Files.
-extern const char kDiskQuarkDatabaseFile[]; 
-extern const char kDiskQuarkDatabaseTestFile[]; 
-
 }
 
 #endif // _TIBEE_BASE_CONSTANTS_HPP

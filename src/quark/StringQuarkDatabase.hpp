@@ -15,30 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_QUARK_DISKQUARKDATABASE_HPP
-#define _TIBEE_QUARK_DISKQUARKDATABASE_HPP
+#ifndef _TIBEE_QUARK_STRINGQUARKDATABASE_HPP
+#define _TIBEE_QUARK_STRINGQUARKDATABASE_HPP
 
 #include <boost/noncopyable.hpp>
-#include <leveldb/db.h>
 #include <memory>
 #include <string>
-#include <unordered_map>
 
-#include "quark/Quark.hpp"
+#include "quark/QuarkDatabase.hpp"
 
 namespace tibee
 {
 namespace quark
 {
 
-class DiskQuarkDatabase
+class StringQuarkDatabase
     : boost::noncopyable
 {
 public:
-    typedef std::unique_ptr<DiskQuarkDatabase> UP;
+    typedef std::unique_ptr<StringQuarkDatabase> UP;
 
-    DiskQuarkDatabase(const std::string& file);
-    ~DiskQuarkDatabase();
+    StringQuarkDatabase();
 
     /*
      * Inserts a value in the database if it's not already present and returns
@@ -56,32 +53,25 @@ public:
      * @param quark The quark of the value to retrieve.
      * @returns The value associated with the provided quark.
      */
-    const std::string& String(const Quark& quark);
+    const std::string& String(const Quark& quark) const;
+
+    /*
+     * Number of elements.
+     */
+    size_t size() const { return _quarks.size(); }
+
+    /*
+     * Iterators.
+     */
+    QuarkDatabase<std::string>::iterator begin() const { return _quarks.begin(); }
+    QuarkDatabase<std::string>::iterator end() const { return _quarks.end(); }
+
 
 private:
-    // Filename.
-    std::string _filename;
-
-    // String -> Quark on disk.
-    std::unique_ptr<leveldb::DB> _strToQuarkDisk;
-
-    // Quark -> String in memory.
-    std::unique_ptr<leveldb::DB> _quarkToStrDisk;
-
-    // String -> Quark
-    std::unordered_map<std::string, Quark> _strToQuark;
-
-    // Quark -> String
-    std::unordered_map<Quark, std::string> _quarkToStr;
-
-    // Next quark.
-    Quark::quark_t _nextQuark;
-
-    // Error string.
-    std::string _err;
+    QuarkDatabase<std::string> _quarks;
 };
 
 }
 }
 
-#endif // _TIBEE_QUARK_DISKQUARKDATABASE_HPP
+#endif // _TIBEE_QUARK_STRINGQUARKDATABASE_HPP

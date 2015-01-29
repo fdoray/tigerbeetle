@@ -56,7 +56,4 @@ const char kStateWaitForCpu[] = "wait-for-cpu";
 const char kStateRaised[] = "raised";
 const char kStateSysClone[] = "sys_clone";
 
-const char kDiskQuarkDatabaseFile[] = "history/.quarksdb";
-const char kDiskQuarkDatabaseTestFile[] = "history/.quarksdbtest";
-
 }  // namespace tibee

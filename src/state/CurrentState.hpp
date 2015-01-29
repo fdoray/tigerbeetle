@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "base/BasicTypes.hpp"
-#include "quark/DiskQuarkDatabase.hpp"
+#include "quark/StringQuarkDatabase.hpp"
 #include "state/AttributeKey.hpp"
 #include "state/AttributePath.hpp"
 #include "state/AttributeTree.hpp"
@@ -49,7 +49,7 @@ public:
         OnAttributeChangeCallback;
 
     CurrentState(OnAttributeChangeCallback onAttributeChangeCallback,
-                 quark::DiskQuarkDatabase* quarks);
+                 quark::StringQuarkDatabase* quarks);
     ~CurrentState();
 
     void SetTimestamp(timestamp_t ts) {
@@ -112,7 +112,7 @@ private:
     timestamp_t _ts;
 
     // Quark database.
-    quark::DiskQuarkDatabase* _quarks;
+    quark::StringQuarkDatabase* _quarks;
 
     // Attribute tree.
     AttributeTree _attributeTree;

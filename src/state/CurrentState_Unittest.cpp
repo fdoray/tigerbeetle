@@ -17,7 +17,7 @@
  */
 #include "base/Constants.hpp"
 #include "gtest/gtest.h"
-#include "quark/DiskQuarkDatabase.hpp"
+#include "quark/StringQuarkDatabase.hpp"
 #include "state/CurrentState.hpp"
 
 namespace tibee
@@ -27,7 +27,7 @@ namespace state
 
 TEST(CurrentState, Timestamp)
 {
-    quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
+    quark::StringQuarkDatabase quarks;
     CurrentState currentState(nullptr, &quarks);
     EXPECT_EQ(0u, currentState.timestamp());
 
@@ -37,7 +37,7 @@ TEST(CurrentState, Timestamp)
 
 TEST(CurrentState, AttributeChanges)
 {
-    quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
+    quark::StringQuarkDatabase quarks;
     CurrentState currentState(nullptr, &quarks);
 
     AttributeKey abKey = currentState.GetAttributeKeyStr({"a", "b"});
@@ -67,7 +67,7 @@ TEST(CurrentState, AttributeChanges)
 
 TEST(CurrentState, NullAttribute)
 {
-    quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
+    quark::StringQuarkDatabase quarks;
     CurrentState currentState(nullptr, &quarks);
 
     AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});

@@ -18,16 +18,16 @@
 #include "gtest/gtest.h"
 
 #include "base/Constants.hpp"
-#include "quark/DiskQuarkDatabase.hpp"
+#include "quark/StringQuarkDatabase.hpp"
 
 namespace tibee
 {
 namespace quark
 {
 
-TEST(DiskQuarkDatabase, DiskQuarkDatabase)
+TEST(StringQuarkDatabase, StringQuarkDatabase)
 {
-    DiskQuarkDatabase::UP db(new DiskQuarkDatabase(kDiskQuarkDatabaseTestFile));
+    StringQuarkDatabase::UP db(new StringQuarkDatabase());
     auto q1 = db->StrQuark("one");
     auto q2 = db->StrQuark("two");
     auto q3 = db->StrQuark("three");
@@ -36,16 +36,10 @@ TEST(DiskQuarkDatabase, DiskQuarkDatabase)
     EXPECT_EQ("two", db->String(q2));
     EXPECT_EQ("three", db->String(q3));
 
-    db.reset(nullptr);
-    db.reset(new DiskQuarkDatabase(kDiskQuarkDatabaseTestFile));
-
     auto q4 = db->StrQuark("four");
     auto q5 = db->StrQuark("five");
     auto q6 = db->StrQuark("six");
 
-    EXPECT_EQ("one", db->String(q1));
-    EXPECT_EQ("two", db->String(q2));
-    EXPECT_EQ("three", db->String(q3));
     EXPECT_EQ("four", db->String(q4));
     EXPECT_EQ("five", db->String(q5));
     EXPECT_EQ("six", db->String(q6));
