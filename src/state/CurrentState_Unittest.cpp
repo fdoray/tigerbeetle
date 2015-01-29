@@ -29,10 +29,10 @@ TEST(CurrentState, Timestamp)
 {
     quark::DiskQuarkDatabase quarks(kDiskQuarkDatabaseTestFile);
     CurrentState currentState(nullptr, &quarks);
-    EXPECT_EQ(0, currentState.timestamp());
+    EXPECT_EQ(0u, currentState.timestamp());
 
     currentState.SetTimestamp(1);
-    EXPECT_EQ(1, currentState.timestamp());
+    EXPECT_EQ(1u, currentState.timestamp());
 }
 
 TEST(CurrentState, AttributeChanges)
@@ -45,8 +45,8 @@ TEST(CurrentState, AttributeChanges)
     currentState.SetTimestamp(1);
     currentState.SetAttribute(abKey, value::Value::UP {new value::UIntValue(42)});
 
-    EXPECT_EQ(42, currentState.GetAttributeValue(abKey)->AsUInteger());
-    EXPECT_EQ(1, currentState.GetAttributeLastChange(abKey));
+    EXPECT_EQ(42u, currentState.GetAttributeValue(abKey)->AsUInteger());
+    EXPECT_EQ(1u, currentState.GetAttributeLastChange(abKey));
 
     AttributeKey aKey = currentState.GetAttributeKeyStr({"a"});
     currentState.SetTimestamp(3);
@@ -56,13 +56,13 @@ TEST(CurrentState, AttributeChanges)
         value::Value::UP {new value::UIntValue(1337)});
 
     AttributeKey abcKey = currentState.GetAttributeKeyStr({"a", "b", "c"});
-    EXPECT_EQ(1337, currentState.GetAttributeValue(abcKey)->AsUInteger());
-    EXPECT_EQ(3, currentState.GetAttributeLastChange(abcKey));
+    EXPECT_EQ(1337u, currentState.GetAttributeValue(abcKey)->AsUInteger());
+    EXPECT_EQ(3u, currentState.GetAttributeLastChange(abcKey));
 
-    EXPECT_EQ(42, currentState.GetAttributeValue(
+    EXPECT_EQ(42u, currentState.GetAttributeValue(
         aKey,
         {currentState.Quark("b")})->AsUInteger());
-    EXPECT_EQ(1, currentState.GetAttributeLastChange(abKey));
+    EXPECT_EQ(1u, currentState.GetAttributeLastChange(abKey));
 }
 
 TEST(CurrentState, NullAttribute)
@@ -84,7 +84,7 @@ TEST(CurrentState, NullAttribute)
 
     currentState.NullAttribute(abKey);
 
-    EXPECT_EQ(42, currentState.GetAttributeValue(aKey)->AsUInteger());
+    EXPECT_EQ(42u, currentState.GetAttributeValue(aKey)->AsUInteger());
     EXPECT_EQ(nullptr, currentState.GetAttributeValue(abKey));
     EXPECT_EQ(nullptr, currentState.GetAttributeValue(abcKey));
     EXPECT_EQ(nullptr, currentState.GetAttributeValue(abdKey));

@@ -31,18 +31,18 @@ TEST(TraceSet, getBegin)
 {
     TraceSet traceSet;
     EXPECT_TRUE(traceSet.addTrace("test_data/ust_b/ust/uid/1000/64-bit"));
-    EXPECT_EQ(1411853469186692760, traceSet.getBegin());
+    EXPECT_EQ(1411853469186692760u, traceSet.getBegin());
     EXPECT_TRUE(traceSet.addTrace("test_data/ust_a/ust/uid/1000/64-bit"));
-    EXPECT_EQ(1411853296688683178, traceSet.getBegin());
+    EXPECT_EQ(1411853296688683178u, traceSet.getBegin());
 }
 
 TEST(TraceSet, getEnd)
 {
     TraceSet traceSet;
     EXPECT_TRUE(traceSet.addTrace("test_data/ust_a/ust/uid/1000/64-bit"));
-    EXPECT_EQ(1411853296690333095, traceSet.getEnd());
+    EXPECT_EQ(1411853296690333095u, traceSet.getEnd());
     EXPECT_TRUE(traceSet.addTrace("test_data/ust_b/ust/uid/1000/64-bit"));
-    EXPECT_EQ(1411853469196893568, traceSet.getEnd());
+    EXPECT_EQ(1411853469196893568u, traceSet.getEnd());
 }
 
 }  // namespace value

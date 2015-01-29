@@ -100,7 +100,6 @@ public:
     size_t NumAttributes() const {
         return _attributeTree.size();
     }
-    const quark::DiskQuarkDatabase& GetQuarks() const { return *_quarks; }
 
 private:
     struct AttributeValue {

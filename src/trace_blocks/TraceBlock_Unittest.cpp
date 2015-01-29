@@ -119,10 +119,10 @@ TEST(TraceBlock, kernel)
     blockRunner.AddBlock(&countBlock, nullptr);
     blockRunner.Run();
 
-    EXPECT_EQ(1107, countBlock._sched_switch_count);
-    EXPECT_EQ(0, countBlock._starting_count);
-    EXPECT_EQ(0, countBlock._loop_count);
-    EXPECT_EQ(0, countBlock._done_count);
+    EXPECT_EQ(1107u, countBlock._sched_switch_count);
+    EXPECT_EQ(0u, countBlock._starting_count);
+    EXPECT_EQ(0u, countBlock._loop_count);
+    EXPECT_EQ(0u, countBlock._done_count);
 }
 
 TEST(TraceBlock, ust)
@@ -140,10 +140,10 @@ TEST(TraceBlock, ust)
     blockRunner.AddBlock(&countBlock, nullptr);
     blockRunner.Run();
 
-    EXPECT_EQ(0, countBlock._sched_switch_count);
-    EXPECT_EQ(1, countBlock._starting_count);
-    EXPECT_EQ(5, countBlock._loop_count);
-    EXPECT_EQ(2, countBlock._done_count);
+    EXPECT_EQ(0u, countBlock._sched_switch_count);
+    EXPECT_EQ(1u, countBlock._starting_count);
+    EXPECT_EQ(5u, countBlock._loop_count);
+    EXPECT_EQ(2u, countBlock._done_count);
 }
 
 }  // namespace trace_blocks

@@ -751,11 +751,11 @@ TEST(ArrayValueTest, Append) {
   std::unique_ptr<Value> v2(new IntValue(43));
 
   array_value.Append(std::move(v1));
-  EXPECT_EQ(1, array_value.Length());
+  EXPECT_EQ(1u, array_value.Length());
   array_value.Append(std::move(v2));
-  EXPECT_EQ(2, array_value.Length());
+  EXPECT_EQ(2u, array_value.Length());
   array_value.Append<IntValue>(44);
-  EXPECT_EQ(3, array_value.Length());
+  EXPECT_EQ(3u, array_value.Length());
 }
 
 TEST(ArrayValueTest, At) {
@@ -799,9 +799,9 @@ TEST(ArrayValueTest, GetElementAs) {
 
   uint32_t uint_value = 0;
   EXPECT_FALSE(array_value.GetElementAsUInteger(1000, &uint_value));
-  EXPECT_EQ(0, uint_value);
+  EXPECT_EQ(0u, uint_value);
   EXPECT_TRUE(array_value.GetElementAsUInteger(1, &uint_value));
-  EXPECT_EQ(43, uint_value);
+  EXPECT_EQ(43u, uint_value);
 
   int64_t long_value = 0;
   EXPECT_FALSE(array_value.GetElementAsLong(1000, &long_value));
