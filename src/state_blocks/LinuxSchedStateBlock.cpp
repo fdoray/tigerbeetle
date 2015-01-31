@@ -103,6 +103,7 @@ void LinuxSchedStateBlock::AddObservers(notification::NotificationCenter* notifi
     AddKernelObserver(notificationCenter, RegexToken("^compat_sys_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
     AddKernelObserver(notificationCenter, RegexToken("^syscall_entry_"), std::bind(&LinuxSchedStateBlock::onSysEvent, this, pl::_1));
     AddKernelObserver(notificationCenter, RegexToken("^syscall_exit_"), std::bind(&LinuxSchedStateBlock::onExitSyscall, this, pl::_1));
+    AddKernelObserver(notificationCenter, RegexToken("^compat_syscall_exit_"), std::bind(&LinuxSchedStateBlock::onExitSyscall, this, pl::_1));
 }
 
 void LinuxSchedStateBlock::onSchedProcessExec(const trace::EventValue& event)
