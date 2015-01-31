@@ -33,6 +33,9 @@ typedef std::uint64_t   timestamp_t;
 // Thread id.
 typedef std::uint32_t   thread_t;
 
+// Process id.
+typedef std::uint32_t   process_t;
+
 }
 
 #endif // _TIBEE_BASE_BASICTYPES_HPP
