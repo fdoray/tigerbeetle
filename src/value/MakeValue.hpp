@@ -73,6 +73,12 @@ inline std::unique_ptr<Value> MakeValue(uint64_t value)
     return value_wrapper;
 }
 
+inline std::unique_ptr<Value> MakeValue(const char* value)
+{
+    std::unique_ptr<Value> value_wrapper { new StringValue { value } };
+    return value_wrapper;
+}
+
 inline std::unique_ptr<Value> MakeValue(const std::string& value)
 {
     std::unique_ptr<Value> value_wrapper { new StringValue { value } };
