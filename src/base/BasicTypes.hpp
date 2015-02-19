@@ -18,7 +18,8 @@
 #ifndef _TIBEE_BASE_BASICTYPES_HPP
 #define _TIBEE_BASE_BASICTYPES_HPP
 
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace tibee
 {
@@ -28,13 +29,13 @@ namespace tibee
  */
 
 // Timestamp
-typedef std::uint64_t   timestamp_t;
+typedef uint64_t   timestamp_t;
 
 // Thread id.
-typedef std::uint32_t   thread_t;
+typedef uint32_t   thread_t;
 
 // Process id.
-typedef std::uint32_t   process_t;
+typedef uint32_t   process_t;
 
 }
 

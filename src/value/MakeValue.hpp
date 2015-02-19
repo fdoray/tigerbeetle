@@ -43,6 +43,12 @@ inline std::unique_ptr<Value> MakeValue(quark::Quark value)
     return value_wrapper;
 }
 
+inline std::unique_ptr<Value> MakeValue(bool value)
+{
+    std::unique_ptr<Value> value_wrapper { new BoolValue { value } };
+    return value_wrapper;
+}
+
 inline std::unique_ptr<Value> MakeValue(int32_t value)
 {
     std::unique_ptr<Value> value_wrapper { new IntValue { value } };
