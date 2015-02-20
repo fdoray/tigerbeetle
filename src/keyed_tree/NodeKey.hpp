@@ -18,6 +18,8 @@
 #ifndef _TIBEE_KEYEDTREE_NODEKEY_HPP
 #define _TIBEE_KEYEDTREE_NODEKEY_HPP
 
+#include <boost/functional/hash.hpp>
+#include <functional>
 #include <stddef.h>
 
 namespace tibee
@@ -50,11 +52,26 @@ public:
         return _key != other._key;
     }
 
+    size_t hash() const {
+        return boost::hash_value(_key);
+    }
+
 private:
     size_t _key;
 };
 
-}
-}
+}  // namespace keyed_tree
+}  // namespace tibee
+
+namespace std {
+
+template <>
+struct hash<tibee::keyed_tree::NodeKey> {
+  size_t operator()(const tibee::keyed_tree::NodeKey& key) const {
+    return key.hash();
+  }
+};
+
+}  // namespace std
 
 #endif // _TIBEE_KEYEDTREE_NODEKEY_HPP

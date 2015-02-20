@@ -24,8 +24,8 @@ const char kQuarksServiceName[] = "quarks";
 const char kCurrentStateServiceName[] = "current-state";
 
 const char kCurrentStateNotificationPrefix[] = "current-state";
-const char kCurrentStateAttributeValueField[] = "key";
-const char kCurrentStateAttributeKeyField[] = "value";
+const char kCurrentStateAttributeValueField[] = "v";
+const char kCurrentStateAttributeKeyField[] = "k";
 
 const char kTraceNotificationPrefix[] = "event";
 const char kTimestampNotificationName[] = "ts";
