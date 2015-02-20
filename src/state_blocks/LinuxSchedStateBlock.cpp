@@ -294,6 +294,9 @@ void LinuxSchedStateBlock::onSchedSwitch(const trace::EventValue& event)
     // thread's exec name
     State()->SetAttribute(newCurrentThread, {Q_EXEC_NAME}, MakeValue(nextComm));
 
+    // thread's current cpu
+    State()->SetAttribute(newCurrentThread, {Q_CUR_CPU}, MakeValue(getEventCpu(event)));
+
     // current CPU's current thread
     State()->SetAttribute(currentCpuAttribute, {Q_CUR_THREAD}, MakeValue(nextTid));
 
