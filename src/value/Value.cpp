@@ -28,6 +28,7 @@
 #include <limits>
 
 #include "base/StringUtils.hpp"
+#include "value/Utils.hpp"
 #include "value/ex/InvalidConversion.hpp"
 
 namespace tibee {
@@ -311,7 +312,7 @@ int32_t Value::AsInteger() const
 {
   int32_t value = 0;
   if (!AsInteger(&value))
-    throw ex::InvalidConversion("The value cannot be converted to an integer.");
+    throw ex::InvalidConversion(std::string("The value cannot be converted to an integer. ") + value::ToString(this));
   return value;
 }
 
@@ -319,7 +320,7 @@ uint32_t Value::AsUInteger() const
 {
   uint32_t value = 0;
   if (!AsUInteger(&value))
-    throw ex::InvalidConversion("The value cannot be converted to an unsigned integer.");
+    throw ex::InvalidConversion(std::string("The value cannot be converted to an unsigned integer. ") + value::ToString(this));
   return value;
 }
 
@@ -327,7 +328,7 @@ int64_t Value::AsLong() const
 {
   int64_t value = 0;
   if (!AsLong(&value))
-    throw ex::InvalidConversion("The value cannot be converted to a long.");
+    throw ex::InvalidConversion(std::string("The value cannot be converted to a long. ") + value::ToString(this));
   return value;
 }
 
@@ -335,7 +336,7 @@ uint64_t Value::AsULong() const
 {
   uint64_t value = 0;
   if (!AsULong(&value))
-    throw ex::InvalidConversion("The value cannot be converted to an unsigned long.");
+    throw ex::InvalidConversion(std::string("The value cannot be converted to an unsigned long. ") + value::ToString(this));
   return value;
 }
 
@@ -343,7 +344,7 @@ double Value::AsFloating() const
 {
   double value = 0;
   if (!AsFloating(&value))
-    throw ex::InvalidConversion("The value cannot be converted to a float.");
+    throw ex::InvalidConversion(std::string("The value cannot be converted to a float. ") + value::ToString(this));
   return value;
 }
 
@@ -351,7 +352,7 @@ std::string Value::AsString() const
 {
   std::string value;
   if (!AsString(&value))
-    throw ex::InvalidConversion("The value cannot be converted to a string.");
+    throw ex::InvalidConversion(std::string("The value cannot be converted to a string. ") + value::ToString(this));
   return value;
 }
 
